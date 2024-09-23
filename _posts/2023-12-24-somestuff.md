@@ -102,6 +102,7 @@ This is a common code snippet, without syntax highlight and line number.
 ```bash
 if [ $? -ne 0 ]; then
   echo "The command was not successful.";
+  printf "Do you want to continue? (y/n): ";
   #do the needful / exit
 fi;
 ```
