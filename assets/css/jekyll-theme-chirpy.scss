@@ -7,6 +7,8 @@
 {%- endif -%}
 ';
 
+
+
 /* append your custom style below */
 
 @import url('https://iosevka-webfonts.github.io/iosevka/iosevka.css');
@@ -139,3 +141,12 @@ h1 {
 //     #86a8e7,
 //     #91eae4
 // );
+
+// avoid collapsing toc
+// .is-collapsed {
+//   max-height: none !important;
+// }
+
+// Local Variables:
+// eval: (apheleia-mode -1)
+// End:
