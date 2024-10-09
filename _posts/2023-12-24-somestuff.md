@@ -70,6 +70,69 @@ Moon
 > An example showing the `danger` type prompt.
 {: .prompt-danger }
 
+### custom prompts 
+
+
+
+<div class="box-info" markdown="1">
+<div class="title"> Shakespeare </div>
+To be or not to be. That is a question.
+</div>
+
+<div class="box-tip" markdown="1">
+<div class="title"> Shakespeare </div>
+To be or not to be. That is a question.
+</div>
+
+<div class="box-warning" markdown="1">
+<div class="title"> Shakespeare </div>
+To be or not to be. That is a question.
+</div>
+
+<div class="box-danger" markdown="1">
+<div class="title"> Shakespeare </div>
+> To be or not to be. That is a question.  
+> --- Shakespeare
+
+$$x^2 + y^2 =z^2$$
+</div>
+
+
+<div class="box-info" markdown="1">
+To be or not to be. That is a question.
+</div>
+
+<div class="box-tip" markdown="1">
+To be or not to be. That is a question.
+</div>
+
+<div class="box-warning" markdown="1">
+To be or not to be. That is a question.
+</div>
+
+<div class="box-danger" markdown="1">
+To be or not to be. That is a question.
+</div>
+
+> your text
+{: .prompt-tip .prompt-tip}
+
+
+---
+
+<details class="details-block" markdown="1">
+<summary>some title </summary>
+hi there i am anna
+
+ana the exploreer
+
+</details>
+___
+
+
+
+
+
 ## Tables
 
 | Company                      | Contact          | Country |
@@ -111,3 +174,7 @@ fi;
 
 [^footnote]: The footnote source
 [^fn-nth-2]: The 2nd footnote source
+<div class="YY" markdown="1">
+
+$0
+</div>
