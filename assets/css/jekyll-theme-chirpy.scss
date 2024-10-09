@@ -6,21 +6,22 @@
   .bundle
 {%- endif -%}
 ';
-
-
+@import 'callouts';
+@import 'custom-mixins';
 
 /* append your custom style below */
+// @import url('https://fonts.googleapis.com/css2?family=Alkatra:wght@400..700&display=swap');
 
-@import url('https://iosevka-webfonts.github.io/iosevka/iosevka.css');
+// @import url('https://iosevka-webfonts.github.io/iosevka/iosevka.css');
 // @import url('https://cdn.xeiaso.net/static/css/iosevka/family.css');
-@import url(https://fonts.bunny.net/css?family=alkatra:400);
-@import url(https://fonts.bunny.net/css?family=alkatra:400|bilbo-swash-caps:400);
+// @import url(https://fonts.bunny.net/css?family=alkatra:400);
+// @import url(https://fonts.bunny.net/css?family=alkatra:400|bilbo-swash-caps:400);
 
 pre,
 code,
 kbd,
 samp {
-    font-family: 'Iosevka Web', monospace;
+    font-family: 'Iosevka Nerd Font', monospace;
 }
 
 #sidebar .site-title a {
@@ -36,89 +37,112 @@ h1 {
     font-family: 'Alkatra', serif;
 }
 
-/* Custom styles for dark mode */
+html {
+    font-size: 16px;
 
-/* Custom styles for dark mode */
-/* Custom styles for dark mode */
+    @media (prefers-color-scheme: light) {
+        &:not([data-mode]),
+        &[data-mode='light'] {
+            @include custom-light-scheme;
+        }
 
-@media (prefers-color-scheme: dark) {
-    html {
+        &[data-mode='dark'] {
+            @include custom-dark-scheme;
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
         &:not([data-mode]),
         &[data-mode='dark'] {
-            --language-border-color: #2b2b32;
-            --highlight-bg-color: #121216;
+            @include custom-dark-scheme;
+        }
 
-            %code-snippet-bg {
-                // background-color: #f0000f;
-            }
-
-            .highlight,
-            .highlight .w {
-                color: #d0d0d0;
-                background-color: #121216;
-            }
-
-            .highlight .err {
-                color: #121216;
-                background-color: #ac4142;
-            }
-
-            .highlight .gh {
-                color: #6a9fb5;
-                background-color: #121216;
-                font-weight: bold;
-            }
-
-            .highlight .s,
-            .highlight .sb,
-            .highlight .sc,
-            .highlight .dl,
-            .highlight .sd,
-            .highlight .s2,
-            .highlight .sh,
-            .highlight .sx,
-            .highlight .s1 {
-                color: #ffa959;
-            }
-
-            --text-color: rgb(219, 219, 238);
-            --heading-color: rgb(219, 219, 238);
-            --main-bg: rgb(25, 25, 29);
-            --topbar-bg: rgb(25, 25, 29, 0.64);
-
-            --text-muted-color: #90909f;
-            --blockquote-border-color: rgb(60, 60, 66);
-            --blockquote-text-color: #7d858e;
-            --button-bg: #1b1b1f;
-            --card-header-bg: #26262b;
-
-            --site-title-color: #828296;
-            --site-subtitle-color: #828296;
-            --sidebar-active-color: rgb(229, 229, 247);
-
-            // --sidebar-bg: #16161a;
-            --sidebar-bg: #131317;
-
-            --sidebar-border-color: #2b2b32;
-            --sidebar-muted-color: var(--site-subtitle-color);
-            --sidebar-hover-bg: #232328;
-            --sidebar-btn-bg: #202026;
-            --sidebar-btn-color: var(--site-subtitle-color);
-
-            --tb-odd-bg: #1f1f24; /* odd rows of the posts' table */
-            --tb-even-bg: rgb(26, 26, 30); /* even rows of the posts' table */
-
-            --card-bg: #1b1b1f;
-            --card-hovor-bg: #494955;
-            --card-shadow: rgb(16, 16, 18, 0.99) 0 6px 18px 0;
-
-            .post-preview {
-                border: 1px solid rgba(69, 69, 80, 0.175);
-                background: #1b1b1f;
-            }
+        &[data-mode='light'] {
+            @include custom-light-scheme;
         }
     }
 }
+
+
+
+// @media (prefers-color-scheme: dark) {
+//     html {
+//         &:not([data-mode]),
+//         &[data-mode='dark'] {
+//             --language-border-color: #2b2b32;
+//             --highlight-bg-color: #121216;
+
+//             %code-snippet-bg {
+//                 // background-color: #f0000f;
+//             }
+
+//             .highlight,
+//             .highlight .w {
+//                 color: #d0d0d0;
+//                 background-color: #121216;
+//             }
+
+//             .highlight .err {
+//                 color: #121216;
+//                 background-color: #ac4142;
+//             }
+
+//             .highlight .gh {
+//                 color: #6a9fb5;
+//                 background-color: #121216;
+//                 font-weight: bold;
+//             }
+
+//             .highlight .s,
+//             .highlight .sb,
+//             .highlight .sc,
+//             .highlight .dl,
+//             .highlight .sd,
+//             .highlight .s2,
+//             .highlight .sh,
+//             .highlight .sx,
+//             .highlight .s1 {
+//                 color: #ffa959;
+//             }
+
+//             --text-color: rgb(219, 219, 238);
+//             --heading-color: rgb(219, 219, 238);
+//             --main-bg: rgb(25, 25, 29);
+//             --topbar-bg: rgb(25, 25, 29, 0.64);
+
+//             --text-muted-color: #90909f;
+//             --blockquote-border-color: rgb(60, 60, 66);
+//             --blockquote-text-color: #7d858e;
+//             --button-bg: #1b1b1f;
+//             --card-header-bg: #26262b;
+
+//             --site-title-color: #828296;
+//             --site-subtitle-color: #828296;
+//             --sidebar-active-color: rgb(229, 229, 247);
+
+//             // --sidebar-bg: #16161a;
+//             --sidebar-bg: #131317;
+
+//             --sidebar-border-color: #2b2b32;
+//             --sidebar-muted-color: var(--site-subtitle-color);
+//             --sidebar-hover-bg: #232328;
+//             --sidebar-btn-bg: #202026;
+//             --sidebar-btn-color: var(--site-subtitle-color);
+
+//             --tb-odd-bg: #1f1f24; /* odd rows of the posts' table */
+//             --tb-even-bg: rgb(26, 26, 30); /* even rows of the posts' table */
+
+//             --card-bg: #1b1b1f;
+//             --card-hovor-bg: #494955;
+//             --card-shadow: rgb(16, 16, 18, 0.99) 0 6px 18px 0;
+
+//             .post-preview {
+//                 border: 1px solid rgba(69, 69, 80, 0.175);
+//                 background: #1b1b1f;
+//             }
+//         }
+//     }
+// }
 
 // .post .post-content img {
 //     border-radius: 0.6rem;
