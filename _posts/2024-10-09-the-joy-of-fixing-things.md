@@ -11,8 +11,7 @@ image:
   alt: Photo by Suhyeon Choi
 ---
 
-There's something incredibly satisfying about bringing life back to something
-that’s worn down. I’ve had this pair of wired in-ear headphones that I bought
+So, I’ve had this pair of wired in-ear headphones that I bought
 back in my university days. They weren’t expensive, but they’ve been a trusty companion over the years—keeping me company through late nights study sessions to watching a Kurzgesagt's videos while enjoying a meal. They’ve become a little companion of mine.
 
 Over time, I picked up newer, fancier, more expensive Bluetooth buds. But, every now and then, I’d reach for those old wired ones. There was something about their punchy bass that just hit differently. But as with anything, time started to take its toll. The rubber casing on the wire wore off, leaving parts of the cable exposed near the mic housing. For the past month, every time I picked them up, I found myself thinking, "This is it—they’ll probably stop working this time." And yet, each time, they surprised me by still working.
