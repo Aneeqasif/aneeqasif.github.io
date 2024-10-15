@@ -60,7 +60,7 @@ webmaster_verifications:
 # Web Analytics Settings
 analytics:
   google:
-    id: wfAK53L8Ujcvs0RSNOlRX5btYyiIEakiGsQzjYSTyZM # fill in your Google Analytics ID
+    id: G-G4EPHVQPD8 # fill in your Google Analytics ID
   goatcounter:
     id: aneeqsblog # fill in your GoatCounter ID
   umami:
@@ -76,7 +76,7 @@ analytics:
 
 # Page views settings
 pageviews:
-  provider: goatcounter
+  provider: google
 
 # Prefer color scheme setting.
 #
