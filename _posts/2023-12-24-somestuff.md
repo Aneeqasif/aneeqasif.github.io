@@ -7,6 +7,20 @@ tags: [bee]
 
 ## Headings
 
+<iframe src="/assets/big.mp4" width="100%" height='800'></iframe>
+
+
+<iframe
+  src="https://jupyterlite.github.io/demo/repl/index.html?kernel=python&theme=JupyterLab Dark&code=
+import numpy as np %0A
+import matplotlib.pyplot as plt %0A
+a = np.arange(15).reshape(3, 5) %0A
+a&code=plt.imshow(a) %0A
+plt.show()"
+  width="100%"
+  height="600px"
+></iframe>
+
 # H1 - heading
 {: .mt-4 .mb-0 }
 
