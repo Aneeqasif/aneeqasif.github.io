@@ -4,8 +4,8 @@ date: 2024-09-10 +0500
 toc: true
 comments: true
 math: true
-categories: 
-tags: 
+categories: personal
+tags: reflections 
 image:
   path: /assets/img/workstation-grey.jpg
   alt: Photo by Suhyeon Choi

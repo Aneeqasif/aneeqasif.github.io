@@ -14,7 +14,7 @@
       in {
         devShell = (pkgs.buildFHSUserEnv {
           name = "jekyll-env";
-          targetPkgs = pkgs: with pkgs; [  gcc gnumake curl ruby zlib dart-sass];
+          targetPkgs = pkgs: with pkgs; [ mesa gcc gnumake curl ruby zlib dart-sass];
           runScript = "zsh";
         }).env;
 
