@@ -9,6 +9,7 @@ tags: reflections
 image:
   path: /assets/img/workstation-grey.jpg
   alt: Photo by Suhyeon Choi
+  lqip: /assets/img/workstation-grey-lqip.webp
 ---
 
 So, I’ve had this pair of wired in-ear headphones that I bought

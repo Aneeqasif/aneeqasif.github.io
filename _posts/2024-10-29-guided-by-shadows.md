@@ -23,9 +23,7 @@ It was the last stretch of my final semester in uni—the most chaotic, high-pre
 
 Every time he asked, I dodged him, again and again, with excuses about assignments, exams, or simply not having the time. But one day, when he brought it up again, I couldn’t really argue. Maybe I was finally feeling the weight of it myself, or something else, I gave in and said, “Fine, just bring the bike, and we’ll see.”
 
-So we didn’t have a plan. But that didn’t seem to matter. When he pulled up, I hopped on, we stopped by an ATM and grabbed some cash. As we started driving away from campus, reality hit us: 
-
-“Where exactly were we going?” I asked, half-laughing. Junaid glanced back, “Where do you want to go?”
+So we didn’t have a plan. But that didn’t seem to matter. When he pulled up, I hopped on, we stopped by an ATM and grabbed some cash. As we started driving away from campus, reality hit us: “Where exactly were we going?” I asked, half-laughing. Junaid glanced back, “Where do you want to go?”
 
 For some reason, one place—a hill station—came to mind immediately. It was a crazy idea—way too far for a one-day trip. We’d have to spend most of the day just driving there and back. But the thought was there, daring us to act on it. The more ridiculous it sounded, the more it felt like the right answer.
 
