@@ -542,3 +542,7 @@ This architecture enables:
 - Maintainable and scalable codebase
 
 The theme provides extensive customization hooks while maintaining upgrade compatibility, making it suitable for both simple blogs and complex sites requiring custom functionality.
+
+---
+
+*Documentation last updated: August 31, 2025*

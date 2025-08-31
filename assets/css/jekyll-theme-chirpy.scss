@@ -7,8 +7,8 @@
   .bundle
 {%- endif -%}
 ';
-@import 'callouts';
-@import 'custom-mixins';
+@use 'callouts';
+@use 'custom-mixins';
 
 /* append your custom style below */
 @import url('https://fonts.googleapis.com/css2?family=Alkatra:wght@400..700&display=swap');
@@ -105,22 +105,22 @@ html {
     @media (prefers-color-scheme: light) {
         &:not([data-mode]),
         &[data-mode='light'] {
-            @include custom-light-scheme;
+            @include custom-mixins.custom-light-scheme;
         }
 
         &[data-mode='dark'] {
-            @include custom-dark-scheme;
+            @include custom-mixins.custom-dark-scheme;
         }
     }
 
     @media (prefers-color-scheme: dark) {
         &:not([data-mode]),
         &[data-mode='dark'] {
-            @include custom-dark-scheme;
+            @include custom-mixins.custom-dark-scheme;
         }
 
         &[data-mode='light'] {
-            @include custom-light-scheme;
+            @include custom-mixins.custom-light-scheme;
         }
     }
 }

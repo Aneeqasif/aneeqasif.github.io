@@ -60,17 +60,6 @@
     - [Custom Plugins](#custom-plugins)
     - [Data Files](#data-files)
   - [Best Practices Summary](#best-practices-summary)
-  - [Development Workflow](#development-workflow)
-    - [Local Development](#local-development)
-    - [Testing Customizations](#testing-customizations)
-    - [Build Process](#build-process)
-  - [Troubleshooting](#troubleshooting)
-    - [Common Issues and Solutions](#common-issues-and-solutions)
-    - [Debug Mode](#debug-mode)
-  - [Migration and Upgrades](#migration-and-upgrades)
-    - [Preparing for Theme Updates](#preparing-for-theme-updates)
-    - [After Theme Upgrades](#after-theme-upgrades)
-  - [Summary](#summary)
 
 ## Introduction
 
@@ -1179,3 +1168,7 @@ The theme's architecture supports extensive customization while preserving upgra
 For technical details about the theme's architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 Happy customizing! 🎨
+
+---
+
+*Documentation last updated: August 31, 2025*
