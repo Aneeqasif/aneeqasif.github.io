@@ -1,62 +1,19 @@
 <!-- DuckDB Interactive Blocks JavaScript -->
-<script>
-// DuckDB Interactive Functionality - Using simple script tag approach
-(function() {
+<script type="module">
+    // Use a pinned, ESM-friendly distro for stability on GitHub Pages
+    // latest is fine too, but pinning reduces breakage across deploys
+    import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/+esm';
+
     let db = null;
     let conn = null;
     let ddlBlocks = {}; // Store DDL block states
     let connections = {}; // Store isolated connections for each DDL block
     let isInitializing = false;
     let isInitialized = false;
-    let duckdbModule = null;
 
     // Make these globally available
     window.ddlBlocks = ddlBlocks;
     window.connections = connections;
-
-    // Load DuckDB dynamically
-    async function loadDuckDB() {
-        if (duckdbModule) return duckdbModule;
-        
-        try {
-            console.log('Loading DuckDB WASM module...');
-            
-            // Try dynamic import first
-            duckdbModule = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/+esm');
-            console.log('DuckDB loaded via ES modules');
-            return duckdbModule;
-            
-        } catch (error) {
-            console.log('ES modules failed, falling back to script tag approach...', error);
-            
-            return new Promise((resolve, reject) => {
-                // Create script element for DuckDB
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/dist/duckdb-browser-eh.js';
-                script.onload = () => {
-                    console.log('DuckDB script loaded, waiting for module...');
-                    
-                    // Poll for duckdb global variable
-                    let attempts = 0;
-                    const maxAttempts = 50;
-                    const checkInterval = setInterval(() => {
-                        attempts++;
-                        if (typeof window.duckdb !== 'undefined') {
-                            clearInterval(checkInterval);
-                            duckdbModule = window.duckdb;
-                            console.log('DuckDB module ready via script tag');
-                            resolve(duckdbModule);
-                        } else if (attempts >= maxAttempts) {
-                            clearInterval(checkInterval);
-                            reject(new Error('DuckDB module failed to load after 5 seconds'));
-                        }
-                    }, 100);
-                };
-                script.onerror = () => reject(new Error('Failed to load DuckDB script'));
-                document.head.appendChild(script);
-            });
-        }
-    }
 
     // Initialize DuckDB
     async function initDuckDB() {
@@ -75,20 +32,41 @@
         try {
             isInitializing = true;
             console.log('Initializing DuckDB...');
-            
-            // Load DuckDB module
-            const duckdb = await loadDuckDB();
-            console.log('DuckDB module loaded:', duckdb);
-            
             const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
-            const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+            // Prefer pthread bundle when available, but gracefully fall back
+            let bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+            console.log('Selected DuckDB bundle:', bundle?.bundleName || 'unknown');
+
+            // Some environments (e.g., GitHub Pages) are not cross-origin isolated,
+            // so pthreads won't work. Attempt a fallback to the "eh" (no threads) bundle.
+            const isCOI = (self.crossOriginIsolated === true);
+            if (!isCOI && bundle?.bundleName && /-eh\b/.test(bundle.bundleName) === false) {
+                const noThread = JSDELIVR_BUNDLES.find(b => /-eh\b/.test(b.bundleName));
+                if (noThread) {
+                    console.log('Switching to no-threads bundle due to lack of crossOriginIsolated');
+                    bundle = noThread;
+                }
+            }
+
             const worker_url = URL.createObjectURL(
                 new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' })
             );
             const worker = new Worker(worker_url);
             const logger = new duckdb.ConsoleLogger();
             db = new duckdb.AsyncDuckDB(logger, worker);
-            await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+            await db.instantiate(bundle.mainModule, bundle.pthreadWorker).catch(async (e) => {
+                console.warn('DuckDB instantiate failed, trying no-threads fallback...', e);
+                const noThread = JSDELIVR_BUNDLES.find(b => /-eh\b/.test(b.bundleName));
+                if (!noThread) throw e;
+                // Recreate worker with the fallback
+                try { worker.terminate(); } catch {}
+                URL.revokeObjectURL(worker_url);
+                const worker_url2 = URL.createObjectURL(new Blob([`importScripts("${noThread.mainWorker}");`], { type: 'text/javascript' }));
+                const worker2 = new Worker(worker_url2);
+                db = new duckdb.AsyncDuckDB(logger, worker2);
+                await db.instantiate(noThread.mainModule);
+                URL.revokeObjectURL(worker_url2);
+            });
             URL.revokeObjectURL(worker_url);
             
             conn = await db.connect();
@@ -103,7 +81,9 @@
         } finally {
             isInitializing = false;
         }
-    }    // Toggle DDL block expansion
+    }
+
+    // Toggle DDL block expansion
     window.toggleDdlBlock = function(blockId) {
         const content = document.getElementById(`content-${blockId}`);
         const icon = document.querySelector(`#block-${blockId} .ddl-expand-icon`);
@@ -423,30 +403,5 @@
     setTimeout(function() {
         console.log('=== DuckDB Debug Info ===');
         window.debugDuckDB();
-        
-        // Verify functions are attached to window
-        console.log('Functions available:');
-        console.log('- toggleDdlBlock:', typeof window.toggleDdlBlock);
-        console.log('- runDqlQuery:', typeof window.runDqlQuery);
-        console.log('- resetDqlQuery:', typeof window.resetDqlQuery);
-        console.log('- executeDdlBlock:', typeof window.executeDdlBlock);
-        
-        // Test DuckDB module availability
-        console.log('DuckDB module:', typeof duckdbModule);
-        console.log('Global duckdb:', typeof window.duckdb);
-        
-        if (typeof window.toggleDdlBlock === 'undefined') {
-            console.error('❌ toggleDdlBlock is not defined on window object!');
-        } else {
-            console.log('✅ toggleDdlBlock is properly defined');
-        }
-        
-        if (typeof window.runDqlQuery === 'undefined') {
-            console.error('❌ runDqlQuery is not defined on window object!');
-        } else {
-            console.log('✅ runDqlQuery is properly defined');
-        }
     }, 2000);
-    
-    })(); // Close the IIFE
 </script>
