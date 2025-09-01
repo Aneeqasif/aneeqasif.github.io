@@ -1,7 +1,22 @@
 <!-- DuckDB Interactive Blocks JavaScript -->
-<script type="module">
-    import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/+esm';
-
+<script>
+// Load DuckDB WASM using dynamic import for better GitHub Pages compatibility
+window.duckDBPromise = (async function() {
+    try {
+        console.log('Loading DuckDB WASM...');
+        const duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/+esm');
+        window.duckdb = duckdb;
+        console.log('DuckDB WASM loaded successfully');
+        return duckdb;
+    } catch (error) {
+        console.error('Failed to load DuckDB WASM:', error);
+        throw error;
+    }
+})();
+</script>
+<script>
+// DuckDB Interactive Functionality
+(function() {
     let db = null;
     let conn = null;
     let ddlBlocks = {}; // Store DDL block states
@@ -30,6 +45,10 @@
         try {
             isInitializing = true;
             console.log('Initializing DuckDB...');
+            
+            // Wait for DuckDB to be loaded
+            const duckdb = await window.duckDBPromise;
+            
             const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
             const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
             const worker_url = URL.createObjectURL(
@@ -376,4 +395,6 @@
         console.log('=== DuckDB Debug Info ===');
         window.debugDuckDB();
     }, 2000);
+    
+    })(); // Close the IIFE
 </script>
