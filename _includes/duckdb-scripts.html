@@ -315,9 +315,18 @@
             // Native DQL block - reset contentEditable code
             const codeBlock = document.querySelector(`#block-${blockId} code`);
             if (codeBlock && originalContent) {
-                // Simply restore the content (Rouge highlighting is applied by Jekyll)
-                codeBlock.textContent = originalContent;
+                // Store original highlighted HTML if not already stored
+                if (!codeBlock.dataset.originalHtml) {
+                    codeBlock.dataset.originalHtml = codeBlock.innerHTML;
+                }
+                
+                // Restore the original highlighted HTML instead of plain text
+                codeBlock.innerHTML = codeBlock.dataset.originalHtml;
                 editor.value = originalContent;
+                
+                // Re-enable editing after reset
+                codeBlock.contentEditable = true;
+                codeBlock.style.outline = 'none';
             }
         } else {
             // Regular DQL block - reset textarea

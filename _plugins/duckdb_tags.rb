@@ -273,6 +273,9 @@ module Jekyll
             const hiddenEditor = document.getElementById('editor-#{@params['id']}');
             
             if (codeBlock && hiddenEditor) {
+              // Store original highlighted HTML for reset functionality
+              codeBlock.dataset.originalHtml = codeBlock.innerHTML;
+              
               codeBlock.contentEditable = true;
               codeBlock.style.outline = 'none';
               
