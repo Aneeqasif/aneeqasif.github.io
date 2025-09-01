@@ -1,407 +1,206 @@
-<!-- DuckDB Interactive Blocks JavaScript -->
-<script type="module">
-    // Use a pinned, ESM-friendly distro for stability on GitHub Pages
-    // latest is fine too, but pinning reduces breakage across deploys
-    import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/+esm';
+<!-- DuckDB Interactive Blocks JavaScript (classic script with dynamic import) -->
+<script>
+{% raw %}
+(() => {
+  // State
+  let db = null;
+  let conn = null;
+  let isInitializing = false;
+  let isInitialized = false;
+  const ddlBlocks = (window.ddlBlocks = window.ddlBlocks || {});
+  const connections = (window.connections = window.connections || {});
 
-    let db = null;
-    let conn = null;
-    let ddlBlocks = {}; // Store DDL block states
-    let connections = {}; // Store isolated connections for each DDL block
-    let isInitializing = false;
-    let isInitialized = false;
+  // Utils
+  const escapeHtml = (text) => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+  const autoResizeTextarea = (ta) => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(60, ta.scrollHeight) + 'px';
+  };
+  const initializeAutoResize = () => {
+    document.querySelectorAll('.dql-editor.auto-resize').forEach((editor) => {
+      autoResizeTextarea(editor);
+      editor.addEventListener('input', function () { autoResizeTextarea(this); });
+      editor.addEventListener('paste', function () { setTimeout(() => autoResizeTextarea(this), 0); });
+    });
+  };
 
-    // Make these globally available
-    window.ddlBlocks = ddlBlocks;
-    window.connections = connections;
+  // Globals used by onclick
+  window.toggleDdlBlock = function (blockId) {
+    const content = document.getElementById(`content-${blockId}`);
+    const icon = document.querySelector(`#block-${blockId} .ddl-expand-icon`);
+    if (!content || !icon) return;
+    content.classList.toggle('expanded');
+    icon.classList.toggle('expanded');
+  };
 
-    // Initialize DuckDB
-    async function initDuckDB() {
-        if (isInitialized) {
-            return { db, conn };
-        }
-        
-        if (isInitializing) {
-            // Wait for current initialization to complete
-            while (isInitializing) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-            return { db, conn };
-        }
-        
-        try {
-            isInitializing = true;
-            console.log('Initializing DuckDB...');
-            const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
-            // Prefer pthread bundle when available, but gracefully fall back
-            let bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
-            console.log('Selected DuckDB bundle:', bundle?.bundleName || 'unknown');
-
-            // Some environments (e.g., GitHub Pages) are not cross-origin isolated,
-            // so pthreads won't work. Attempt a fallback to the "eh" (no threads) bundle.
-            const isCOI = (self.crossOriginIsolated === true);
-            if (!isCOI && bundle?.bundleName && /-eh\b/.test(bundle.bundleName) === false) {
-                const noThread = JSDELIVR_BUNDLES.find(b => /-eh\b/.test(b.bundleName));
-                if (noThread) {
-                    console.log('Switching to no-threads bundle due to lack of crossOriginIsolated');
-                    bundle = noThread;
-                }
-            }
-
-            const worker_url = URL.createObjectURL(
-                new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' })
-            );
-            const worker = new Worker(worker_url);
-            const logger = new duckdb.ConsoleLogger();
-            db = new duckdb.AsyncDuckDB(logger, worker);
-            await db.instantiate(bundle.mainModule, bundle.pthreadWorker).catch(async (e) => {
-                console.warn('DuckDB instantiate failed, trying no-threads fallback...', e);
-                const noThread = JSDELIVR_BUNDLES.find(b => /-eh\b/.test(b.bundleName));
-                if (!noThread) throw e;
-                // Recreate worker with the fallback
-                try { worker.terminate(); } catch {}
-                URL.revokeObjectURL(worker_url);
-                const worker_url2 = URL.createObjectURL(new Blob([`importScripts("${noThread.mainWorker}");`], { type: 'text/javascript' }));
-                const worker2 = new Worker(worker_url2);
-                db = new duckdb.AsyncDuckDB(logger, worker2);
-                await db.instantiate(noThread.mainModule);
-                URL.revokeObjectURL(worker_url2);
-            });
-            URL.revokeObjectURL(worker_url);
-            
-            conn = await db.connect();
-            isInitialized = true;
-            
-            console.log('DuckDB ready! 🎉');
-            return { db, conn };
-            
-        } catch (error) {
-            console.error('Failed to initialize DuckDB:', error);
-            throw error;
-        } finally {
-            isInitializing = false;
-        }
+  const notReady = (msg) => {
+    console.warn(msg || 'DuckDB is still loading...');
+    alert('DuckDB is still loading...');
+  };
+  window.executeDdlBlock = window.executeDdlBlock || function () { notReady(); };
+  window.runDqlQuery    = window.runDqlQuery    || function () { notReady(); };
+  window.resetDqlQuery  = window.resetDqlQuery  || function (blockId) {
+    const editor = document.getElementById(`editor-${blockId}`);
+    const resultsDiv = document.getElementById(`results-${blockId}`);
+    if (editor) {
+      const original = editor.getAttribute('data-original-content');
+      editor.value = original || '';
+      if (editor.classList && editor.classList.contains('auto-resize')) autoResizeTextarea(editor);
     }
+    if (resultsDiv) resultsDiv.style.display = 'none';
+  };
 
-    // Toggle DDL block expansion
-    window.toggleDdlBlock = function(blockId) {
-        const content = document.getElementById(`content-${blockId}`);
-        const icon = document.querySelector(`#block-${blockId} .ddl-expand-icon`);
-        
-        if (content.classList.contains('expanded')) {
-            content.classList.remove('expanded');
-            icon.classList.remove('expanded');
-        } else {
-            content.classList.add('expanded');
-            icon.classList.add('expanded');
-        }
-    };
+  async function initDuckDB() {
+    if (isInitialized) return { db, conn };
+    if (isInitializing) {
+      while (isInitializing) { await new Promise(r => setTimeout(r, 100)); }
+      return { db, conn };
+    }
+    isInitializing = true;
+    try {
+      // Load module from CDN (works on GH Pages); pin version for stability
+      const duckdbMod = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/+esm');
+      const bundles = duckdbMod.getJsDelivrBundles();
+      const bundle = await duckdbMod.selectBundle(bundles);
+      const worker_url = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' }));
+      const worker = new Worker(worker_url);
+      const logger = new duckdbMod.ConsoleLogger();
+      const adb = new duckdbMod.AsyncDuckDB(logger, worker);
+      await adb.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      URL.revokeObjectURL(worker_url);
+      db = adb;
+      conn = await db.connect();
+      isInitialized = true;
 
-    // Execute DDL block
-    window.executeDdlBlock = async function(blockId) {
-        console.log('Executing DDL block:', blockId);
-        console.log('Available DDL blocks:', Object.keys(ddlBlocks));
-        
-        // Ensure DuckDB is initialized
-        const { db: dbInstance, conn: connInstance } = await initDuckDB();
-        if (!dbInstance) {
-            throw new Error('DuckDB initialization failed');
-        }
-        
+      // Replace stubs with real implementations
+      window.executeDdlBlock = async function (blockId) {
         const editor = document.getElementById(`editor-${blockId}`);
-        if (!editor) {
-            throw new Error(`DDL block editor '${blockId}' not found`);
-        }
-        
+        if (!editor) throw new Error(`DDL editor '${blockId}' not found`);
         const sql = editor.value.trim();
-        if (!sql) {
-            throw new Error('DDL block is empty');
-        }
-        
-        // Ensure DDL block is registered (fallback registration)
-        if (!ddlBlocks[blockId]) {
-            console.log('DDL block not registered, creating entry:', blockId);
-            ddlBlocks[blockId] = {
-                executed: false,
-                title: blockId,
-                sql: sql
-            };
-        }
-        
-        // Create a new isolated connection for this DDL block
-        const ddlConnection = await dbInstance.connect();
-        connections[blockId] = ddlConnection;
-        
-        // Execute DDL statements
-        await ddlConnection.query(sql);
-        
+        if (!sql) throw new Error('DDL block is empty');
+
+        if (!ddlBlocks[blockId]) ddlBlocks[blockId] = { executed: false, title: blockId, sql };
+        const ddlConn = await db.connect();
+        connections[blockId] = ddlConn;
+        await ddlConn.query(sql);
         ddlBlocks[blockId].executed = true;
         ddlBlocks[blockId].sql = sql;
-        
-        // Update status
-        const statusElement = document.getElementById(`status-${blockId}`);
-        if (statusElement) {
-            statusElement.textContent = 'Executed';
-            statusElement.classList.add('executed');
-        }
-        
-        return ddlConnection;
-    };
+        const status = document.getElementById(`status-${blockId}`);
+        if (status) { status.textContent = 'Executed'; status.classList.add('executed'); }
+        return ddlConn;
+      };
 
-    // Reset DQL query to original content
-    window.resetDqlQuery = function(blockId) {
-        const editor = document.getElementById(`editor-${blockId}`);
-        const resultsDiv = document.getElementById(`results-${blockId}`);
-        
-        if (editor) {
-            const originalContent = editor.getAttribute('data-original-content');
-            editor.value = originalContent || '';
-            
-            // Hide results
-            if (resultsDiv) {
-                resultsDiv.style.display = 'none';
-            }
-            
-            // Trigger resize
-            autoResizeTextarea(editor);
-        }
-    };
-
-    // Auto-resize textarea to fit content
-    function autoResizeTextarea(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.max(60, textarea.scrollHeight) + 'px';
-    }
-
-    // Initialize auto-resize for DQL editors
-    function initializeAutoResize() {
-        const dqlEditors = document.querySelectorAll('.dql-editor.auto-resize');
-        dqlEditors.forEach(editor => {
-            // Initial resize
-            autoResizeTextarea(editor);
-            
-            // Resize on input
-            editor.addEventListener('input', function() {
-                autoResizeTextarea(this);
-            });
-            
-            // Resize on paste
-            editor.addEventListener('paste', function() {
-                setTimeout(() => autoResizeTextarea(this), 0);
-            });
-        });
-    }
-
-    // Run DQL query
-    window.runDqlQuery = async function(blockId) {
+      window.runDqlQuery = async function (blockId) {
         const editor = document.getElementById(`editor-${blockId}`);
         const resultsDiv = document.getElementById(`results-${blockId}`);
         const resultsContent = document.getElementById(`results-content-${blockId}`);
         const runButton = document.querySelector(`#block-${blockId} .run-button, #block-${blockId} .dql-run-btn`);
         const blockDiv = document.getElementById(`block-${blockId}`);
-        
-        // Get SQL from either textarea or contentEditable code block
-        let sql;
-        if (editor.style.display === 'none') {
-            // Native DQL block - get from contentEditable code
-            const codeBlock = document.querySelector(`#block-${blockId} code`);
-            sql = codeBlock ? codeBlock.textContent.trim() : '';
-        } else {
-            // Regular DQL block - get from textarea
-            sql = editor.value.trim();
+
+        let sql = '';
+        if (editor && editor.style.display === 'none') {
+          const codeBlock = document.querySelector(`#block-${blockId} code`);
+          sql = codeBlock ? codeBlock.textContent.trim() : '';
+        } else if (editor) {
+          sql = editor.value.trim();
         }
-        
-        if (!sql) {
-            alert('Please enter a DQL query');
-            return;
-        }
-        
-        // Show loading state
-        runButton.disabled = true;
-        runButton.textContent = runButton.classList.contains('dql-run-btn') ? '⏳' : 'Running...';
-        resultsDiv.style.display = 'block';
-        resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
-        
+        if (!sql) { alert('Please enter a DQL query'); return; }
+
+        if (runButton) { runButton.disabled = true; runButton.textContent = runButton?.classList?.contains('dql-run-btn') ? '⏳' : 'Running...'; }
+        if (resultsDiv) resultsDiv.style.display = 'block';
+        if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
+
         try {
-            // Ensure DuckDB is initialized first
-            const { db: dbInstance, conn: connInstance } = await initDuckDB();
-            if (!dbInstance || !connInstance) {
-                throw new Error('Failed to initialize DuckDB');
+          let queryConn = conn;
+          const dependencyId = blockDiv ? blockDiv.getAttribute('data-depends') : '';
+          if (dependencyId) {
+            if (!ddlBlocks[dependencyId]?.executed) {
+              if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
+              await window.executeDdlBlock(dependencyId);
             }
-            
-            let queryConnection = connInstance; // Default connection
-            
-            // Check if this query depends on a DDL block
-            const dependencyId = blockDiv.getAttribute('data-depends');
-            if (dependencyId && dependencyId !== '') {
-                console.log('Using DDL dependency:', dependencyId);
-                console.log('Available DDL blocks:', Object.keys(ddlBlocks));
-                console.log('Available connections:', Object.keys(connections));
-                
-                // Execute DDL block if not already executed
-                if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
-                    console.log('Executing DDL block because it is not executed yet');
-                    resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
-                    
-                    try {
-                        await window.executeDdlBlock(dependencyId);
-                    } catch (ddlError) {
-                        console.error('Error executing DDL block:', ddlError);
-                        throw new Error(`Failed to execute DDL block: ${ddlError.message}`);
-                    }
-                }
-                
-                // Use the DDL block's connection
-                queryConnection = connections[dependencyId];
-                console.log('Using DDL connection:', !!queryConnection);
-                
-                if (!queryConnection) {
-                    throw new Error(`No connection found for DDL block '${dependencyId}'`);
-                }
+            queryConn = connections[dependencyId];
+            if (!queryConn) throw new Error(`No connection found for DDL block '${dependencyId}'`);
+          }
+
+          const outputFormatEl = document.querySelector(`input[name="output-${blockId}"]:checked`);
+          const outputFormat = outputFormatEl ? outputFormatEl.value : 'table';
+          const result = await queryConn.query(sql);
+          let output = '';
+
+          if (outputFormat === 'table') {
+            if (result.numRows === 0) {
+              output = '<div style="color:#718096;font-style:italic;">Query executed successfully. No rows returned.</div>';
             } else {
-                console.log('Running as standalone query');
-            }
-            
-            // Update loading message for actual query execution
-            resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
-            
-            // Get selected output format
-            const outputFormat = document.querySelector(`input[name="output-${blockId}"]:checked`).value;
-            console.log('Output format:', outputFormat);
-            
-            const result = await queryConnection.query(sql);
-            console.log('Query result:', result);
-            
-            let output = '';
-            
-            if (outputFormat === 'table') {
-                if (result.numRows === 0) {
-                    output = '<div style="color: #718096; font-style: italic;">Query executed successfully. No rows returned.</div>';
-                } else {
-                    const columns = result.schema.fields.map(field => field.name);
-                    const rows = result.toArray();
-                    
-                    let tableHtml = '<table><thead><tr>';
-                    columns.forEach(col => {
-                        tableHtml += `<th>${escapeHtml(col)}</th>`;
-                    });
-                    tableHtml += '</tr></thead><tbody>';
-                    
-                    rows.forEach(row => {
-                        tableHtml += '<tr>';
-                        columns.forEach(col => {
-                            const cellValue = row[col] === null ? 'NULL' : String(row[col]);
-                            tableHtml += `<td>${escapeHtml(cellValue)}</td>`;
-                        });
-                        tableHtml += '</tr>';
-                    });
-                    
-                    tableHtml += '</tbody></table>';
-                    tableHtml += `<div style="margin-top: 10px; font-size: 11px; color: #718096;">Returned ${result.numRows} row(s)</div>`;
-                    
-                    output = tableHtml;
-                }
-            } else if (outputFormat === 'json') {
-                const result = await queryConnection.query(sql);
-                const jsonData = result.toArray();
-                output = `<div class="raw-output">${JSON.stringify(jsonData, null, 2)}</div>`;
-            } else if (outputFormat === 'csv') {
-                const result = await queryConnection.query(sql);
-                const columns = result.schema.fields.map(field => field.name);
-                const rows = result.toArray();
-                
-                let csvContent = columns.join(',') + '\n';
-                rows.forEach(row => {
-                    const csvRow = columns.map(col => {
-                        const value = row[col];
-                        if (value === null) return 'NULL';
-                        if (typeof value === 'string') return `"${value.replace(/"/g, '""')}"`;
-                        return String(value);
-                    }).join(',');
-                    csvContent += csvRow + '\n';
+              const cols = result.schema.fields.map(f => f.name);
+              const rows = result.toArray();
+              let t = '<table><thead><tr>';
+              cols.forEach(c => { t += `<th>${escapeHtml(c)}</th>`; });
+              t += '</tr></thead><tbody>';
+              rows.forEach(r => {
+                t += '<tr>';
+                cols.forEach(c => {
+                  const v = r[c] === null ? 'NULL' : String(r[c]);
+                  t += `<td>${escapeHtml(v)}</td>`;
                 });
-                
-                output = `<div class="raw-output">${csvContent}</div>`;
+                t += '</tr>';
+              });
+              t += '</tbody></table>';
+              t += `<div style=\"margin-top:10px;font-size:11px;color:#718096;\">Returned ${result.numRows} row(s)</div>`;
+              output = t;
             }
-            
-            resultsContent.innerHTML = output;
-            
-        } catch (error) {
-            resultsContent.innerHTML = `<div class="error">Error: ${escapeHtml(error.message)}</div>`;
+          } else if (outputFormat === 'json') {
+            output = `<div class=\"raw-output\">${JSON.stringify(result.toArray(), null, 2)}</div>`;
+          } else if (outputFormat === 'csv') {
+            const cols = result.schema.fields.map(f => f.name);
+            const rows = result.toArray();
+            let csv = cols.join(',') + '\n';
+            rows.forEach(r => {
+              const line = cols.map(c => {
+                const val = r[c];
+                if (val === null) return 'NULL';
+                if (typeof val === 'string') return `"${val.replace(/\"/g, '""')}"`;
+                return String(val);
+              }).join(',');
+              csv += line + '\n';
+            });
+            output = `<div class=\"raw-output\">${csv}</div>`;
+          }
+
+          if (resultsContent) resultsContent.innerHTML = output;
+        } catch (e) {
+          if (resultsContent) resultsContent.innerHTML = `<div class=\"error\">Error: ${escapeHtml(e.message)}</div>`;
         } finally {
-            runButton.disabled = false;
-            runButton.textContent = runButton.classList.contains('dql-run-btn') ? '▶' : 'Run Query';
+          if (runButton) { runButton.disabled = false; runButton.textContent = runButton?.classList?.contains('dql-run-btn') ? '▶' : 'Run Query'; }
         }
-    };
+      };
 
-    // Reset DQL query to original content
-    window.resetDqlQuery = function(blockId) {
-        const editor = document.getElementById(`editor-${blockId}`);
-        const originalContent = editor.getAttribute('data-original-content');
-        
-        if (editor.style.display === 'none') {
-            // Native DQL block - reset contentEditable code
-            const codeBlock = document.querySelector(`#block-${blockId} code`);
-            if (codeBlock && originalContent) {
-                // Store original highlighted HTML if not already stored
-                if (!codeBlock.dataset.originalHtml) {
-                    codeBlock.dataset.originalHtml = codeBlock.innerHTML;
-                }
-                
-                // Restore the original highlighted HTML instead of plain text
-                codeBlock.innerHTML = codeBlock.dataset.originalHtml;
-                editor.value = originalContent;
-                
-                // Re-enable editing after reset
-                codeBlock.contentEditable = true;
-                codeBlock.style.outline = 'none';
-            }
-        } else {
-            // Regular DQL block - reset textarea
-            if (originalContent) {
-                editor.value = originalContent;
-                // Trigger auto-resize if applicable
-                if (editor.classList.contains('auto-resize')) {
-                    autoResizeTextarea(editor);
-                }
-            }
-        }
-        
-        // Hide results
-        const resultsDiv = document.getElementById(`results-${blockId}`);
-        if (resultsDiv) {
-            resultsDiv.style.display = 'none';
-        }
-    };
-
-    // Utility function to escape HTML
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    } catch (e) {
+      console.error('Failed to initialize DuckDB:', e);
+      throw e;
+    } finally {
+      isInitializing = false;
     }
+  }
 
-    // Initialize auto-resize functionality when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeAutoResize);
-    } else {
-        initializeAutoResize();
-    }
-    
-    // Debug function to check registrations
-    window.debugDuckDB = function() {
-        console.log('=== DuckDB Debug Info ===');
-        console.log('DDL Blocks:', ddlBlocks);
-        console.log('Connections:', connections);
-        console.log('DB Ready:', !!db);
-        console.log('Default Connection:', !!conn);
-        console.log('Is Initialized:', isInitialized);
-        console.log('Is Initializing:', isInitializing);
-    };
-    
-    // Call debug after a short delay
-    setTimeout(function() {
-        console.log('=== DuckDB Debug Info ===');
-        window.debugDuckDB();
-    }, 2000);
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeAutoResize();
+    // Kick off loading so handlers become live soon after page load
+    initDuckDB();
+  });
+
+  window.debugDuckDB = function () {
+    console.log('=== DuckDB Debug Info ===');
+    console.log('DDL Blocks:', ddlBlocks);
+    console.log('Connections:', connections);
+    console.log('DB Ready:', !!db);
+    console.log('Default Connection:', !!conn);
+    console.log('Is Initialized:', isInitialized);
+    console.log('Is Initializing:', isInitializing);
+  };
+})();
+{% endraw %}
 </script>
