@@ -1,138 +1,106 @@
 ---
-title: "DuckDB Interactive Tutorial"
+title: "DuckDB Interactive: Two DDLs, Two DQLs Each"
 date: 2024-12-01 14:30:00 +0000
 categories: [Tutorial, Database]
 tags: [duckdb, sql, interactive, wasm]
 duckdb: true
 ---
 
-# Interactive DuckDB Tutorial
+# DuckDB interactive demo (2 DDLs, 2 DQLs each)
 
-Welcome to our interactive DuckDB tutorial! This post demonstrates how to use our custom liquid tags for creating interactive SQL blocks.
+This page contains exactly two independent DDL setups; each has two DQL queries that depend on it. Use the ▶ buttons to run queries (Ctrl/Cmd+Enter works too).
 
-## Setting up Sample Data
+---
 
-First, let's create some sample tables with DDL blocks:
+## DDL #1 — Movies dataset
 
-{% duckdb_ddl title="Employee Database" id="emp_db" %}
--- Create employee table
-CREATE TABLE employees AS 
-SELECT * FROM (VALUES 
-    (1, 'Alice Johnson', 25, 'Engineering', 75000),
-    (2, 'Bob Smith', 30, 'Design', 65000),
-    (3, 'Charlie Brown', 35, 'Management', 95000),
-    (4, 'Diana Wilson', 28, 'Engineering', 80000),
-    (5, 'Eve Davis', 32, 'Analytics', 70000)
-) AS t(id, name, age, department, salary);
+{% duckdb_ddl title="Movies Dataset" id="movies_db" %}
+-- Create movies table
+CREATE TABLE movies AS
+SELECT * FROM (VALUES
+    (1, 'Inception', 2010, 'Sci-Fi'),
+    (2, 'The Matrix', 1999, 'Sci-Fi'),
+    (3, 'The Godfather', 1972, 'Crime'),
+    (4, 'Parasite', 2019, 'Thriller'),
+    (5, 'Spirited Away', 2001, 'Animation')
+) AS t(movie_id, title, year, genre);
 
--- Create projects table  
-CREATE TABLE projects AS
-SELECT * FROM (VALUES 
-    (101, 'Website Redesign', 'Design', '2024-01-15'),
-    (102, 'Mobile App', 'Engineering', '2024-02-01'),
-    (103, 'Data Pipeline', 'Analytics', '2024-01-20'),
-    (104, 'Performance Optimization', 'Engineering', '2024-03-01')
-) AS t(project_id, project_name, department, start_date);
+-- Create ratings table
+CREATE TABLE ratings AS
+SELECT * FROM (VALUES
+    (1, 4.8),
+    (2, 4.7),
+    (3, 4.9),
+    (4, 4.6),
+    (5, 4.5)
+) AS t(movie_id, rating);
 {% endduckdb_ddl %}
 
-## Querying the Data
-
-Now let's run some queries against our sample data using the new native-styled DQL blocks:
-
-{% dql depends="emp_db" %}
--- Find all engineers
-SELECT name, age, salary 
-FROM employees 
-WHERE department = 'Engineering'
-ORDER BY salary DESC;
+### DQL for Movies (1/2)
+{% dql depends="movies_db" %}
+-- Average rating by genre
+SELECT m.genre, ROUND(AVG(r.rating), 2) AS avg_rating, COUNT(*) AS count
+FROM movies m
+JOIN ratings r USING (movie_id)
+GROUP BY m.genre
+ORDER BY avg_rating DESC;
 {% enddql %}
 
-{% dql depends="emp_db" %}
--- Calculate department statistics
-SELECT 
-    department,
-    COUNT(*) as employee_count,
-    AVG(salary) as avg_salary,
-    MAX(salary) as max_salary,
-    MIN(salary) as min_salary
-FROM employees 
-GROUP BY department
-ORDER BY avg_salary DESC;
+### DQL for Movies (2/2)
+{% dql depends="movies_db" %}
+-- Top-rated titles
+SELECT m.title, m.year, r.rating
+FROM movies m
+JOIN ratings r USING (movie_id)
+ORDER BY r.rating DESC, m.title ASC
+LIMIT 3;
 {% enddql %}
 
-## Standalone Queries
+---
 
-You can also run queries without depending on any DDL blocks:
+## DDL #2 — Sales dataset
 
-{% dql %}
--- Simple calculations
-SELECT 
-    'Hello DuckDB!' as greeting,
-    42 * 3.14 as calculation,
-    CURRENT_DATE as today;
-{% enddql %}
-
-## Advanced Example
-
-Let's create another DDL block for more complex examples:
-
-{% duckdb_ddl title="E-commerce Data" id="ecom_db" %}
--- Create customers table
-CREATE TABLE customers AS
-SELECT * FROM (VALUES 
-    (1, 'John Doe', 'john@example.com', 'New York'),
-    (2, 'Jane Smith', 'jane@example.com', 'Los Angeles'),
-    (3, 'Mike Johnson', 'mike@example.com', 'Chicago')
-) AS t(customer_id, name, email, city);
+{% duckdb_ddl title="Sales Dataset" id="sales_db" %}
+-- Create products table
+CREATE TABLE products AS
+SELECT * FROM (VALUES
+    (10, 'Laptop', 'Electronics'),
+    (11, 'Headphones', 'Electronics'),
+    (12, 'Coffee Beans', 'Grocery')
+) AS t(product_id, name, category);
 
 -- Create orders table
 CREATE TABLE orders AS
-SELECT * FROM (VALUES 
-    (1001, 1, '2024-01-15', 150.00),
-    (1002, 2, '2024-01-16', 200.00),
-    (1003, 1, '2024-01-17', 75.00),
-    (1004, 3, '2024-01-18', 300.00)
-) AS t(order_id, customer_id, order_date, amount);
+SELECT * FROM (VALUES
+    (1001, 10, '2024-06-01', 1299.99, 'New York'),
+    (1002, 11, '2024-06-02', 199.99,  'Chicago'),
+    (1003, 12, '2024-06-03', 15.49,   'New York'),
+    (1004, 10, '2024-06-04', 1149.00, 'San Francisco'),
+    (1005, 11, '2024-06-05', 179.00,  'Chicago')
+) AS t(order_id, product_id, order_date, amount, city);
 {% endduckdb_ddl %}
 
-{% dql depends="ecom_db" %}
--- Join customers with their orders
-SELECT 
-    c.name,
-    c.city,
-    COUNT(o.order_id) as total_orders,
-    SUM(o.amount) as total_spent
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY c.customer_id, c.name, c.city
-ORDER BY total_spent DESC;
+### DQL for Sales (1/2)
+{% dql depends="sales_db" %}
+-- Total sales by product
+SELECT p.name AS product, ROUND(SUM(o.amount), 2) AS total_sales, COUNT(*) AS orders
+FROM orders o
+JOIN products p USING (product_id)
+GROUP BY p.product_id, p.name
+ORDER BY total_sales DESC;
 {% enddql %}
 
-## Tips for Using Interactive Blocks
+### DQL for Sales (2/2)
+{% dql depends="sales_db" %}
+-- Average order value by city
+SELECT city, ROUND(AVG(amount), 2) AS avg_order_value, COUNT(*) AS orders
+FROM orders
+GROUP BY city
+ORDER BY avg_order_value DESC;
+{% enddql %}
 
-- **DDL blocks** create isolated database schemas that you can reference in DQL blocks
-- **DQL blocks** can depend on a DDL block using the `depends` parameter  
-- You can run queries multiple times and modify them as needed
-- Use **Ctrl+Enter** or **Cmd+Enter** as a keyboard shortcut to execute queries
-- Results can be viewed in different formats: Table, JSON, or CSV
-- **Reset button** (↻) restores original query content
+---
 
-Try modifying the queries above to explore the data further!
-
-## Try It Out
-
-1. **Expand the DDL Block**: Click on "Employee Database" to see the table creation SQL
-2. **Run a Query**: The native-styled DQL blocks will automatically use the correct schema
-3. **Experiment**: Try modifying the queries and use the reset button to restore original content
-
-This demonstrates our Jekyll liquid tag integration with native theme styling!
-
-## What's Next?
-
-This is our enhanced DuckDB integration with native Jekyll theme styling. Features include:
-- Native code block appearance with syntax highlighting
-- Read-only DDL blocks with expand/collapse
-- Editable DQL blocks with reset functionality  
-- Seamless theme integration
-
-Stay tuned for more interactive tutorials!
+Notes:
+- Each DQL block declares its dependency via `depends` so it runs against the right DDL setup.
+- You can edit queries inline and re-run; use the ↻ button to reset a block.
