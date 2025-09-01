@@ -99,22 +99,29 @@
       conn = await db.connect();
       isInitialized = true;
 
-      // Replace stubs with real implementations
+      // Replace stubs with real implementations (use shared connection)
       window.executeDdlBlock = async function (blockId) {
+        // Prefer textarea editor; fallback to code inside the block
         const editor = document.getElementById(`editor-${blockId}`);
-        if (!editor) throw new Error(`DDL editor '${blockId}' not found`);
-        const sql = editor.value.trim();
+        let sql = '';
+        if (editor && typeof editor.value === 'string') {
+          sql = editor.value.trim();
+        } else {
+          const codeBlock = document.querySelector(`#block-${blockId} code`);
+          sql = codeBlock ? codeBlock.textContent.trim() : '';
+        }
         if (!sql) throw new Error('DDL block is empty');
 
         if (!ddlBlocks[blockId]) ddlBlocks[blockId] = { executed: false, title: blockId, sql };
-        const ddlConn = await db.connect();
-        connections[blockId] = ddlConn;
-        await ddlConn.query(sql);
+        // Execute DDL on the shared page connection so all blocks see the tables
+        await conn.query(sql);
         ddlBlocks[blockId].executed = true;
         ddlBlocks[blockId].sql = sql;
+        // Map for compatibility; all point to shared conn
+        connections[blockId] = conn;
         const status = document.getElementById(`status-${blockId}`);
         if (status) { status.textContent = 'Executed'; status.classList.add('executed'); }
-        return ddlConn;
+        return conn;
       };
 
       window.runDqlQuery = async function (blockId) {
@@ -142,15 +149,15 @@
         if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
 
         try {
-          let queryConn = conn;
+          let queryConn = conn; // Always use the shared connection
           const dependencyId = blockDiv ? blockDiv.getAttribute('data-depends') : '';
           if (dependencyId) {
             if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
               if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
               await window.executeDdlBlock(dependencyId);
             }
-            queryConn = connections[dependencyId];
-            if (!queryConn) throw new Error(`No connection found for DDL block '${dependencyId}'`);
+            // Ensure the mapping exists (compat), but use shared conn regardless
+            if (!connections[dependencyId]) connections[dependencyId] = conn;
           }
 
           const outputFormatEl = document.querySelector(`input[name="output-${blockId}"]:checked`);
