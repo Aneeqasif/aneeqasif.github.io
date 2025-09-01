@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuckDB SQL Runner - DDL/DQL Blocks</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* DDL Block Styles */
+        .ddl-block {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-left: 4px solid #ed8936; /* Orange border for DDL */
+        }
+        
+        .ddl-header {
+            background: #fed7aa; /* Light orange background */
+            color: #744210;
+            padding: 10px 15px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .ddl-header:hover {
+            background: #fbd38d;
+        }
+        
+        .ddl-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ddl-expand-icon {
+            transition: transform 0.2s;
+        }
+        
+        .ddl-expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .ddl-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #f7fafc;
+            color: #4a5568;
+        }
+        
+        .ddl-status.executed {
+            background: #c6f6d5;
+            color: #1a365d;
+        }
+        
+        /* DQL Block Styles */
+        .dql-block {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-left: 4px solid #4299e1; /* Blue border for DQL */
+        }
+        
+        .dql-header {
+            background: #bee3f8; /* Light blue background */
+            color: #1a365d;
+            padding: 10px 15px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dql-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .dependency-selector {
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .sql-editor {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            width: 100%;
+            border: none;
+            padding: 15px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            background: #fafafa;
+            outline: none;
+        }
+        
+        .ddl-content {
+            display: none;
+        }
+        
+        .ddl-content.expanded {
+            display: block;
+        }
+        
+        .run-button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .run-button:hover {
+            background: #3182ce;
+        }
+        
+        .run-button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+        
+        .add-buttons {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .add-ddl-btn {
+            background: #ed8936;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-ddl-btn:hover {
+            background: #dd6b20;
+        }
+        
+        .add-dql-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-dql-btn:hover {
+            background: #3182ce;
+        }
+        
+        .output-options {
+            padding: 10px 15px;
+            background: #edf2f7;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .output-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .results {
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+        
+        .results-header {
+            background: #edf2f7;
+            padding: 10px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .results-content {
+            padding: 15px;
+            max-height: 400px;
+            overflow: auto;
+        }
+        
+        .results-content table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        
+        .results-content table th,
+        .results-content table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .results-content table th {
+            background: #f7fafc;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .results-content table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .results-content table tr:hover {
+            background: #e6fffa;
+        }
+        
+        .error {
+            color: #e53e3e;
+            background: #fed7d7;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+        }
+        
+        .status {
+            padding: 10px 15px;
+            font-size: 12px;
+            background: #e6fffa;
+            color: #2d3748;
+        }
+        
+        .raw-output {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 11px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .block-info {
+            font-size: 11px;
+            color: #718096;
+            padding: 5px 15px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🦆 DuckDB SQL Runner - DDL/DQL Blocks</h1>
+        <p>Structured SQL execution with DDL schemas and dependent DQL queries</p>
+        <div class="status" id="status">Loading DuckDB...</div>
+    </div>
+
+    <div id="sql-blocks-container">
+        <!-- SQL blocks will be added here -->
+    </div>
+
+    <div class="add-buttons">
+        <button class="add-ddl-btn" onclick="addDdlBlock()">+ Add DDL Block</button>
+        <button class="add-dql-btn" onclick="addDqlBlock()">+ Add DQL Block</button>
+    </div>
+
+    <script type="module">
+        import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/+esm';
+
+        let db = null;
+        let conn = null;
+        let ddlBlockCounter = 0;
+        let dqlBlockCounter = 0;
+        let ddlBlocks = {}; // Store DDL block states
+        let connections = {}; // Store isolated connections for each DDL block
+
+        // Initialize DuckDB
+        async function initDuckDB() {
+            try {
+                const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+                const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+                const worker_url = URL.createObjectURL(
+                    new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' })
+                );
+                const worker = new Worker(worker_url);
+                const logger = new duckdb.ConsoleLogger();
+                db = new duckdb.AsyncDuckDB(logger, worker);
+                await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+                URL.revokeObjectURL(worker_url);
+                
+                conn = await db.connect();
+                
+                document.getElementById('status').textContent = 'DuckDB ready! 🎉';
+                document.getElementById('status').style.background = '#c6f6d5';
+                
+                // Add example blocks
+                addDdlBlock(`-- Sample Data Setup
+CREATE TABLE employees AS 
+SELECT * FROM (VALUES 
+    (1, 'Alice Johnson', 25, 'Engineering', 75000),
+    (2, 'Bob Smith', 30, 'Design', 65000),
+    (3, 'Charlie Brown', 35, 'Management', 95000),
+    (4, 'Diana Wilson', 28, 'Engineering', 80000),
+    (5, 'Eve Davis', 32, 'Analytics', 70000)
+) AS t(id, name, age, department, salary);
+
+CREATE TABLE projects AS
+SELECT * FROM (VALUES 
+    (101, 'Website Redesign', 'Design', '2024-01-15'),
+    (102, 'Mobile App', 'Engineering', '2024-02-01'),
+    (103, 'Data Pipeline', 'Analytics', '2024-01-20'),
+    (104, 'Performance Optimization', 'Engineering', '2024-03-01')
+) AS t(project_id, project_name, department, start_date);`, 'Sample Data Schema');
+
+                addDdlBlock(`-- E-commerce Schema
+CREATE TABLE customers AS
+SELECT * FROM (VALUES 
+    (1, 'John Doe', 'john@example.com', 'New York'),
+    (2, 'Jane Smith', 'jane@example.com', 'Los Angeles'),
+    (3, 'Mike Johnson', 'mike@example.com', 'Chicago')
+) AS t(customer_id, name, email, city);
+
+CREATE TABLE orders AS
+SELECT * FROM (VALUES 
+    (1001, 1, '2024-01-15', 150.00),
+    (1002, 2, '2024-01-16', 200.00),
+    (1003, 1, '2024-01-17', 75.00),
+    (1004, 3, '2024-01-18', 300.00)
+) AS t(order_id, customer_id, order_date, amount);`, 'E-commerce Schema');
+
+                setTimeout(() => {
+                    addDqlBlock('SELECT * FROM employees WHERE department = \'Engineering\';');
+                    addDqlBlock('SELECT department, COUNT(*) as employee_count, AVG(salary) as avg_salary FROM employees GROUP BY department;');
+                }, 100);
+                
+            } catch (error) {
+                console.error('Failed to initialize DuckDB:', error);
+                document.getElementById('status').textContent = 'Failed to load DuckDB: ' + error.message;
+                document.getElementById('status').style.background = '#fed7d7';
+                document.getElementById('status').style.color = '#e53e3e';
+            }
+        }
+
+        // Add a new DDL block
+        window.addDdlBlock = function(initialSql = '', title = '') {
+            ddlBlockCounter++;
+            const blockId = `ddl-${ddlBlockCounter}`;
+            const blockTitle = title || `DDL Block ${ddlBlockCounter}`;
+            
+            ddlBlocks[blockId] = {
+                executed: false,
+                title: blockTitle,
+                sql: initialSql
+            };
+            
+            const container = document.getElementById('sql-blocks-container');
+            
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'ddl-block';
+            blockDiv.id = `block-${blockId}`;
+            
+            blockDiv.innerHTML = `
+                <div class="ddl-header" onclick="toggleDdlBlock('${blockId}')">
+                    <div class="ddl-title">
+                        <span class="ddl-expand-icon">▶</span>
+                        <span>${blockTitle}</span>
+                    </div>
+                    <div class="ddl-status" id="status-${blockId}">Not Executed</div>
+                </div>
+                <div class="ddl-content" id="content-${blockId}">
+                    <div class="block-info">DDL Block: Schema definitions and data setup</div>
+                    <textarea class="sql-editor" id="editor-${blockId}" placeholder="Enter your DDL SQL here (CREATE TABLE, INSERT, etc.)...">${initialSql}</textarea>
+                </div>
+            `;
+            
+            container.appendChild(blockDiv);
+            updateDqlDependencyOptions();
+        };
+
+        // Add a new DQL block
+        window.addDqlBlock = function(initialSql = '') {
+            dqlBlockCounter++;
+            const blockId = `dql-${dqlBlockCounter}`;
+            const container = document.getElementById('sql-blocks-container');
+            
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'dql-block';
+            blockDiv.id = `block-${blockId}`;
+            
+            blockDiv.innerHTML = `
+                <div class="dql-header">
+                    <span>DQL Block ${dqlBlockCounter}</span>
+                    <div class="dql-controls">
+                        <select class="dependency-selector" id="dependency-${blockId}">
+                            <option value="">No DDL dependency</option>
+                        </select>
+                        <button class="run-button" onclick="runDqlQuery('${blockId}')">Run Query</button>
+                    </div>
+                </div>
+                <div class="block-info">DQL Block: Query operations (SELECT statements)</div>
+                <textarea class="sql-editor" id="editor-${blockId}" placeholder="Enter your DQL SQL here (SELECT statements)...">${initialSql}</textarea>
+                <div class="output-options">
+                    <label>
+                        <input type="radio" name="output-${blockId}" value="table" checked>
+                        HTML Table
+                    </label>
+                    <label>
+                        <input type="radio" name="output-${blockId}" value="json">
+                        JSON
+                    </label>
+                    <label>
+                        <input type="radio" name="output-${blockId}" value="csv">
+                        CSV
+                    </label>
+                </div>
+                <div class="results" id="results-${blockId}" style="display: none;">
+                    <div class="results-header">Results</div>
+                    <div class="results-content" id="results-content-${blockId}"></div>
+                </div>
+            `;
+            
+            container.appendChild(blockDiv);
+            updateDqlDependencyOptions();
+            
+            // Add keyboard shortcut
+            const editor = document.getElementById(`editor-${blockId}`);
+            editor.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    runDqlQuery(blockId);
+                }
+            });
+        };
+
+        // Update DDL dependency options in all DQL blocks
+        function updateDqlDependencyOptions() {
+            const dqlBlocks = document.querySelectorAll('.dependency-selector');
+            
+            dqlBlocks.forEach(selector => {
+                const currentValue = selector.value;
+                selector.innerHTML = '<option value="">No DDL dependency</option>';
+                
+                Object.keys(ddlBlocks).forEach(ddlBlockId => {
+                    const option = document.createElement('option');
+                    option.value = ddlBlockId;
+                    option.textContent = ddlBlocks[ddlBlockId].title;
+                    selector.appendChild(option);
+                });
+                
+                // Restore previous selection if it still exists
+                if (currentValue && ddlBlocks[currentValue]) {
+                    selector.value = currentValue;
+                }
+            });
+        }
+
+        // Toggle DDL block expansion
+        window.toggleDdlBlock = function(blockId) {
+            const content = document.getElementById(`content-${blockId}`);
+            const icon = document.querySelector(`#block-${blockId} .ddl-expand-icon`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        };
+
+        // Execute DDL block
+        async function executeDdlBlock(blockId) {
+            if (!db) {
+                throw new Error('DuckDB is not ready');
+            }
+            
+            const editor = document.getElementById(`editor-${blockId}`);
+            const sql = editor.value.trim();
+            
+            if (!sql) {
+                throw new Error('DDL block is empty');
+            }
+            
+            // Create a new isolated connection for this DDL block
+            const ddlConnection = await db.connect();
+            connections[blockId] = ddlConnection;
+            
+            // Execute DDL statements
+            await ddlConnection.query(sql);
+            
+            ddlBlocks[blockId].executed = true;
+            ddlBlocks[blockId].sql = sql;
+            
+            // Update status
+            const statusElement = document.getElementById(`status-${blockId}`);
+            statusElement.textContent = 'Executed';
+            statusElement.classList.add('executed');
+            
+            return ddlConnection;
+        }
+
+        // Run DQL query
+        window.runDqlQuery = async function(blockId) {
+            const editor = document.getElementById(`editor-${blockId}`);
+            const resultsDiv = document.getElementById(`results-${blockId}`);
+            const resultsContent = document.getElementById(`results-content-${blockId}`);
+            const runButton = document.querySelector(`#block-${blockId} .run-button`);
+            const dependencySelect = document.getElementById(`dependency-${blockId}`);
+            
+            const sql = editor.value.trim();
+            if (!sql) {
+                alert('Please enter a DQL query');
+                return;
+            }
+            
+            // Show loading state
+            runButton.disabled = true;
+            runButton.textContent = 'Running...';
+            resultsDiv.style.display = 'block';
+            resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
+            
+            try {
+                let queryConnection = conn; // Default connection
+                
+                // Check if this query depends on a DDL block
+                const dependencyId = dependencySelect.value;
+                if (dependencyId) {
+                    // Execute DDL block if not already executed
+                    if (!ddlBlocks[dependencyId].executed) {
+                        resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
+                        await executeDdlBlock(dependencyId);
+                    }
+                    
+                    // Use the DDL block's connection
+                    queryConnection = connections[dependencyId];
+                }
+                
+                // Get selected output format
+                const outputFormat = document.querySelector(`input[name="output-${blockId}"]:checked`).value;
+                
+                const result = await queryConnection.query(sql);
+                let output = '';
+                
+                if (outputFormat === 'table') {
+                    if (result.numRows === 0) {
+                        output = '<div style="color: #718096; font-style: italic;">Query executed successfully. No rows returned.</div>';
+                    } else {
+                        const columns = result.schema.fields.map(field => field.name);
+                        const rows = result.toArray();
+                        
+                        let tableHtml = '<table><thead><tr>';
+                        columns.forEach(col => {
+                            tableHtml += `<th>${escapeHtml(col)}</th>`;
+                        });
+                        tableHtml += '</tr></thead><tbody>';
+                        
+                        rows.forEach(row => {
+                            tableHtml += '<tr>';
+                            columns.forEach(col => {
+                                const cellValue = row[col] === null ? 'NULL' : String(row[col]);
+                                tableHtml += `<td>${escapeHtml(cellValue)}</td>`;
+                            });
+                            tableHtml += '</tr>';
+                        });
+                        
+                        tableHtml += '</tbody></table>';
+                        tableHtml += `<div style="margin-top: 10px; font-size: 11px; color: #718096;">Returned ${result.numRows} row(s)</div>`;
+                        
+                        output = tableHtml;
+                    }
+                } else if (outputFormat === 'json') {
+                    const result = await queryConnection.query(sql);
+                    const jsonData = result.toArray();
+                    output = `<div class="raw-output">${JSON.stringify(jsonData, null, 2)}</div>`;
+                } else if (outputFormat === 'csv') {
+                    const result = await queryConnection.query(sql);
+                    const columns = result.schema.fields.map(field => field.name);
+                    const rows = result.toArray();
+                    
+                    let csvContent = columns.join(',') + '\n';
+                    rows.forEach(row => {
+                        const csvRow = columns.map(col => {
+                            const value = row[col];
+                            if (value === null) return 'NULL';
+                            if (typeof value === 'string') return `"${value.replace(/"/g, '""')}"`;
+                            return String(value);
+                        }).join(',');
+                        csvContent += csvRow + '\n';
+                    });
+                    
+                    output = `<div class="raw-output">${csvContent}</div>`;
+                }
+                
+                resultsContent.innerHTML = output;
+                
+            } catch (error) {
+                resultsContent.innerHTML = `<div class="error">Error: ${escapeHtml(error.message)}</div>`;
+            } finally {
+                runButton.disabled = false;
+                runButton.textContent = 'Run Query';
+            }
+        };
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize when page loads
+        initDuckDB();
+    </script>
+</body>
+</html>

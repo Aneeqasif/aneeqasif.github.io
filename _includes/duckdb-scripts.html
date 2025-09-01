@@ -1,0 +1,370 @@
+<!-- DuckDB Interactive Blocks JavaScript -->
+<script type="module">
+    import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/+esm';
+
+    let db = null;
+    let conn = null;
+    let ddlBlocks = {}; // Store DDL block states
+    let connections = {}; // Store isolated connections for each DDL block
+    let isInitializing = false;
+    let isInitialized = false;
+
+    // Make these globally available
+    window.ddlBlocks = ddlBlocks;
+    window.connections = connections;
+
+    // Initialize DuckDB
+    async function initDuckDB() {
+        if (isInitialized) {
+            return { db, conn };
+        }
+        
+        if (isInitializing) {
+            // Wait for current initialization to complete
+            while (isInitializing) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            return { db, conn };
+        }
+        
+        try {
+            isInitializing = true;
+            console.log('Initializing DuckDB...');
+            const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+            const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+            const worker_url = URL.createObjectURL(
+                new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' })
+            );
+            const worker = new Worker(worker_url);
+            const logger = new duckdb.ConsoleLogger();
+            db = new duckdb.AsyncDuckDB(logger, worker);
+            await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+            URL.revokeObjectURL(worker_url);
+            
+            conn = await db.connect();
+            isInitialized = true;
+            
+            console.log('DuckDB ready! 🎉');
+            return { db, conn };
+            
+        } catch (error) {
+            console.error('Failed to initialize DuckDB:', error);
+            throw error;
+        } finally {
+            isInitializing = false;
+        }
+    }
+
+    // Toggle DDL block expansion
+    window.toggleDdlBlock = function(blockId) {
+        const content = document.getElementById(`content-${blockId}`);
+        const icon = document.querySelector(`#block-${blockId} .ddl-expand-icon`);
+        
+        if (content.classList.contains('expanded')) {
+            content.classList.remove('expanded');
+            icon.classList.remove('expanded');
+        } else {
+            content.classList.add('expanded');
+            icon.classList.add('expanded');
+        }
+    };
+
+    // Execute DDL block
+    window.executeDdlBlock = async function(blockId) {
+        console.log('Executing DDL block:', blockId);
+        console.log('Available DDL blocks:', Object.keys(ddlBlocks));
+        
+        // Ensure DuckDB is initialized
+        const { db: dbInstance, conn: connInstance } = await initDuckDB();
+        if (!dbInstance) {
+            throw new Error('DuckDB initialization failed');
+        }
+        
+        const editor = document.getElementById(`editor-${blockId}`);
+        if (!editor) {
+            throw new Error(`DDL block editor '${blockId}' not found`);
+        }
+        
+        const sql = editor.value.trim();
+        if (!sql) {
+            throw new Error('DDL block is empty');
+        }
+        
+        // Ensure DDL block is registered (fallback registration)
+        if (!ddlBlocks[blockId]) {
+            console.log('DDL block not registered, creating entry:', blockId);
+            ddlBlocks[blockId] = {
+                executed: false,
+                title: blockId,
+                sql: sql
+            };
+        }
+        
+        // Create a new isolated connection for this DDL block
+        const ddlConnection = await dbInstance.connect();
+        connections[blockId] = ddlConnection;
+        
+        // Execute DDL statements
+        await ddlConnection.query(sql);
+        
+        ddlBlocks[blockId].executed = true;
+        ddlBlocks[blockId].sql = sql;
+        
+        // Update status
+        const statusElement = document.getElementById(`status-${blockId}`);
+        if (statusElement) {
+            statusElement.textContent = 'Executed';
+            statusElement.classList.add('executed');
+        }
+        
+        return ddlConnection;
+    };
+
+    // Reset DQL query to original content
+    window.resetDqlQuery = function(blockId) {
+        const editor = document.getElementById(`editor-${blockId}`);
+        const resultsDiv = document.getElementById(`results-${blockId}`);
+        
+        if (editor) {
+            const originalContent = editor.getAttribute('data-original-content');
+            editor.value = originalContent || '';
+            
+            // Hide results
+            if (resultsDiv) {
+                resultsDiv.style.display = 'none';
+            }
+            
+            // Trigger resize
+            autoResizeTextarea(editor);
+        }
+    };
+
+    // Auto-resize textarea to fit content
+    function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.max(60, textarea.scrollHeight) + 'px';
+    }
+
+    // Initialize auto-resize for DQL editors
+    function initializeAutoResize() {
+        const dqlEditors = document.querySelectorAll('.dql-editor.auto-resize');
+        dqlEditors.forEach(editor => {
+            // Initial resize
+            autoResizeTextarea(editor);
+            
+            // Resize on input
+            editor.addEventListener('input', function() {
+                autoResizeTextarea(this);
+            });
+            
+            // Resize on paste
+            editor.addEventListener('paste', function() {
+                setTimeout(() => autoResizeTextarea(this), 0);
+            });
+        });
+    }
+
+    // Run DQL query
+    window.runDqlQuery = async function(blockId) {
+        const editor = document.getElementById(`editor-${blockId}`);
+        const resultsDiv = document.getElementById(`results-${blockId}`);
+        const resultsContent = document.getElementById(`results-content-${blockId}`);
+        const runButton = document.querySelector(`#block-${blockId} .run-button, #block-${blockId} .dql-run-btn`);
+        const blockDiv = document.getElementById(`block-${blockId}`);
+        
+        // Get SQL from either textarea or contentEditable code block
+        let sql;
+        if (editor.style.display === 'none') {
+            // Native DQL block - get from contentEditable code
+            const codeBlock = document.querySelector(`#block-${blockId} code`);
+            sql = codeBlock ? codeBlock.textContent.trim() : '';
+        } else {
+            // Regular DQL block - get from textarea
+            sql = editor.value.trim();
+        }
+        
+        if (!sql) {
+            alert('Please enter a DQL query');
+            return;
+        }
+        
+        // Show loading state
+        runButton.disabled = true;
+        runButton.textContent = runButton.classList.contains('dql-run-btn') ? '⏳' : 'Running...';
+        resultsDiv.style.display = 'block';
+        resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
+        
+        try {
+            // Ensure DuckDB is initialized first
+            const { db: dbInstance, conn: connInstance } = await initDuckDB();
+            if (!dbInstance || !connInstance) {
+                throw new Error('Failed to initialize DuckDB');
+            }
+            
+            let queryConnection = connInstance; // Default connection
+            
+            // Check if this query depends on a DDL block
+            const dependencyId = blockDiv.getAttribute('data-depends');
+            if (dependencyId && dependencyId !== '') {
+                console.log('Using DDL dependency:', dependencyId);
+                console.log('Available DDL blocks:', Object.keys(ddlBlocks));
+                console.log('Available connections:', Object.keys(connections));
+                
+                // Execute DDL block if not already executed
+                if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
+                    console.log('Executing DDL block because it is not executed yet');
+                    resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
+                    
+                    try {
+                        await window.executeDdlBlock(dependencyId);
+                    } catch (ddlError) {
+                        console.error('Error executing DDL block:', ddlError);
+                        throw new Error(`Failed to execute DDL block: ${ddlError.message}`);
+                    }
+                }
+                
+                // Use the DDL block's connection
+                queryConnection = connections[dependencyId];
+                console.log('Using DDL connection:', !!queryConnection);
+                
+                if (!queryConnection) {
+                    throw new Error(`No connection found for DDL block '${dependencyId}'`);
+                }
+            } else {
+                console.log('Running as standalone query');
+            }
+            
+            // Update loading message for actual query execution
+            resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
+            
+            // Get selected output format
+            const outputFormat = document.querySelector(`input[name="output-${blockId}"]:checked`).value;
+            console.log('Output format:', outputFormat);
+            
+            const result = await queryConnection.query(sql);
+            console.log('Query result:', result);
+            
+            let output = '';
+            
+            if (outputFormat === 'table') {
+                if (result.numRows === 0) {
+                    output = '<div style="color: #718096; font-style: italic;">Query executed successfully. No rows returned.</div>';
+                } else {
+                    const columns = result.schema.fields.map(field => field.name);
+                    const rows = result.toArray();
+                    
+                    let tableHtml = '<table><thead><tr>';
+                    columns.forEach(col => {
+                        tableHtml += `<th>${escapeHtml(col)}</th>`;
+                    });
+                    tableHtml += '</tr></thead><tbody>';
+                    
+                    rows.forEach(row => {
+                        tableHtml += '<tr>';
+                        columns.forEach(col => {
+                            const cellValue = row[col] === null ? 'NULL' : String(row[col]);
+                            tableHtml += `<td>${escapeHtml(cellValue)}</td>`;
+                        });
+                        tableHtml += '</tr>';
+                    });
+                    
+                    tableHtml += '</tbody></table>';
+                    tableHtml += `<div style="margin-top: 10px; font-size: 11px; color: #718096;">Returned ${result.numRows} row(s)</div>`;
+                    
+                    output = tableHtml;
+                }
+            } else if (outputFormat === 'json') {
+                const result = await queryConnection.query(sql);
+                const jsonData = result.toArray();
+                output = `<div class="raw-output">${JSON.stringify(jsonData, null, 2)}</div>`;
+            } else if (outputFormat === 'csv') {
+                const result = await queryConnection.query(sql);
+                const columns = result.schema.fields.map(field => field.name);
+                const rows = result.toArray();
+                
+                let csvContent = columns.join(',') + '\n';
+                rows.forEach(row => {
+                    const csvRow = columns.map(col => {
+                        const value = row[col];
+                        if (value === null) return 'NULL';
+                        if (typeof value === 'string') return `"${value.replace(/"/g, '""')}"`;
+                        return String(value);
+                    }).join(',');
+                    csvContent += csvRow + '\n';
+                });
+                
+                output = `<div class="raw-output">${csvContent}</div>`;
+            }
+            
+            resultsContent.innerHTML = output;
+            
+        } catch (error) {
+            resultsContent.innerHTML = `<div class="error">Error: ${escapeHtml(error.message)}</div>`;
+        } finally {
+            runButton.disabled = false;
+            runButton.textContent = runButton.classList.contains('dql-run-btn') ? '▶' : 'Run Query';
+        }
+    };
+
+    // Reset DQL query to original content
+    window.resetDqlQuery = function(blockId) {
+        const editor = document.getElementById(`editor-${blockId}`);
+        const originalContent = editor.getAttribute('data-original-content');
+        
+        if (editor.style.display === 'none') {
+            // Native DQL block - reset contentEditable code
+            const codeBlock = document.querySelector(`#block-${blockId} code`);
+            if (codeBlock && originalContent) {
+                // Simply restore the content (Rouge highlighting is applied by Jekyll)
+                codeBlock.textContent = originalContent;
+                editor.value = originalContent;
+            }
+        } else {
+            // Regular DQL block - reset textarea
+            if (originalContent) {
+                editor.value = originalContent;
+                // Trigger auto-resize if applicable
+                if (editor.classList.contains('auto-resize')) {
+                    autoResizeTextarea(editor);
+                }
+            }
+        }
+        
+        // Hide results
+        const resultsDiv = document.getElementById(`results-${blockId}`);
+        if (resultsDiv) {
+            resultsDiv.style.display = 'none';
+        }
+    };
+
+    // Utility function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Initialize auto-resize functionality when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeAutoResize);
+    } else {
+        initializeAutoResize();
+    }
+    
+    // Debug function to check registrations
+    window.debugDuckDB = function() {
+        console.log('=== DuckDB Debug Info ===');
+        console.log('DDL Blocks:', ddlBlocks);
+        console.log('Connections:', connections);
+        console.log('DB Ready:', !!db);
+        console.log('Default Connection:', !!conn);
+        console.log('Is Initialized:', isInitialized);
+        console.log('Is Initializing:', isInitializing);
+    };
+    
+    // Call debug after a short delay
+    setTimeout(function() {
+        console.log('=== DuckDB Debug Info ===');
+        window.debugDuckDB();
+    }, 2000);
+</script>
