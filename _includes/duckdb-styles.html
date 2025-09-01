@@ -358,3 +358,19 @@
     margin-top: 0;
 }
 
+/* DuckDB spinner */
+.duckdb-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(13, 110, 253, 0.25);
+    border-top-color: #0d6efd;
+    border-radius: 50%;
+    animation: duckdb-spin 0.8s linear infinite;
+    vertical-align: -2px;
+}
+
+@keyframes duckdb-spin {
+    to { transform: rotate(360deg); }
+}
+

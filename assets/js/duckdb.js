@@ -25,6 +25,32 @@
     });
   };
 
+  // UI gating helpers
+  const setUiReady = (ready) => {
+    document.querySelectorAll('.dql-run-btn, .run-button').forEach((btn) => {
+      if (ready) {
+        btn.disabled = false;
+        if (btn.dataset._origHtml) {
+          btn.innerHTML = btn.dataset._origHtml;
+          delete btn.dataset._origHtml;
+        }
+        btn.title = '';
+      } else {
+        if (!btn.dataset._origHtml) btn.dataset._origHtml = btn.innerHTML || btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="duckdb-spinner" aria-hidden="true"></span>';
+        btn.title = 'DuckDB is initializing';
+      }
+    });
+  };
+
+  const showInitSpinner = (blockId) => {
+    const resultsDiv = document.getElementById(`results-${blockId}`);
+    const resultsContent = document.getElementById(`results-content-${blockId}`);
+    if (resultsDiv) resultsDiv.style.display = 'block';
+    if (resultsContent) resultsContent.innerHTML = '<div class="results-content duckdb-init"><span class="duckdb-spinner" aria-label="Initializing"></span></div>';
+  };
+
   // Globals used by onclick
   window.toggleDdlBlock = function (blockId) {
     const content = document.getElementById(`content-${blockId}`);
@@ -34,12 +60,12 @@
     icon.classList.toggle('expanded');
   };
 
-  const notReady = (msg) => {
-    console.warn(msg || 'DuckDB is still loading...');
-    alert('DuckDB is still loading...');
+  const notReady = (blockId) => {
+    console.warn('DuckDB is still loading...');
+    if (blockId) showInitSpinner(blockId);
   };
-  window.executeDdlBlock = window.executeDdlBlock || function () { notReady(); };
-  window.runDqlQuery    = window.runDqlQuery    || function () { notReady(); };
+  window.executeDdlBlock = window.executeDdlBlock || function (blockId) { notReady(blockId); };
+  window.runDqlQuery    = window.runDqlQuery    || function (blockId) { notReady(blockId); };
   window.resetDqlQuery  = window.resetDqlQuery  || function (blockId) {
     const editor = document.getElementById(`editor-${blockId}`);
     const resultsDiv = document.getElementById(`results-${blockId}`);
@@ -193,8 +219,18 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initializeAutoResize();
+    // Disable UI while initializing
+    setUiReady(false);
     // Kick off loading so handlers become live soon after page load
-    initDuckDB();
+    Promise.resolve().then(() => initDuckDB())
+      .then(() => {
+        setUiReady(true);
+        document.dispatchEvent(new Event('duckdb:ready'));
+      })
+      .catch((e) => {
+        console.error('DuckDB init failed', e);
+        // keep buttons disabled on failure
+      });
   });
 
   window.debugDuckDB = function () {
