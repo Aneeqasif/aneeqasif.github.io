@@ -3,7 +3,7 @@ title: "DuckDB Interactive Tutorial"
 date: 2024-12-01 14:30:00 +0000
 categories: [Tutorial, Database]
 tags: [duckdb, sql, interactive, wasm]
-use_duckdb: true
+duckdb: true
 ---
 
 # Interactive DuckDB Tutorial

@@ -103,6 +103,13 @@
 
   {% include js-selector.html lang=lang %}
 
+  {% if page.duckdb %}
+    <!-- DuckDB Styles -->
+    <style>
+      {% include duckdb-styles.html %}
+    </style>
+  {% endif %}
+
   {% if jekyll.environment == 'production' %}
     <!-- PWA -->
     {% if site.pwa.enabled %}

@@ -3,34 +3,7 @@
 # DuckDB interactive blocks for Jekyll posts
 
 module Jekyll
-  # Hook to automatically inject DuckDB assets when use_duckdb is enabled
-  Jekyll::Hooks.register :pages, :post_render do |page|
-    if page.data['use_duckdb']
-      # Read CSS and JS includes
-      css_content = File.read(File.join(page.site.source, '_includes', 'duckdb-styles.html'))
-      js_content = File.read(File.join(page.site.source, '_includes', 'duckdb-scripts.html'))
-      
-      # Inject CSS in head
-      page.output = page.output.sub('</head>', "#{css_content}\n</head>")
-      
-      # Inject JS before closing body
-      page.output = page.output.sub('</body>', "#{js_content}\n</body>")
-    end
-  end
-
-  Jekyll::Hooks.register :posts, :post_render do |post|
-    if post.data['use_duckdb']
-      # Read CSS and JS includes
-      css_content = File.read(File.join(post.site.source, '_includes', 'duckdb-styles.html'))
-      js_content = File.read(File.join(post.site.source, '_includes', 'duckdb-scripts.html'))
-      
-      # Inject CSS in head
-      post.output = post.output.sub('</head>', "#{css_content}\n</head>")
-      
-      # Inject JS before closing body
-      post.output = post.output.sub('</body>', "#{js_content}\n</body>")
-    end
-  end
+  # Using theme's conditional include pattern instead of hooks
 
   class DuckDBDDLBlock < Liquid::Block
     def initialize(tag_name, markup, tokens)
