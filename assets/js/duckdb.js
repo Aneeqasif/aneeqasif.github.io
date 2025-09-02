@@ -101,6 +101,11 @@
 
       // Replace stubs with real implementations (use shared connection)
       window.executeDdlBlock = async function (blockId) {
+        // Check if already executed to avoid re-execution
+        if (ddlBlocks[blockId] && ddlBlocks[blockId].executed) {
+          return conn;
+        }
+
         // Prefer textarea editor; fallback to code inside the block
         const editor = document.getElementById(`editor-${blockId}`);
         let sql = '';
@@ -112,15 +117,33 @@
         }
         if (!sql) throw new Error('DDL block is empty');
 
-        if (!ddlBlocks[blockId]) ddlBlocks[blockId] = { executed: false, title: blockId, sql };
-        // Execute DDL on the shared page connection so all blocks see the tables
-        await conn.query(sql);
-        ddlBlocks[blockId].executed = true;
-        ddlBlocks[blockId].sql = sql;
-        // Map for compatibility; all point to shared conn
-        connections[blockId] = conn;
-        const status = document.getElementById(`status-${blockId}`);
-        if (status) { status.textContent = 'Executed'; status.classList.add('executed'); }
+        // Initialize block state if not exists
+        if (!ddlBlocks[blockId]) {
+          ddlBlocks[blockId] = { executed: false, title: blockId, sql: '', executing: false };
+        }
+
+        // Prevent concurrent execution of the same DDL
+        if (ddlBlocks[blockId].executing) {
+          // Wait for the current execution to complete
+          while (ddlBlocks[blockId].executing) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+          return conn;
+        }
+
+        ddlBlocks[blockId].executing = true;
+        try {
+          // Execute DDL on the shared page connection so all blocks see the tables
+          await conn.query(sql);
+          ddlBlocks[blockId].executed = true;
+          ddlBlocks[blockId].sql = sql;
+          // Map for compatibility; all point to shared conn
+          connections[blockId] = conn;
+          const status = document.getElementById(`status-${blockId}`);
+          if (status) { status.textContent = 'Executed'; status.classList.add('executed'); }
+        } finally {
+          ddlBlocks[blockId].executing = false;
+        }
         return conn;
       };
 
@@ -152,9 +175,14 @@
           let queryConn = conn; // Always use the shared connection
           const dependencyId = blockDiv ? blockDiv.getAttribute('data-depends') : '';
           if (dependencyId) {
+            // Ensure dependency DDL is executed before running this DQL
             if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
               if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
               await window.executeDdlBlock(dependencyId);
+              // Double-check that it's now executed
+              if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
+                throw new Error(`Failed to execute dependency DDL block: ${dependencyId}`);
+              }
             }
             // Ensure the mapping exists (compat), but use shared conn regardless
             if (!connections[dependencyId]) connections[dependencyId] = conn;
@@ -162,6 +190,12 @@
 
           const outputFormatEl = document.querySelector(`input[name="output-${blockId}"]:checked`);
           const outputFormat = outputFormatEl ? outputFormatEl.value : 'table';
+          
+          // Add a small delay to ensure DDL changes are fully committed
+          if (dependencyId) {
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+          
           const result = await queryConn.query(sql);
           let output = '';
 
