@@ -99,61 +99,56 @@
       conn = await db.connect();
       isInitialized = true;
 
-      // Replace stubs with real implementations (use shared connection)
-      const ddlExecutionPromises = {};
+      // Create a serial queue for all database operations
+      let queryQueue = Promise.resolve();
+
+      const enqueueQuery = (task) => {
+        return new Promise((resolve, reject) => {
+          queryQueue = queryQueue.then(async () => {
+            try {
+              const result = await task();
+              resolve(result);
+            } catch (error) {
+              reject(error);
+            }
+          });
+        });
+      };
+
+      // Replace stubs with real implementations
       window.executeDdlBlock = async function (blockId) {
-        // If already executed, return immediately
-        if (ddlBlocks[blockId] && ddlBlocks[blockId].executed) {
-          return conn;
-        }
-
-        // If an execution is already in progress, wait for it and return its result
-        if (ddlExecutionPromises[blockId]) {
-          return ddlExecutionPromises[blockId];
-        }
-
-        // Start a new execution and store the promise
-        const executionPromise = (async () => {
-          try {
-            // Prefer textarea editor; fallback to code inside the block
-            const editor = document.getElementById(`editor-${blockId}`);
-            let sql = '';
-            if (editor && typeof editor.value === 'string') {
-              sql = editor.value.trim();
-            } else {
-              const codeBlock = document.querySelector(`#block-${blockId} code`);
-              sql = codeBlock ? codeBlock.textContent.trim() : '';
-            }
-            if (!sql) throw new Error('DDL block is empty');
-
-            // Initialize block state if it doesn't exist
-            if (!ddlBlocks[blockId]) {
-              ddlBlocks[blockId] = { executed: false, title: blockId, sql: '' };
-            }
-
-            // Execute DDL on the shared page connection
-            await conn.query(sql);
-
-            // Mark as executed and update state
-            ddlBlocks[blockId].executed = true;
-            ddlBlocks[blockId].sql = sql;
-            connections[blockId] = conn; // For compatibility
-
-            const status = document.getElementById(`status-${blockId}`);
-            if (status) {
-              status.textContent = 'Executed';
-              status.classList.add('executed');
-            }
+        return enqueueQuery(async () => {
+          if (ddlBlocks[blockId] && ddlBlocks[blockId].executed) {
             return conn;
-          } finally {
-            // Clean up the promise lock once execution is complete
-            delete ddlExecutionPromises[blockId];
           }
-        })();
 
-        // Store the promise so other calls can wait on it
-        ddlExecutionPromises[blockId] = executionPromise;
-        return executionPromise;
+          const editor = document.getElementById(`editor-${blockId}`);
+          let sql = '';
+          if (editor && typeof editor.value === 'string') {
+            sql = editor.value.trim();
+          } else {
+            const codeBlock = document.querySelector(`#block-${blockId} code`);
+            sql = codeBlock ? codeBlock.textContent.trim() : '';
+          }
+          if (!sql) throw new Error('DDL block is empty');
+
+          if (!ddlBlocks[blockId]) {
+            ddlBlocks[blockId] = { executed: false, title: blockId, sql: '' };
+          }
+
+          await conn.query(sql);
+
+          ddlBlocks[blockId].executed = true;
+          ddlBlocks[blockId].sql = sql;
+          connections[blockId] = conn;
+
+          const status = document.getElementById(`status-${blockId}`);
+          if (status) {
+            status.textContent = 'Executed';
+            status.classList.add('executed');
+          }
+          return conn;
+        });
       };
 
       window.runDqlQuery = async function (blockId) {
@@ -170,10 +165,13 @@
         } else if (editor) {
           sql = editor.value.trim();
         }
-        if (!sql) { alert('Please enter a DQL query'); return; }
+        if (!sql) {
+          alert('Please enter a DQL query');
+          return;
+        }
 
         if (runButton) {
-          var isDqlBtn = (runButton && runButton.classList && runButton.classList.contains('dql-run-btn'));
+          const isDqlBtn = runButton.classList.contains('dql-run-btn');
           runButton.disabled = true;
           runButton.textContent = isDqlBtn ? '⏳' : 'Running...';
         }
@@ -181,26 +179,19 @@
         if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
 
         try {
-          let queryConn = conn; // Always use the shared connection
-          const dependencyId = blockDiv ? blockDiv.getAttribute('data-depends') : '';
-          if (dependencyId) {
-            // Ensure dependency DDL is executed before running this DQL
-            if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
-              if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
-              await window.executeDdlBlock(dependencyId);
-              // Double-check that it's now executed
+          const result = await enqueueQuery(async () => {
+            const dependencyId = blockDiv ? blockDiv.getAttribute('data-depends') : '';
+            if (dependencyId) {
               if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
-                throw new Error(`Failed to execute dependency DDL block: ${dependencyId}`);
+                if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
+                await window.executeDdlBlock(dependencyId);
               }
             }
-            // Ensure the mapping exists (compat), but use shared conn regardless
-            if (!connections[dependencyId]) connections[dependencyId] = conn;
-          }
+            return await conn.query(sql);
+          });
 
           const outputFormatEl = document.querySelector(`input[name="output-${blockId}"]:checked`);
           const outputFormat = outputFormatEl ? outputFormatEl.value : 'table';
-          
-          const result = await queryConn.query(sql);
           let output = '';
 
           if (outputFormat === 'table') {
@@ -221,11 +212,11 @@
                 t += '</tr>';
               });
               t += '</tbody></table>';
-              t += `<div style=\"margin-top:10px;font-size:11px;color:#718096;\">Returned ${result.numRows} row(s)</div>`;
+              t += `<div style="margin-top:10px;font-size:11px;color:#718096;">Returned ${result.numRows} row(s)</div>`;
               output = t;
             }
           } else if (outputFormat === 'json') {
-            output = `<div class=\"raw-output\">${JSON.stringify(result.toArray(), null, 2)}</div>`;
+            output = `<div class="raw-output">${JSON.stringify(result.toArray(), null, 2)}</div>`;
           } else if (outputFormat === 'csv') {
             const cols = result.schema.fields.map(f => f.name);
             const rows = result.toArray();
@@ -234,20 +225,20 @@
               const line = cols.map(c => {
                 const val = r[c];
                 if (val === null) return 'NULL';
-                if (typeof val === 'string') return `"${val.replace(/\"/g, '""')}"`;
+                if (typeof val === 'string') return `"${val.replace(/"/g, '""')}"`;
                 return String(val);
               }).join(',');
               csv += line + '\n';
             });
-            output = `<div class=\"raw-output\">${csv}</div>`;
+            output = `<div class="raw-output">${csv}</div>`;
           }
 
           if (resultsContent) resultsContent.innerHTML = output;
         } catch (e) {
-          if (resultsContent) resultsContent.innerHTML = `<div class=\"error\">Error: ${escapeHtml(e.message)}</div>`;
+          if (resultsContent) resultsContent.innerHTML = `<div class="error">Error: ${escapeHtml(e.message)}</div>`;
         } finally {
           if (runButton) {
-            var isDqlBtn2 = (runButton && runButton.classList && runButton.classList.contains('dql-run-btn'));
+            const isDqlBtn2 = runButton.classList.contains('dql-run-btn');
             runButton.disabled = false;
             runButton.textContent = isDqlBtn2 ? '▶' : 'Run Query';
           }
