@@ -109,6 +109,37 @@
     return stmts;
   }
 
+  // Remove SQL comments (line and block) while respecting quotes
+  function stripSqlComments(sql) {
+    let out = '';
+    let inSingle = false, inDouble = false, inLineComment = false, inBlockComment = false;
+    for (let i = 0; i < sql.length; i++) {
+      const ch = sql[i];
+      const next = sql[i + 1];
+
+      if (inLineComment) {
+        if (ch === '\n') { inLineComment = false; out += ch; }
+        // else drop character
+        continue;
+      }
+      if (inBlockComment) {
+        if (ch === '*' && next === '/') { i++; inBlockComment = false; }
+        continue;
+      }
+
+      if (!inSingle && !inDouble) {
+        if (ch === '-' && next === '-') { i++; inLineComment = true; continue; }
+        if (ch === '/' && next === '*') { i++; inBlockComment = true; continue; }
+      }
+
+      if (!inDouble && ch === '\'') { inSingle = !inSingle; out += ch; continue; }
+      if (!inSingle && ch === '"') { inDouble = !inDouble; out += ch; continue; }
+
+      out += ch;
+    }
+    return out;
+  }
+
   // Globals used by onclick
   window.toggleDdlBlock = function (blockId) {
     const content = document.getElementById(`content-${blockId}`);
@@ -177,7 +208,8 @@
         // De-dupe concurrent executions of the same DDL block
         if (!ddlExecPromises[blockId]) {
           ddlExecPromises[blockId] = (async () => {
-            const statements = splitSqlStatements(sql);
+            const sanitized = stripSqlComments(sql);
+            const statements = splitSqlStatements(sanitized);
             await connMutex.acquire();
             try {
               for (const stmt of statements) {
