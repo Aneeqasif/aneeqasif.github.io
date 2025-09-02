@@ -6,6 +6,23 @@
   let isInitialized = false;
   const ddlBlocks = (window.ddlBlocks = window.ddlBlocks || {});
   const connections = (window.connections = window.connections || {});
+  const ddlExecPromises = (window.ddlExecPromises = window.ddlExecPromises || {});
+
+  // Simple async mutex to serialize access to the shared DuckDB connection
+  class Mutex {
+    constructor() { this.locked = false; this.queue = []; }
+    acquire() {
+      return new Promise((resolve) => {
+        if (!this.locked) { this.locked = true; resolve(); }
+        else { this.queue.push(resolve); }
+      });
+    }
+    release() {
+      const next = this.queue.shift();
+      if (next) next(); else this.locked = false;
+    }
+  }
+  const connMutex = new Mutex();
 
   // Utils
   const escapeHtml = (text) => {
@@ -50,6 +67,47 @@
     if (resultsDiv) resultsDiv.style.display = 'block';
     if (resultsContent) resultsContent.innerHTML = '<div class="results-content duckdb-init"><span class="duckdb-spinner" aria-label="Initializing"></span></div>';
   };
+
+  // Split SQL into individual statements, respecting quotes and comments
+  function splitSqlStatements(sql) {
+    const stmts = [];
+    let cur = '';
+    let inSingle = false, inDouble = false, inLineComment = false, inBlockComment = false;
+    for (let i = 0; i < sql.length; i++) {
+      const ch = sql[i];
+      const next = sql[i + 1];
+
+      if (inLineComment) {
+        cur += ch;
+        if (ch === '\n') inLineComment = false;
+        continue;
+      }
+      if (inBlockComment) {
+        cur += ch;
+        if (ch === '*' && next === '/') { cur += next; i++; inBlockComment = false; }
+        continue;
+      }
+
+      if (!inSingle && !inDouble) {
+        if (ch === '-' && next === '-') { cur += ch; cur += next; i++; inLineComment = true; continue; }
+        if (ch === '/' && next === '*') { cur += ch; cur += next; i++; inBlockComment = true; continue; }
+      }
+
+      if (!inDouble && ch === '\'' ) { inSingle = !inSingle; cur += ch; continue; }
+      if (!inSingle && ch === '"') { inDouble = !inDouble; cur += ch; continue; }
+
+      if (!inSingle && !inDouble && ch === ';') {
+        const trimmed = cur.trim();
+        if (trimmed) stmts.push(trimmed);
+        cur = '';
+        continue;
+      }
+      cur += ch;
+    }
+    const trimmed = cur.trim();
+    if (trimmed) stmts.push(trimmed);
+    return stmts;
+  }
 
   // Globals used by onclick
   window.toggleDdlBlock = function (blockId) {
@@ -113,14 +171,30 @@
         if (!sql) throw new Error('DDL block is empty');
 
         if (!ddlBlocks[blockId]) ddlBlocks[blockId] = { executed: false, title: blockId, sql };
-        // Execute DDL on the shared page connection so all blocks see the tables
-        await conn.query(sql);
-        ddlBlocks[blockId].executed = true;
-        ddlBlocks[blockId].sql = sql;
-        // Map for compatibility; all point to shared conn
-        connections[blockId] = conn;
-        const status = document.getElementById(`status-${blockId}`);
-        if (status) { status.textContent = 'Executed'; status.classList.add('executed'); }
+        // If already executed, nothing to do
+        if (ddlBlocks[blockId].executed) return conn;
+
+        // De-dupe concurrent executions of the same DDL block
+        if (!ddlExecPromises[blockId]) {
+          ddlExecPromises[blockId] = (async () => {
+            const statements = splitSqlStatements(sql);
+            await connMutex.acquire();
+            try {
+              for (const stmt of statements) {
+                await conn.query(stmt);
+              }
+            } finally {
+              connMutex.release();
+            }
+            ddlBlocks[blockId].executed = true;
+            ddlBlocks[blockId].sql = sql;
+            connections[blockId] = conn;
+            const status = document.getElementById(`status-${blockId}`);
+            if (status) { status.textContent = 'Executed'; status.classList.add('executed'); }
+          })();
+        }
+        // Await the (possibly in-flight) execution
+        await ddlExecPromises[blockId];
         return conn;
       };
 
@@ -149,20 +223,26 @@
         if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
 
         try {
-          let queryConn = conn; // Always use the shared connection
           const dependencyId = blockDiv ? blockDiv.getAttribute('data-depends') : '';
           if (dependencyId) {
             if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
               if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
               await window.executeDdlBlock(dependencyId);
             }
-            // Ensure the mapping exists (compat), but use shared conn regardless
             if (!connections[dependencyId]) connections[dependencyId] = conn;
           }
 
           const outputFormatEl = document.querySelector(`input[name="output-${blockId}"]:checked`);
           const outputFormat = outputFormatEl ? outputFormatEl.value : 'table';
-          const result = await queryConn.query(sql);
+
+          // Serialize query execution to avoid overlapping use of the same connection
+          await connMutex.acquire();
+          let result;
+          try {
+            result = await conn.query(sql);
+          } finally {
+            connMutex.release();
+          }
           let output = '';
 
           if (outputFormat === 'table') {
@@ -205,7 +285,7 @@
           }
 
           if (resultsContent) resultsContent.innerHTML = output;
-        } catch (e) {
+  } catch (e) {
           if (resultsContent) resultsContent.innerHTML = `<div class=\"error\">Error: ${escapeHtml(e.message)}</div>`;
         } finally {
           if (runButton) {
