@@ -149,26 +149,20 @@
         if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing query...</div>';
 
         try {
-          // ALWAYS use the main connection for consistency
+          let queryConn = conn; // Always use the shared connection
           const dependencyId = blockDiv ? blockDiv.getAttribute('data-depends') : '';
-          
           if (dependencyId) {
-            // Force re-execution of DDL if not executed, or if tables don't exist
-            const shouldExecuteDdl = !ddlBlocks[dependencyId] || 
-                                     !ddlBlocks[dependencyId].executed ||
-                                     !connections[dependencyId];
-            
-            if (shouldExecuteDdl) {
+            if (!ddlBlocks[dependencyId] || !ddlBlocks[dependencyId].executed) {
               if (resultsContent) resultsContent.innerHTML = '<div class="loading">Executing dependent DDL block...</div>';
               await window.executeDdlBlock(dependencyId);
             }
+            // Ensure the mapping exists (compat), but use shared conn regardless
+            if (!connections[dependencyId]) connections[dependencyId] = conn;
           }
 
           const outputFormatEl = document.querySelector(`input[name="output-${blockId}"]:checked`);
           const outputFormat = outputFormatEl ? outputFormatEl.value : 'table';
-          
-          // Always use the main shared connection
-          const result = await conn.query(sql);
+          const result = await queryConn.query(sql);
           let output = '';
 
           if (outputFormat === 'table') {
