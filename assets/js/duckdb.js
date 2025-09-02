@@ -100,51 +100,60 @@
       isInitialized = true;
 
       // Replace stubs with real implementations (use shared connection)
+      const ddlExecutionPromises = {};
       window.executeDdlBlock = async function (blockId) {
-        // Check if already executed to avoid re-execution
+        // If already executed, return immediately
         if (ddlBlocks[blockId] && ddlBlocks[blockId].executed) {
           return conn;
         }
 
-        // Prefer textarea editor; fallback to code inside the block
-        const editor = document.getElementById(`editor-${blockId}`);
-        let sql = '';
-        if (editor && typeof editor.value === 'string') {
-          sql = editor.value.trim();
-        } else {
-          const codeBlock = document.querySelector(`#block-${blockId} code`);
-          sql = codeBlock ? codeBlock.textContent.trim() : '';
-        }
-        if (!sql) throw new Error('DDL block is empty');
-
-        // Initialize block state if not exists
-        if (!ddlBlocks[blockId]) {
-          ddlBlocks[blockId] = { executed: false, title: blockId, sql: '', executing: false };
+        // If an execution is already in progress, wait for it and return its result
+        if (ddlExecutionPromises[blockId]) {
+          return ddlExecutionPromises[blockId];
         }
 
-        // Prevent concurrent execution of the same DDL
-        if (ddlBlocks[blockId].executing) {
-          // Wait for the current execution to complete
-          while (ddlBlocks[blockId].executing) {
-            await new Promise(resolve => setTimeout(resolve, 50));
+        // Start a new execution and store the promise
+        const executionPromise = (async () => {
+          try {
+            // Prefer textarea editor; fallback to code inside the block
+            const editor = document.getElementById(`editor-${blockId}`);
+            let sql = '';
+            if (editor && typeof editor.value === 'string') {
+              sql = editor.value.trim();
+            } else {
+              const codeBlock = document.querySelector(`#block-${blockId} code`);
+              sql = codeBlock ? codeBlock.textContent.trim() : '';
+            }
+            if (!sql) throw new Error('DDL block is empty');
+
+            // Initialize block state if it doesn't exist
+            if (!ddlBlocks[blockId]) {
+              ddlBlocks[blockId] = { executed: false, title: blockId, sql: '' };
+            }
+
+            // Execute DDL on the shared page connection
+            await conn.query(sql);
+
+            // Mark as executed and update state
+            ddlBlocks[blockId].executed = true;
+            ddlBlocks[blockId].sql = sql;
+            connections[blockId] = conn; // For compatibility
+
+            const status = document.getElementById(`status-${blockId}`);
+            if (status) {
+              status.textContent = 'Executed';
+              status.classList.add('executed');
+            }
+            return conn;
+          } finally {
+            // Clean up the promise lock once execution is complete
+            delete ddlExecutionPromises[blockId];
           }
-          return conn;
-        }
+        })();
 
-        ddlBlocks[blockId].executing = true;
-        try {
-          // Execute DDL on the shared page connection so all blocks see the tables
-          await conn.query(sql);
-          ddlBlocks[blockId].executed = true;
-          ddlBlocks[blockId].sql = sql;
-          // Map for compatibility; all point to shared conn
-          connections[blockId] = conn;
-          const status = document.getElementById(`status-${blockId}`);
-          if (status) { status.textContent = 'Executed'; status.classList.add('executed'); }
-        } finally {
-          ddlBlocks[blockId].executing = false;
-        }
-        return conn;
+        // Store the promise so other calls can wait on it
+        ddlExecutionPromises[blockId] = executionPromise;
+        return executionPromise;
       };
 
       window.runDqlQuery = async function (blockId) {
@@ -190,43 +199,6 @@
 
           const outputFormatEl = document.querySelector(`input[name="output-${blockId}"]:checked`);
           const outputFormat = outputFormatEl ? outputFormatEl.value : 'table';
-          
-          // Add a small delay to ensure DDL changes are fully committed
-          if (dependencyId) {
-            await new Promise(resolve => setTimeout(resolve, 10));
-            
-            // GitHub Pages debugging: verify tables exist before running DQL
-            try {
-              const tablesResult = await queryConn.query("SHOW TABLES");
-              console.log(`[DEBUG] Tables available after DDL ${dependencyId}:`, tablesResult.toArray());
-              
-              // For additional safety, re-execute DDL if tables don't exist
-              const tables = tablesResult.toArray().map(row => row.name || row.table_name);
-              console.log(`[DEBUG] Table names found:`, tables);
-              
-              // Extract table names from the DQL query to check if they exist
-              const sqlLower = sql.toLowerCase();
-              const expectedTables = ['employees', 'movies', 'ratings']; // Common table names
-              const missingTables = expectedTables.filter(table => 
-                sqlLower.includes(table) && !tables.includes(table)
-              );
-              
-              if (missingTables.length > 0) {
-                console.warn(`[DEBUG] Missing tables detected: ${missingTables}. Re-executing DDL...`);
-                if (resultsContent) resultsContent.innerHTML = '<div class="loading">Re-executing DDL to ensure tables exist...</div>';
-                
-                // Force re-execution of DDL
-                ddlBlocks[dependencyId].executed = false;
-                await window.executeDdlBlock(dependencyId);
-                
-                // Verify again
-                const retryResult = await queryConn.query("SHOW TABLES");
-                console.log(`[DEBUG] Tables after DDL re-execution:`, retryResult.toArray());
-              }
-            } catch (debugError) {
-              console.warn(`[DEBUG] Table check failed:`, debugError);
-            }
-          }
           
           const result = await queryConn.query(sql);
           let output = '';
