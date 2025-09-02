@@ -194,6 +194,38 @@
           // Add a small delay to ensure DDL changes are fully committed
           if (dependencyId) {
             await new Promise(resolve => setTimeout(resolve, 10));
+            
+            // GitHub Pages debugging: verify tables exist before running DQL
+            try {
+              const tablesResult = await queryConn.query("SHOW TABLES");
+              console.log(`[DEBUG] Tables available after DDL ${dependencyId}:`, tablesResult.toArray());
+              
+              // For additional safety, re-execute DDL if tables don't exist
+              const tables = tablesResult.toArray().map(row => row.name || row.table_name);
+              console.log(`[DEBUG] Table names found:`, tables);
+              
+              // Extract table names from the DQL query to check if they exist
+              const sqlLower = sql.toLowerCase();
+              const expectedTables = ['employees', 'movies', 'ratings']; // Common table names
+              const missingTables = expectedTables.filter(table => 
+                sqlLower.includes(table) && !tables.includes(table)
+              );
+              
+              if (missingTables.length > 0) {
+                console.warn(`[DEBUG] Missing tables detected: ${missingTables}. Re-executing DDL...`);
+                if (resultsContent) resultsContent.innerHTML = '<div class="loading">Re-executing DDL to ensure tables exist...</div>';
+                
+                // Force re-execution of DDL
+                ddlBlocks[dependencyId].executed = false;
+                await window.executeDdlBlock(dependencyId);
+                
+                // Verify again
+                const retryResult = await queryConn.query("SHOW TABLES");
+                console.log(`[DEBUG] Tables after DDL re-execution:`, retryResult.toArray());
+              }
+            } catch (debugError) {
+              console.warn(`[DEBUG] Table check failed:`, debugError);
+            }
           }
           
           const result = await queryConn.query(sql);
@@ -274,7 +306,7 @@
       });
   });
 
-  window.debugDuckDB = function () {
+  window.debugDuckDB = async function () {
     console.log('=== DuckDB Debug Info ===');
     console.log('DDL Blocks:', ddlBlocks);
     console.log('Connections:', connections);
@@ -282,5 +314,15 @@
     console.log('Default Connection:', !!conn);
     console.log('Is Initialized:', isInitialized);
     console.log('Is Initializing:', isInitializing);
+    
+    if (conn) {
+      try {
+        const tables = await conn.query("SHOW TABLES");
+        console.log('Available tables:', tables.toArray());
+      } catch (e) {
+        console.log('Error checking tables:', e);
+      }
+    }
+    console.log('=== End Debug ===');
   };
 })();
