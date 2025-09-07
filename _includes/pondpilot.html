@@ -1,0 +1,6 @@
+{%- if include.sql -%}
+  <pre class="pondpilot-snippet">{{ include.sql }}</pre>
+{%- elsif include.init -%}
+  <!-- PondPilot Widget - Latest stable version without defer for faster loading -->
+  <script src="https://unpkg.com/pondpilot-widget"></script>
+{%- endif -%}

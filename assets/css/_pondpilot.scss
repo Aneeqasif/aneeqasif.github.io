@@ -1,0 +1,454 @@
+/* PondPilot Widget Styling - Integrated with Jekyll Theme */
+
+// Define CSS variables for Rouge syntax highlighting colors
+// These variables follow Jekyll's theme system for light/dark modes
+:root {
+  // Light theme syntax colors (matching Jekyll Rouge)
+  --sql-keyword-color: #cf222e;      // Rouge .k, .kd, .kn, .kp, .kr, .kt, .kv
+  --sql-string-color: #0a3069;       // Rouge .s, .sa, .sc, .dl, .sd, .s2, .se, .sh, .sx, .s1, .ss
+  --sql-number-color: #0550ae;       // Rouge .m, .mb, .mf, .mh, .mi, .il, .mo, .mx
+  --sql-comment-color: #68717a;      // Rouge .c, .ch, .cd, .cm, .cp, .cpf, .c1, .cs
+  --sql-operator-color: #0550ae;     // Rouge .o, .ow
+  --sql-identifier-color: #0550ae;   // Rouge .nv, .vc, .vg, .vi, .vm
+  --sql-default-color: #24292f;      // Rouge default text color
+}
+
+// Dark theme syntax colors (applied via theme system)
+html[data-mode="dark"] {
+  --sql-keyword-color: #aa759f;      // Rouge .k, .kn, .kp, .kr, .kv dark theme
+  --sql-string-color: #90a959;       // Rouge .s, .sb, .sc, .dl, .sd, .s2, .sh, .sx, .s1 dark theme
+  --sql-number-color: #90a959;       // Rouge .m, .mb, .mf, .mh, .mi, .il, .mo, .mx dark theme
+  --sql-comment-color: #848484;      // Rouge .c, .ch, .cd, .cm, .cpf, .c1, .cs dark theme
+  --sql-operator-color: #d0d0d0;     // Rouge .o, .ow dark theme
+  --sql-identifier-color: #d0d0d0;   // Rouge .nv fallback (not defined in dark theme)
+  --sql-default-color: #d0d0d0;      // Rouge default dark theme text color
+}
+
+// System dark mode support (when no data-mode is set but system prefers dark)
+@media (prefers-color-scheme: dark) {
+  html:not([data-mode]) {
+    --sql-keyword-color: #aa759f;
+    --sql-string-color: #90a959;
+    --sql-number-color: #90a959;
+    --sql-comment-color: #848484;
+    --sql-operator-color: #d0d0d0;
+    --sql-identifier-color: #d0d0d0;
+    --sql-default-color: #d0d0d0;
+  }
+}
+
+// Main widget container - ENSURE VISIBILITY
+.pondpilot-widget {
+  display: block !important;
+  position: relative !important;
+  margin: 1.5rem 0 !important;
+  background: var(--card-bg, #ffffff) !important;
+  border: 1px solid var(--main-border-color, #e1e4e8) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  font-family: var(--bs-body-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif) !important;
+  box-shadow: var(--card-shadow, 0 2px 4px rgba(0,0,0,0.1)) !important;
+}
+
+// Button container (top-right) - ENSURE VISIBILITY
+.pondpilot-button-container {
+  display: flex !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 0 !important;
+  gap: 10px !important;
+  padding-right: 0.3rem !important;
+  padding-top: 0.3rem !important;
+  pointer-events: none !important;
+
+  > * {
+    pointer-events: auto !important;
+    display: inline-block !important;
+  }
+}
+
+
+
+// Run button - ENSURE VISIBILITY - Always visible
+.pondpilot-run-button {
+  display: inline-block !important;
+  padding: 4px 8px !important;
+  background: var(--link-color, #007bff) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 5px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  white-space: nowrap !important;
+
+
+  &:hover {
+    background: var(--link-color, #0056b3) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  &:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+  }
+}
+
+// Reset button - ENSURE VISIBILITY - Always visible
+.pondpilot-reset-button {
+  display: inline-block !important;
+  padding: 4px 8px !important;
+  background: var(--btn-border-color, #f8f9fa) !important;
+  color: var(--text-muted-color, #6c757d) !important;
+  border: 1px solid var(--main-border-color, #dee2e6) !important;
+  border-radius: 5px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+
+  &.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .pondpilot-widget:hover &.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  &:hover {
+    background: var(--sidebar-hover-bg, #e9ecef) !important;
+    color: var(--text-color, #212529) !important;
+  }
+}
+
+// SQL Editor - ENSURE VISIBILITY AND PRESERVE SYNTAX HIGHLIGHTING
+.pondpilot-editor {
+  display: block !important;
+  position: relative !important;
+  background: transparent !important;
+  min-height: 80px !important;
+
+  pre {
+    display: block !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    padding-right: 100px !important; // Space for buttons
+    background: transparent !important;
+    border: none !important;
+    font-family: 'Iosevka Web', monospace !important;
+    font-size: 0.875rem !important;
+    line-height: 1.6 !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    tab-size: 2 !important;
+    // Don't set a default color here - let PondPilot handle it
+  }
+
+  &[contenteditable="true"] {
+    outline: none !important;
+
+    &:focus-within {
+      background: rgba(59, 130, 246, 0.05) !important;
+    }
+  }
+}
+
+// Results output - ENSURE VISIBILITY WHEN SHOWN
+.pondpilot-output {
+  background: var(--card-bg, #ffffff) !important;
+  border-top: 1px solid var(--main-border-color, #e1e4e8) !important;
+  max-height: 400px !important;
+  overflow: auto !important;
+  display: none !important;
+  font-size: 0.875rem !important;
+
+  &.show {
+    display: block !important;
+    visibility: visible !important;
+  }
+}
+
+.pondpilot-output-content {
+  display: block !important;
+  padding: 0 !important;
+}
+
+// Results table - ENSURE VISIBILITY
+.pondpilot-output table {
+  display: table !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 0.875rem !important;
+  margin: 0 !important;
+}
+
+.pondpilot-output th,
+.pondpilot-output td {
+  display: table-cell !important;
+  text-align: left !important;
+  padding: 0.5rem 0.75rem !important;
+  border-bottom: 1px solid var(--main-border-color, #e1e4e8) !important;
+}
+
+.pondpilot-output th {
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--text-muted-color, #6c757d) !important;
+  background: var(--tb-odd-bg, #f8f9fa) !important;
+}
+
+.pondpilot-output td {
+  color: var(--text-color, #212529) !important;
+}
+
+.pondpilot-output tbody tr:nth-child(odd) {
+  background: var(--tb-odd-bg, #f8f9fa) !important;
+}
+
+.pondpilot-output tbody tr:nth-child(even) {
+  background: var(--tb-even-bg, #ffffff) !important;
+}
+
+.pondpilot-output tbody tr:hover {
+  background: var(--tb-border-color, #dee2e6) !important;
+}
+
+// Results footer - ENSURE VISIBILITY
+.pondpilot-results-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 0rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  padding-left: 0.5rem !important;
+}
+
+.pondpilot-results-info {
+  display: flex !important;
+  font-size: 0.75rem !important;
+  color: var(--text-muted-color, #6c757d) !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+// Loading and progress - ENSURE VISIBILITY
+.pondpilot-loading {
+  display: block !important;
+  text-align: center !important;
+  padding: 1.5rem !important;
+  color: var(--text-muted-color, #6c757d) !important;
+  font-size: 0.875rem !important;
+}
+
+.pondpilot-progress {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  padding: 1.5rem !important;
+}
+
+.pondpilot-progress-text {
+  display: block !important;
+  font-size: 0.875rem !important;
+  color: var(--text-muted-color, #6c757d) !important;
+}
+
+.pondpilot-progress-bar {
+  display: block !important;
+  width: 200px !important;
+  height: 4px !important;
+  background: var(--main-border-color, #e1e4e8) !important;
+  border-radius: 2px !important;
+  overflow: hidden !important;
+}
+
+.pondpilot-progress-fill {
+  display: block !important;
+  height: 100% !important;
+  background: var(--link-color, #007bff) !important;
+  border-radius: 2px !important;
+  transition: width 0.3s ease !important;
+}
+
+// Error messages - ENSURE VISIBILITY
+.pondpilot-error {
+  display: block !important;
+  color: var(--text-color, #212529) !important;
+  background: rgba(220, 38, 38, 0.1) !important;
+  border: 1px solid rgba(220, 38, 38, 0.2) !important;
+  border-radius: 4px !important;
+  padding: 1rem !important;
+  font-size: 0.875rem !important;
+  font-family: monospace !important;
+  margin: 0.5rem 0 !important;
+}
+.pondpilot-powered {
+  display: none !important;
+}
+
+// Duck logo watermark - HIDDEN
+.pondpilot-duck {
+  display: none !important;
+}
+
+// Custom SQL Syntax Highlighting - Override PondPilot's defaults with HIGH SPECIFICITY
+// Using CSS variables that follow Jekyll's Rouge syntax highlighting colors
+.pondpilot-widget .pondpilot-editor {
+  // SQL Keywords (SELECT, FROM, WHERE, etc.) - Rouge .k, .kd, .kn, .kp, .kr, .kt, .kv
+  .sql-hl-keyword {
+    color: var(--sql-keyword-color) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+  }
+
+  // SQL Strings ('text', "text") - Rouge .s, .sa, .sc, .dl, .sd, .s2, .se, .sh, .sx, .s1, .ss
+  .sql-hl-string {
+    color: var(--sql-string-color) !important;
+    font-style: normal !important;
+  }
+
+  // SQL Numbers (123, 45.67) - Rouge .m, .mb, .mf, .mh, .mi, .il, .mo, .mx
+  .sql-hl-number {
+    color: var(--sql-number-color) !important;
+    font-weight: 600 !important;
+  }
+
+  // SQL Comments (-- comment) - Rouge .c, .ch, .cd, .cm, .cp, .cpf, .c1, .cs
+  .sql-hl-comment {
+    color: var(--sql-comment-color) !important;
+    font-style: italic !important;
+    opacity: 0.8 !important;
+  }
+
+  // SQL Special characters (*, ;, (, ), etc.) - Rouge .o, .ow
+  .sql-hl-special {
+    color: var(--sql-operator-color) !important;
+    font-weight: 600 !important;
+  }
+
+  // SQL Identifiers (column names, table names) - Rouge .nv, .vc, .vg, .vi, .vm
+  .sql-hl-identifier {
+    color: var(--sql-identifier-color) !important;
+    font-weight: 500 !important;
+  }
+
+  // SQL Other (fallback for anything else)
+  .sql-hl-other {
+    color: var(--sql-default-color) !important;
+    font-weight: normal !important;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .pondpilot-button-container {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+
+  .pondpilot-editor pre {
+    padding-right: 1rem !important;
+    padding-top: 3rem !important;
+  }
+
+  .pondpilot-output-content {
+    padding: 0.75rem !important;
+    overflow-x: auto !important;
+  }
+
+  .pondpilot-output table {
+    min-width: 400px !important;
+  }
+}
+
+/*
+================================================================================
+PONDPILOT WIDGET - THEMEABLE ELEMENTS REFERENCE
+================================================================================
+
+This file provides complete theme integration with Jekyll's Chirpy theme.
+All elements use CSS variables that automatically adapt to light/dark modes.
+
+CSS VARIABLES (Custom):
+  --sql-keyword-color     - SQL keywords (SELECT, FROM, WHERE, etc.)
+  --sql-string-color      - SQL string literals ('text', "text")
+  --sql-number-color      - SQL numeric literals (123, 45.67)
+  --sql-comment-color     - SQL comments (-- comment)
+  --sql-operator-color    - SQL operators (*, ;, (, ), etc.)
+  --sql-identifier-color  - SQL identifiers (column/table names)
+  --sql-default-color     - Default SQL text color
+
+MAIN WIDGET COMPONENTS:
+  .pondpilot-widget                   - Main container
+  .pondpilot-button-container         - Button container (top-right)
+  .pondpilot-run-button               - Execute SQL button
+  .pondpilot-reset-button             - Reset/clear button
+  .pondpilot-editor                   - SQL editor container
+  .pondpilot-editor pre               - SQL code input area
+  .pondpilot-output                   - Results output container
+  .pondpilot-output-content           - Results content wrapper
+  .pondpilot-output table             - Results data table
+  .pondpilot-output th                - Table headers
+  .pondpilot-output td                - Table data cells
+  .pondpilot-results-footer           - Results footer container
+  .pondpilot-results-info             - Results metadata display
+
+SYNTAX HIGHLIGHTING CLASSES:
+  .sql-hl-keyword                     - SQL keywords
+  .sql-hl-string                      - String literals
+  .sql-hl-number                      - Numeric literals
+  .sql-hl-comment                     - Comments
+  .sql-hl-special                     - Special characters/operators
+  .sql-hl-identifier                  - Identifiers (tables/columns)
+  .sql-hl-other                       - Other/fallback elements
+
+LOADING & PROGRESS STATES:
+  .pondpilot-loading                  - Loading message
+  .pondpilot-progress                 - Progress container
+  .pondpilot-progress-text            - Progress text
+  .pondpilot-progress-bar             - Progress bar container
+  .pondpilot-progress-fill            - Progress bar fill
+
+ERROR HANDLING:
+  .pondpilot-error                    - Error message container
+
+BRANDING & WATERMARKS:
+  .pondpilot-powered                  - "Powered by" text
+  .pondpilot-duck                     - DuckDB logo watermark
+
+JEKYLL THEME VARIABLES USED:
+  --card-bg                           - Widget background
+  --main-border-color                 - Borders and separators
+  --card-shadow                       - Widget shadow
+  --link-color                        - Action buttons
+  --text-color                        - Primary text
+  --text-muted-color                  - Secondary text
+  --btn-border-color                  - Button backgrounds
+  --sidebar-hover-bg                  - Hover states
+  --tb-odd-bg                         - Table row backgrounds
+  --tb-even-bg                        - Alternate table rows
+  --tb-border-color                   - Table hover states
+
+THEME MODES SUPPORTED:
+  - Light mode (default)
+  - Dark mode (html[data-mode="dark"])
+  - System preference (@media prefers-color-scheme)
+  - Automatic theme switching
+
+RESPONSIVE BREAKPOINTS:
+  - Mobile: max-width 768px
+  - Adjusts button layout and spacing
+  - Optimizes table scrolling
+
+================================================================================
+*/

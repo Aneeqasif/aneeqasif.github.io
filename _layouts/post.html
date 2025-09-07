@@ -177,3 +177,7 @@ script_includes:
   </div>
   <!-- div.post-tail-wrapper -->
 </article>
+
+{%- if page.use_sql -%}
+  {% include pondpilot.html init=true %}
+{%- endif -%}
