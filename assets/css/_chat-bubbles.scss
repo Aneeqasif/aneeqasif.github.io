@@ -46,6 +46,9 @@ blockquote[avatar] {
   margin-left: var(--chat-bubble-margin-left);
   line-height: var(--chat-bubble-line-height) !important;
   background: var(--chat-bubble-default-color) !important;
+  
+  /* Default color for inline code derivation */
+  --current-bubble-color: var(--chat-bubble-default-color);
 
   /* Remove default paragraph margins inside bubbles */
   p {
@@ -58,14 +61,16 @@ blockquote[avatar] {
     margin-top: 0.5rem !important;
   }
 
+  /* Inline code styling with lighter shade of bubble color */
   code {
     padding: 0.15em 0.4em !important;
-    border-radius: 3px !important;
+    border-radius: 8px !important;
     font-size: 0.9em !important;
     border: none !important;
-    color: white !important;
-    background: color-mix(in srgb, var(--current-bubble-color) 80%, black 20%) !important;
+    color: rgba(255, 255, 255, 0.917) !important;
+    background: color-mix(in srgb, var(--current-bubble-color) 75%, rgba(255, 255, 255, 0.768) 25%) !important;
   }
+
   
   /* Default avatar positioning (left side) */
   &::before {
@@ -100,14 +105,38 @@ blockquote[avatar] {
   &[avatar="snap"]::before { background-image: url('/assets/img/avt/snap.png'); }
   
   /* Color themes */
-  &[color="lavender"] { background: var(--chat-lavender) !important; }
-  &[color="purple"] { background: var(--chat-purple) !important; }
-  &[color="blue"] { background: var(--chat-blue) !important; }
-  &[color="green"] { background: var(--chat-green) !important; }
-  &[color="red"] { background: var(--chat-red) !important; }
-  &[color="orange"] { background: var(--chat-orange) !important; }
-  &[color="gray"] { background: var(--chat-gray) !important; }
-  &[color="dark"] { background: var(--chat-dark) !important; }
+  &[color="lavender"] { 
+    --current-bubble-color: var(--chat-lavender);
+    background: var(--chat-lavender) !important; 
+  }
+  &[color="purple"] { 
+    --current-bubble-color: var(--chat-purple);
+    background: var(--chat-purple) !important; 
+  }
+  &[color="blue"] { 
+    --current-bubble-color: var(--chat-blue);
+    background: var(--chat-blue) !important; 
+  }
+  &[color="green"] { 
+    --current-bubble-color: var(--chat-green);
+    background: var(--chat-green) !important; 
+  }
+  &[color="red"] { 
+    --current-bubble-color: var(--chat-red);
+    background: var(--chat-red) !important; 
+  }
+  &[color="orange"] { 
+    --current-bubble-color: var(--chat-orange);
+    background: var(--chat-orange) !important; 
+  }
+  &[color="gray"] { 
+    --current-bubble-color: var(--chat-gray);
+    background: var(--chat-gray) !important; 
+  }
+  &[color="dark"] { 
+    --current-bubble-color: var(--chat-dark);
+    background: var(--chat-dark) !important; 
+  }
 }
 
 /* Content alignment override */

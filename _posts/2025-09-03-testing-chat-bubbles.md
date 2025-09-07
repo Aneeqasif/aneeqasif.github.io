@@ -39,6 +39,32 @@ Our chat bubble system now uses flexible Kramdown data attributes! You can mix a
 > Exactly! Let me show you all the different combinations...
 {: avatar="pub" color="purple"}
 
+## Inline Code Examples
+
+> Here's how to use `git push` to upload your changes!
+{: avatar="owl" color="blue"}
+
+> What about `git pull` and `git merge` commands?
+{: avatar="groot" color="lavender"}
+
+> For JavaScript, use `const` instead of `var` for better scoping.
+{: avatar="pub" color="green"}
+
+> Don't forget to run `npm install` before starting!
+{: avatar="snap" color="red"}
+
+> CSS variables like `--main-color: #ff0000` are super useful!
+{: avatar="owl" color="orange"}
+
+> You can also use `docker run` and `docker build` commands.
+{: avatar="groot" color="gray"}
+
+> Pro tip: `ctrl+c` stops most running processes in terminal.
+{: avatar="pub" color="dark"}
+
+> The `background-color` property works great with `color-mix()` function!
+{: avatar="snap" color="purple"}
+
 ## Avatar Showcase
 
 > Groot with different colors!
