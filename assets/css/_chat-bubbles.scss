@@ -1,0 +1,149 @@
+/* Chat Bubble System for Jekyll Chirpy Theme */
+/* Enhanced Kramdown with Data Attributes */
+
+:root {
+  --chat-avatar-size: 50px;
+  --chat-bubble-max-width: 75%;
+  --chat-bubble-min-width: 120px;
+  --chat-bubble-radius: 8px;
+  --chat-spacing: 1.5rem;
+  --chat-gap: 12px;
+  
+  /* Common bubble properties */
+  --chat-bubble-padding-horizontal: 0.65rem;
+  --chat-bubble-padding-vertical: 0.3rem;
+  --chat-bubble-line-height: 1.75;
+  --chat-bubble-default-color: var(--chat-lavender);
+  
+  /* Avatar positioning and sizing */
+  --chat-avatar-left: calc(-1 * (var(--chat-avatar-size) + var(--chat-gap)));
+  --chat-avatar-right: calc(-1 * (var(--chat-avatar-size) + var(--chat-gap)));
+  --chat-bubble-margin-left: calc(var(--chat-avatar-size) + var(--chat-gap));
+  --chat-bubble-margin-right: calc(var(--chat-avatar-size) + var(--chat-gap));
+  
+  /* Predefined color palette */
+  --chat-lavender: #6c5ce7;
+  --chat-purple: #5f4dee;
+  --chat-blue: #0984e3;
+  --chat-green: #00b894;
+  --chat-red: #e17055;
+  --chat-orange: #fd79a8;
+  --chat-gray: #636e72;
+  --chat-dark: #2d3436;
+}
+
+/* Base chat bubble styling - Default left side */
+blockquote[avatar] {
+  border-left: 0 !important;
+  color: white !important;
+  padding: var(--chat-bubble-padding-vertical) var(--chat-bubble-padding-horizontal) !important;
+  margin: var(--chat-spacing) auto var(--chat-spacing) 0 !important;
+  border-radius: var(--chat-bubble-radius) !important;
+  max-width: var(--chat-bubble-max-width);
+  min-width: var(--chat-bubble-min-width);
+  width: fit-content;
+  position: relative;
+  margin-left: var(--chat-bubble-margin-left);
+  line-height: var(--chat-bubble-line-height) !important;
+  background: var(--chat-bubble-default-color) !important;
+
+  /* Remove default paragraph margins inside bubbles */
+  p {
+    margin: 0 !important;
+    line-height: inherit;
+  }
+  
+  /* Handle multiple paragraphs */
+  p + p {
+    margin-top: 0.5rem !important;
+  }
+
+  /* Default avatar positioning (left side) */
+  &::before {
+    content: '';
+    position: absolute;
+    left: var(--chat-avatar-left);
+    top: 50%;
+    transform: translateY(-50%);
+    width: var(--chat-avatar-size);
+    height: var(--chat-avatar-size);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
+
+  /* Right side positioning */
+  &[side="right"] {
+    margin-left: auto !important;
+    margin-right: var(--chat-bubble-margin-right) !important;
+    
+    &::before {
+      left: auto;
+      right: var(--chat-avatar-right);
+    }
+  }
+  
+  /* Avatar images */
+  &[avatar="groot"]::before { background-image: url('/assets/img/avt/groot.png'); }
+  &[avatar="owl"]::before { background-image: url('/assets/img/avt/owl.png'); }
+  &[avatar="pub"]::before { background-image: url('/assets/img/avt/pub.png'); }
+  &[avatar="snap"]::before { background-image: url('/assets/img/avt/snap.png'); }
+  
+  /* Color themes */
+  &[color="lavender"] { background: var(--chat-lavender) !important; }
+  &[color="purple"] { background: var(--chat-purple) !important; }
+  &[color="blue"] { background: var(--chat-blue) !important; }
+  &[color="green"] { background: var(--chat-green) !important; }
+  &[color="red"] { background: var(--chat-red) !important; }
+  &[color="orange"] { background: var(--chat-orange) !important; }
+  &[color="gray"] { background: var(--chat-gray) !important; }
+  &[color="dark"] { background: var(--chat-dark) !important; }
+}
+
+/* Content alignment override */
+.content > blockquote[avatar] {
+  margin-left: var(--chat-bubble-margin-left) !important;
+  margin-right: 0 !important;
+  max-width: var(--chat-bubble-max-width);
+  min-width: var(--chat-bubble-min-width);
+  width: fit-content;
+  border-radius: var(--chat-bubble-radius) !important;
+  
+  /* Right side override */
+  &[side="right"] {
+    margin-left: auto !important;
+    margin-right: var(--chat-bubble-margin-right) !important;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 991.98px) {
+  :root {
+    --chat-avatar-size: 40px;
+    --chat-bubble-max-width: 80%;
+    --chat-bubble-min-width: 100px;
+    --chat-gap: 10px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  :root {
+    --chat-avatar-size: 35px;
+    --chat-bubble-max-width: 90%;
+    --chat-bubble-min-width: 80px;
+    --chat-gap: 8px;
+  }
+  
+  blockquote[avatar] {
+    margin-left: var(--chat-bubble-margin-left) !important;
+    margin-right: 0 !important;
+    
+    &[side="right"] {
+      margin-left: auto !important;
+      margin-right: var(--chat-bubble-margin-right) !important;
+    }
+  }
+}
+
+

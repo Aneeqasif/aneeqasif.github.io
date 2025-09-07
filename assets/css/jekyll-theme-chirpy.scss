@@ -1,6 +1,9 @@
 ---
 ---
 
+/* Import custom variables BEFORE theme to override defaults */
+@use 'custom-variables';
+
 /* prettier-ignore */
 @use 'main
 {%- if jekyll.environment == 'production' -%}
@@ -9,6 +12,7 @@
 ';
 @use 'callouts';
 @use 'custom-mixins';
+@use 'chat-bubbles';
 
 /* append your custom style below */
 @import url('https://fonts.googleapis.com/css2?family=Alkatra:wght@400..700&display=swap');
