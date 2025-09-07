@@ -11,6 +11,9 @@
   --sql-operator-color: #0550ae;     // Rouge .o, .ow
   --sql-identifier-color: #0550ae;   // Rouge .nv, .vc, .vg, .vi, .vm
   --sql-default-color: #24292f;      // Rouge default text color
+  
+  // Custom editor background colors
+  --sql-editor-bg: #f6f8fa;          // Light theme editor background
 }
 
 // Dark theme syntax colors (applied via theme system)
@@ -22,6 +25,9 @@ html[data-mode="dark"] {
   --sql-operator-color: #d0d0d0;     // Rouge .o, .ow dark theme
   --sql-identifier-color: #d0d0d0;   // Rouge .nv fallback (not defined in dark theme)
   --sql-default-color: #d0d0d0;      // Rouge default dark theme text color
+  
+  // Custom editor background colors
+  --sql-editor-bg: rgb(19, 19, 23);  // Dark theme editor background (your original color)
 }
 
 // System dark mode support (when no data-mode is set but system prefers dark)
@@ -34,6 +40,9 @@ html[data-mode="dark"] {
     --sql-operator-color: #d0d0d0;
     --sql-identifier-color: #d0d0d0;
     --sql-default-color: #d0d0d0;
+    
+    // Custom editor background colors
+    --sql-editor-bg: rgb(19, 19, 23); // Dark theme editor background for system preference
   }
 }
 
@@ -70,11 +79,11 @@ html[data-mode="dark"] {
 
 
 
-// Run button - ENSURE VISIBILITY - Always visible
+// Run button - ENSURE VISIBILITY - Always visible with vibrant color
 .pondpilot-run-button {
   display: inline-block !important;
   padding: 4px 8px !important;
-  background: var(--link-color, #007bff) !important;
+  background: #0066cc !important;
   color: white !important;
   border: none !important;
   border-radius: 5px !important;
@@ -86,8 +95,7 @@ html[data-mode="dark"] {
 
 
   &:hover {
-    background: var(--link-color, #0056b3) !important;
-    transform: translateY(-1px) !important;
+    background: #0052a3 !important;
   }
 
   &:disabled {
@@ -97,13 +105,13 @@ html[data-mode="dark"] {
   }
 }
 
-// Reset button - ENSURE VISIBILITY - Always visible
+// Reset button - ENSURE VISIBILITY - Always visible with editor-matching theme colors
 .pondpilot-reset-button {
   display: inline-block !important;
   padding: 4px 8px !important;
-  background: var(--btn-border-color, #f8f9fa) !important;
-  color: var(--text-muted-color, #6c757d) !important;
-  border: 1px solid var(--main-border-color, #dee2e6) !important;
+  background: var(--card-bg, #ffffff) !important;
+  color: var(--text-color, #495057) !important;
+  border: 1px solid var(--main-border-color, #ced4da) !important;
   border-radius: 5px !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
@@ -120,17 +128,14 @@ html[data-mode="dark"] {
     visibility: visible !important;
   }
 
-  &:hover {
-    background: var(--sidebar-hover-bg, #e9ecef) !important;
-    color: var(--text-color, #212529) !important;
-  }
+
 }
 
 // SQL Editor - ENSURE VISIBILITY AND PRESERVE SYNTAX HIGHLIGHTING
 .pondpilot-editor {
   display: block !important;
   position: relative !important;
-  background: transparent !important;
+  background: var(--sql-editor-bg, #f8f9fa) !important;
   min-height: 80px !important;
 
   pre {
@@ -141,7 +146,7 @@ html[data-mode="dark"] {
     background: transparent !important;
     border: none !important;
     font-family: 'Iosevka Web', monospace !important;
-    font-size: 0.875rem !important;
+    font-size: 0.95rem !important;
     line-height: 1.6 !important;
     white-space: pre-wrap !important;
     word-wrap: break-word !important;
