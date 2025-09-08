@@ -1,5 +1,5 @@
 ---
-title: faulty Testing Jekyll GitHub Pages DuckDB Integration
+title: Testing Jekyll GitHub Pages DuckDB Integration
 date: 2025-07-08 14:00:00 +0500
 toc: true
 comments: true
@@ -388,7 +388,7 @@ ORDER BY total_spent DESC;</pre>
     serviceWorker: 'serviceWorker' in navigator,
     webWorkers: typeof Worker !== 'undefined',
     fetch: typeof fetch !== 'undefined',
-    import: typeof import !== 'undefined'
+    esModules: 'import' in document.createElement('script')
   });
 </script>
 
