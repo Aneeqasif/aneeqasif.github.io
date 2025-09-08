@@ -71,9 +71,6 @@ ORDER BY total_spent DESC;</pre>
 <!-- Load PondPilot Widget from CDN -->
 <script src="https://unpkg.com/pondpilot-widget"></script>
 
-<!-- Alternative: Try loading DuckDB via script tag as fallback -->
-<script src="https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/dist/duckdb-browser-eh.js"></script>
-
 <script type="module">
   console.log('🚀 Starting GitHub Pages DuckDB test...');
   console.log('🌐 Environment info:', {
@@ -121,29 +118,23 @@ ORDER BY total_spent DESC;</pre>
       // Try importing DuckDB WASM with detailed error handling
       let duckdb;
       
-      // First, check if DuckDB is available globally (from script tag)
-      if (window.duckdb) {
-        console.log('✅ Found DuckDB in global scope');
-        duckdb = window.duckdb;
-      } else {
-        console.log('🔄 DuckDB not in global scope, trying ES module import...');
+      console.log('🔄 Loading DuckDB via ES module import...');
+      
+      try {
+        console.log('🔄 Attempting to import DuckDB from jsdelivr...');
+        duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm');
+        console.log('✅ DuckDB WASM modules loaded successfully from jsdelivr');
+      } catch (importError) {
+        console.error('❌ Failed to import from jsdelivr:', importError);
         
+        // Try alternative CDN
         try {
-          console.log('🔄 Attempting to import DuckDB from jsdelivr...');
-          duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm');
-          console.log('✅ DuckDB WASM modules loaded successfully from jsdelivr');
-        } catch (importError) {
-          console.error('❌ Failed to import from jsdelivr:', importError);
-          
-          // Try alternative CDN
-          try {
-            console.log('🔄 Trying alternative CDN (unpkg)...');
-            duckdb = await import('https://unpkg.com/@duckdb/duckdb-wasm@1.29.1-dev68.0/dist/duckdb-browser-eh.js');
-            console.log('✅ DuckDB WASM loaded from unpkg');
-          } catch (unpkgError) {
-            console.error('❌ Failed to import from unpkg:', unpkgError);
-            throw new Error(`Cannot load DuckDB WASM: jsdelivr failed (${importError.message}), unpkg failed (${unpkgError.message})`);
-          }
+          console.log('🔄 Trying alternative CDN (unpkg)...');
+          duckdb = await import('https://unpkg.com/@duckdb/duckdb-wasm@1.29.1-dev68.0/dist/duckdb-browser-eh.js');
+          console.log('✅ DuckDB WASM loaded from unpkg');
+        } catch (unpkgError) {
+          console.error('❌ Failed to import from unpkg:', unpkgError);
+          throw new Error(`Cannot load DuckDB WASM: jsdelivr failed (${importError.message}), unpkg failed (${unpkgError.message})`);
         }
       }
       
