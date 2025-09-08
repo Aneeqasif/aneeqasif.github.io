@@ -14,6 +14,7 @@ image:
 ---
 
 ### Working with Generated Data
+some sql here 
 
 {% include pondpilot.html 
    title="Number Generation and Calculations"
