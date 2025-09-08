@@ -66,17 +66,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Silently handle analytics requests that are often blocked by browsers/ad-blockers
-  // to avoid noisy "FetchEvent ... promise was rejected" console errors.
-  const url = event.request.url;
-  const isGoatCounter = url.startsWith('https://gc.zgo.at/') || url.includes('.goatcounter.com/');
-  if (isGoatCounter) {
-    event.respondWith(
-      fetch(event.request).catch(() => new Response('', { status: 204, statusText: 'No Content' }))
-    );
-    return;
-  }
-
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
