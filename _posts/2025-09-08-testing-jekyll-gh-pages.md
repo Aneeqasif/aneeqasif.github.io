@@ -113,51 +113,93 @@ ORDER BY total_spent DESC;</pre></pre>
 
   async function testDuckDBIntegration() {
     try {
+      window.setProgressStep && window.setProgressStep('Loading DuckDB modules');
       updateStatus('🔧 Loading DuckDB WASM modules...', 'Importing from jsdelivr CDN');
       
       // Try importing DuckDB WASM with detailed error handling
       let duckdb;
       
       console.log('🔄 Loading DuckDB via ES module import...');
+      window.setProgressStep && window.setProgressStep('ES module import attempt');
       
       try {
         console.log('🔄 Attempting to import DuckDB from jsdelivr...');
-        duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm');
+        window.setProgressStep && window.setProgressStep('jsdelivr import starting');
+        
+        // Add a timeout to the import
+        const importPromise = import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm');
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Import timeout after 15 seconds')), 15000)
+        );
+        
+        duckdb = await Promise.race([importPromise, timeoutPromise]);
         console.log('✅ DuckDB WASM modules loaded successfully from jsdelivr');
+        window.setProgressStep && window.setProgressStep('jsdelivr import successful');
       } catch (importError) {
         console.error('❌ Failed to import from jsdelivr:', importError);
+        updateStatus('⚠️ Trying alternative approach...', 'jsdelivr failed, testing alternatives');
+        window.setProgressStep && window.setProgressStep('jsdelivr failed, trying unpkg');
         
         // Try alternative CDN
         try {
-          console.log('🔄 Trying alternative CDN (unpkg)...');
-          duckdb = await import('https://unpkg.com/@duckdb/duckdb-wasm@1.29.1-dev68.0/dist/duckdb-browser-eh.js');
+          console.log('🔄 Trying unpkg CDN...');
+          const unpkgPromise = import('https://unpkg.com/@duckdb/duckdb-wasm@latest/dist/duckdb-browser-eh.js');
+          const timeoutPromise2 = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Unpkg timeout after 15 seconds')), 15000)
+          );
+          
+          duckdb = await Promise.race([unpkgPromise, timeoutPromise2]);
           console.log('✅ DuckDB WASM loaded from unpkg');
+          window.setProgressStep && window.setProgressStep('unpkg import successful');
         } catch (unpkgError) {
           console.error('❌ Failed to import from unpkg:', unpkgError);
-          throw new Error(`Cannot load DuckDB WASM: jsdelivr failed (${importError.message}), unpkg failed (${unpkgError.message})`);
+          window.setProgressStep && window.setProgressStep('unpkg failed, trying stable');
+          
+          // Try the latest stable version
+          try {
+            console.log('🔄 Trying latest stable version...');
+            const stablePromise = import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/+esm');
+            const timeoutPromise3 = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Stable version timeout after 15 seconds')), 15000)
+            );
+            
+            duckdb = await Promise.race([stablePromise, timeoutPromise3]);
+            console.log('✅ DuckDB WASM loaded from latest stable');
+            window.setProgressStep && window.setProgressStep('stable import successful');
+          } catch (stableError) {
+            console.error('❌ All import methods failed');
+            window.setProgressStep && window.setProgressStep('ALL IMPORTS FAILED');
+            throw new Error(`Cannot load DuckDB WASM: jsdelivr (${importError.message}), unpkg (${unpkgError.message}), stable (${stableError.message})`);
+          }
         }
       }
       
       // Check if duckdb object has required methods
       console.log('🔍 Checking DuckDB object:', Object.keys(duckdb));
+      window.setProgressStep && window.setProgressStep('Checking DuckDB object');
       if (!duckdb.getJsDelivrBundles) {
         throw new Error('DuckDB object missing required methods');
       }
       
       updateStatus('⚙️ Selecting optimal bundle...', 'Checking browser capabilities');
+      window.setProgressStep && window.setProgressStep('Selecting bundle');
       const bundles = duckdb.getJsDelivrBundles();
       const bundle = await duckdb.selectBundle(bundles);
       console.log('✅ Bundle selected:', bundle);
+      window.setProgressStep && window.setProgressStep('Bundle selected');
       
       updateStatus('👷 Creating Web Worker...', 'Setting up background processing');
+      window.setProgressStep && window.setProgressStep('Creating worker');
       
       // Create worker with fallback
       async function createWorker() {
         try {
           console.log('🔧 Attempting direct worker creation...');
+          window.setProgressStep && window.setProgressStep('Direct worker attempt');
           return new Worker(bundle.mainWorker);
         } catch (err) {
           console.log('⚠️ Direct worker failed, using blob fallback:', err);
+          window.setProgressStep && window.setProgressStep('Worker blob fallback');
           const resp = await fetch(bundle.mainWorker);
           const code = await resp.text();
           const blob = new Blob([code], { type: 'text/javascript' });
@@ -165,11 +207,18 @@ ORDER BY total_spent DESC;</pre></pre>
           return new Worker(url);
         }
       }
-
-      const worker = await createWorker();
-      console.log('✅ Web Worker created successfully');
       
-      updateStatus('🔌 Initializing DuckDB instance...', 'Creating database connection');
+      const worker = await createWorker();
+      console.log('✅ Worker created successfully');
+      window.setProgressStep && window.setProgressStep('Worker created');
+      
+      updateStatus('🏗️ Instantiating DuckDB...', 'Loading core database engine');
+      window.setProgressStep && window.setProgressStep('Instantiating DuckDB');
+      const db = new duckdb.AsyncDuckDB(duckdb.createLogger(duckdb.ConsoleLogger), worker);
+      await db.instantiate(bundle);
+      
+      console.log('✅ DuckDB instance created successfully');
+      window.setProgressStep && window.setProgressStep('DuckDB instantiated');      updateStatus('🔌 Initializing DuckDB instance...', 'Creating database connection');
       const logger = new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING);
       const db = new duckdb.AsyncDuckDB(logger, worker);
       await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
@@ -234,11 +283,13 @@ ORDER BY total_spent DESC;</pre></pre>
       });
       
       updateStatus('✅ Integration successful!', `${widgetCount} SQL widgets ready. Range requests working!`);
+      window.setProgressStep && window.setProgressStep('ALL TESTS PASSED - DuckDB working!');
       console.log('🎉 GitHub Pages DuckDB integration test completed successfully!');
       console.log('📊 Summary: Range requests are supported on GitHub Pages CDN');
       
     } catch (error) {
       console.error('❌ DuckDB integration test failed:', error);
+      window.setProgressStep && window.setProgressStep('TEST FAILED: ' + error.message);
       updateStatus('❌ Integration failed', error.message, true);
       
       // Log detailed error information
@@ -251,6 +302,7 @@ ORDER BY total_spent DESC;</pre></pre>
       // Determine if it's a range request issue
       if (error.message.includes('Range request') || error.message.includes('304') || error.message.includes('416')) {
         console.log('🔍 This appears to be a range request issue');
+        window.setProgressStep && window.setProgressStep('Range request issue detected');
         updateStatus('❌ Range requests not supported', 'This server does not support HTTP range requests', true);
       }
     }
@@ -258,20 +310,52 @@ ORDER BY total_spent DESC;</pre></pre>
 
   // Start the test when DOM is ready with timeout
   function startTestWithTimeout() {
-    // Add a timeout to catch hanging imports
+    console.log('⏰ Starting test with 30-second timeout...');
+    window.setProgressStep && window.setProgressStep('Test starting with timeout');
+    
+    // Add a more granular timeout to catch hanging imports
     const timeoutId = setTimeout(() => {
       console.error('⏰ Test timed out after 30 seconds');
-      updateStatus('⏰ Test timeout', 'DuckDB import took too long - possible network or CSP issue', true);
+      console.error('🔍 Most likely stuck at DuckDB WASM import');
+      window.setProgressStep && window.setProgressStep('TIMEOUT - likely hanging at DuckDB import');
+      updateStatus('⏰ Test timeout', 'DuckDB import hanging - likely CSP or network issue on GitHub Pages', true);
+      
+      // Show helpful error message
+      const errorDetails = `
+        Possible causes:
+        1. Content Security Policy blocking external modules
+        2. GitHub Pages service worker interference
+        3. Network connectivity issues
+        4. ES module import restrictions
+      `;
+      console.error('📋 Debugging info:', errorDetails);
     }, 30000);
+    
+    // Add progress tracking
+    let progressStep = 'Starting';
+    const progressInterval = setInterval(() => {
+      console.log(`⏱️ Current step: ${progressStep} (${Date.now()})`);
+    }, 5000);
     
     testDuckDBIntegration()
       .then(() => {
         clearTimeout(timeoutId);
+        clearInterval(progressInterval);
+        window.setProgressStep && window.setProgressStep('✅ Test completed successfully');
+        console.log('✅ Test completed successfully');
       })
       .catch((error) => {
         clearTimeout(timeoutId);
+        clearInterval(progressInterval);
+        console.error('❌ Test failed at step:', progressStep);
         console.error('❌ Test failed:', error);
       });
+      
+    // Update progress tracking in the main function
+    window.setProgressStep = (step) => {
+      progressStep = step;
+      console.log(`📍 Progress: ${step}`);
+    };
   }
   
   if (document.readyState === 'loading') {
@@ -282,6 +366,18 @@ ORDER BY total_spent DESC;</pre></pre>
   
   // Additional debugging - check if imports work at all
   console.log('🔍 Testing basic import capability...');
+  
+  // Test basic fetch first
+  console.log('🌐 Testing basic CDN connectivity...');
+  fetch('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@latest/package.json')
+    .then(response => {
+      console.log('✅ jsdelivr CDN reachable:', response.status);
+      return response.json();
+    })
+    .then(pkg => console.log('📦 DuckDB package info:', pkg.version))
+    .catch(err => console.error('❌ jsdelivr CDN test failed:', err));
+  
+  // Test ES module import capability
   try {
     import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.js')
       .then(() => console.log('✅ Basic ES module import works'))
@@ -289,6 +385,14 @@ ORDER BY total_spent DESC;</pre></pre>
   } catch (e) {
     console.error('❌ Import statement not supported:', e);
   }
+  
+  // Check if we're in a service worker context or have other restrictions
+  console.log('🔍 Environment checks:', {
+    serviceWorker: 'serviceWorker' in navigator,
+    webWorkers: typeof Worker !== 'undefined',
+    fetch: typeof fetch !== 'undefined',
+    import: typeof import !== 'undefined'
+  });
 </script>
 
 ## Expected Results
