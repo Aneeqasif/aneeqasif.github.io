@@ -71,8 +71,30 @@ ORDER BY total_spent DESC;</pre>
 <!-- Load PondPilot Widget from CDN -->
 <script src="https://unpkg.com/pondpilot-widget"></script>
 
+<!-- Alternative: Try loading DuckDB via script tag as fallback -->
+<script src="https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/dist/duckdb-browser-eh.js"></script>
+
 <script type="module">
   console.log('🚀 Starting GitHub Pages DuckDB test...');
+  console.log('🌐 Environment info:', {
+    userAgent: navigator.userAgent,
+    location: window.location.href,
+    protocol: window.location.protocol,
+    isHTTPS: window.location.protocol === 'https:',
+    origin: window.location.origin
+  });
+  
+  // Check for potential blocking issues
+  if (window.location.protocol === 'file:') {
+    console.warn('⚠️ Running on file:// protocol - ES modules may not work');
+  }
+  
+  // Check if ES modules are supported
+  if (!('noModule' in HTMLScriptElement.prototype)) {
+    console.error('❌ ES modules not supported in this browser');
+  } else {
+    console.log('✅ ES modules supported');
+  }
   
   // Status update helpers
   function updateStatus(text, details = '', isError = false) {
@@ -96,9 +118,40 @@ ORDER BY total_spent DESC;</pre>
     try {
       updateStatus('🔧 Loading DuckDB WASM modules...', 'Importing from jsdelivr CDN');
       
-      // Import DuckDB WASM
-      const duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm');
-      console.log('✅ DuckDB WASM modules loaded successfully');
+      // Try importing DuckDB WASM with detailed error handling
+      let duckdb;
+      
+      // First, check if DuckDB is available globally (from script tag)
+      if (window.duckdb) {
+        console.log('✅ Found DuckDB in global scope');
+        duckdb = window.duckdb;
+      } else {
+        console.log('🔄 DuckDB not in global scope, trying ES module import...');
+        
+        try {
+          console.log('🔄 Attempting to import DuckDB from jsdelivr...');
+          duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm');
+          console.log('✅ DuckDB WASM modules loaded successfully from jsdelivr');
+        } catch (importError) {
+          console.error('❌ Failed to import from jsdelivr:', importError);
+          
+          // Try alternative CDN
+          try {
+            console.log('🔄 Trying alternative CDN (unpkg)...');
+            duckdb = await import('https://unpkg.com/@duckdb/duckdb-wasm@1.29.1-dev68.0/dist/duckdb-browser-eh.js');
+            console.log('✅ DuckDB WASM loaded from unpkg');
+          } catch (unpkgError) {
+            console.error('❌ Failed to import from unpkg:', unpkgError);
+            throw new Error(`Cannot load DuckDB WASM: jsdelivr failed (${importError.message}), unpkg failed (${unpkgError.message})`);
+          }
+        }
+      }
+      
+      // Check if duckdb object has required methods
+      console.log('🔍 Checking DuckDB object:', Object.keys(duckdb));
+      if (!duckdb.getJsDelivrBundles) {
+        throw new Error('DuckDB object missing required methods');
+      }
       
       updateStatus('⚙️ Selecting optimal bundle...', 'Checking browser capabilities');
       const bundles = duckdb.getJsDelivrBundles();
@@ -212,11 +265,38 @@ ORDER BY total_spent DESC;</pre>
     }
   }
 
-  // Start the test when DOM is ready
+  // Start the test when DOM is ready with timeout
+  function startTestWithTimeout() {
+    // Add a timeout to catch hanging imports
+    const timeoutId = setTimeout(() => {
+      console.error('⏰ Test timed out after 30 seconds');
+      updateStatus('⏰ Test timeout', 'DuckDB import took too long - possible network or CSP issue', true);
+    }, 30000);
+    
+    testDuckDBIntegration()
+      .then(() => {
+        clearTimeout(timeoutId);
+      })
+      .catch((error) => {
+        clearTimeout(timeoutId);
+        console.error('❌ Test failed:', error);
+      });
+  }
+  
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', testDuckDBIntegration);
+    document.addEventListener('DOMContentLoaded', startTestWithTimeout);
   } else {
-    testDuckDBIntegration();
+    startTestWithTimeout();
+  }
+  
+  // Additional debugging - check if imports work at all
+  console.log('🔍 Testing basic import capability...');
+  try {
+    import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.js')
+      .then(() => console.log('✅ Basic ES module import works'))
+      .catch(err => console.error('❌ Basic ES module import failed:', err));
+  } catch (e) {
+    console.error('❌ Import statement not supported:', e);
   }
 </script>
 
