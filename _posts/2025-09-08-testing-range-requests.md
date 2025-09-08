@@ -33,6 +33,17 @@ JOIN main.customers c USING(customer)
 ORDER BY o.order_id;</pre>
 
 <script type="module">
+  // Aggressively bypass service worker for range request testing
+  if ('serviceWorker' in navigator) {
+    console.log('🔧 Bypassing service worker for range request testing');
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      registrations.forEach(function(registration) {
+        console.log('Unregistering service worker:', registration.scope);
+        registration.unregister();
+      });
+    });
+  }
+
   // Import DuckDB WASM
   import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm';
 

@@ -155,6 +155,18 @@ ORDER BY total_amount DESC;</pre>
 </style>
 
 <script type="module">
+  // Aggressively bypass service worker for DuckDB compatibility
+  if ('serviceWorker' in navigator) {
+    console.log('🔧 Bypassing service worker for DuckDB compatibility');
+    // Temporarily disable service worker for this session
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      registrations.forEach(function(registration) {
+        console.log('Unregistering service worker:', registration.scope);
+        registration.unregister();
+      });
+    });
+  }
+
   // Import DuckDB WASM
   import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev68.0/+esm';
 
@@ -193,9 +205,14 @@ ORDER BY total_amount DESC;</pre>
         loadingBanner.querySelector('span').textContent = '📥 Downloading database file...';
       }
 
-      // Load database file
+      // Load database file with cache bypass to avoid service worker issues
       const dbUrl = new URL('/assets/dbs/blog.duckdb', window.location.href).href;
-      const response = await fetch(dbUrl);
+      const response = await fetch(dbUrl, {
+        cache: 'no-store',  // Bypass service worker cache
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch database: ${response.status}`);
