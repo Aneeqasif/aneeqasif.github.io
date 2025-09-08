@@ -45,26 +45,26 @@ This post tests PondPilot widget integration with local DuckDB files on GitHub P
 <pre class="pondpilot-db">SELECT COUNT(*) AS total_orders FROM main.orders;</pre>
 
 ### Query 3 — Sample Orders Data
-<pre class="pondpilot-db">SELECT order_id, customer, amount, order_date 
+<pre class="pondpilot-db"><pre class="pondpilot-db">SELECT order_id, customer, amount, order_date 
 FROM main.orders 
-ORDER BY order_id 
-LIMIT 5;</pre>
+ORDER BY order_date DESC 
+LIMIT 5;</pre></pre>
 
 ### Query 4 — Customer Analysis
-<pre class="pondpilot-db">SELECT customer, tier, city 
+<pre class="pondpilot-db">SELECT customer_id, customer_name, email 
 FROM main.customers 
-ORDER BY customer;</pre>
+ORDER BY customer_name;</pre>
 
 ### Query 5 — Join Analysis
-<pre class="pondpilot-db">SELECT 
-    o.customer,
-    c.tier,
-    COUNT(*) as order_count,
-    SUM(o.amount) as total_spent
+<pre class="pondpilot-db"><pre class="pondpilot-db">SELECT 
+    c.customer_name,
+    COUNT(o.order_id) as order_count,
+    SUM(o.amount) as total_spent,
+    AVG(o.amount) as avg_order_value
 FROM main.orders o
-JOIN main.customers c USING(customer)
-GROUP BY o.customer, c.tier
-ORDER BY total_spent DESC;</pre>
+JOIN main.customers c USING(customer_id)
+GROUP BY c.customer_id, c.customer_name
+ORDER BY total_spent DESC;</pre></pre>
 
 ## Technical Implementation
 
