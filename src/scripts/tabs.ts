@@ -1,0 +1,233 @@
+/**
+ * Tabs Component Client-Side Script
+ * Automatically initializes all .tabs-wrapper elements on the page
+ */
+
+class TabsManager extends HTMLElement {
+  private tabs: HTMLAnchorElement[] = [];
+  private panels: HTMLElement[] = [];
+  private syncKey: string | undefined;
+  private static syncedTabs = new Map<string, TabsManager[]>();
+
+  connectedCallback() {
+    this.init();
+  }
+
+  private init() {
+    // Find all tab panels within this tabs wrapper
+    this.panels = Array.from(
+      this.querySelectorAll<HTMLElement>('.tab-panel')
+    );
+
+    if (this.panels.length === 0) return;
+
+    this.syncKey = this.dataset.syncKey;
+
+    // Register synced tabs
+    if (this.syncKey) {
+      const synced = TabsManager.syncedTabs.get(this.syncKey) || [];
+      synced.push(this);
+      TabsManager.syncedTabs.set(this.syncKey, synced);
+    }
+
+    // Create tab navigation
+    this.createTabNav();
+
+    // Restore synced tab if applicable
+    if (this.syncKey) {
+      this.restoreSyncedTab();
+    }
+  }
+
+  private createTabNav() {
+    // Create tab list
+    const tablist = document.createElement('div');
+    tablist.className = 'tab-list';
+    tablist.setAttribute('role', 'tablist');
+
+    this.panels.forEach((panel, index) => {
+      const label = panel.dataset.tabLabel || `Tab ${index + 1}`;
+      const icon = panel.dataset.tabIcon;
+      const tabId = panel.dataset.tabId || `tab-${index}`;
+      const panelId = panel.dataset.panelId || `panel-${index}`;
+
+      // Create tab button
+      const tab = document.createElement('a');
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('href', `#${panelId}`);
+      tab.setAttribute('id', tabId);
+      tab.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+      tab.setAttribute('aria-controls', panelId);
+      tab.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      tab.className = 'tab-button';
+      
+      // Add icon if provided
+      if (icon) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'tab-icon';
+        iconSpan.textContent = icon;
+        tab.appendChild(iconSpan);
+      }
+      
+      // Add label
+      const labelSpan = document.createElement('span');
+      labelSpan.textContent = label;
+      tab.appendChild(labelSpan);
+
+      // Handle click
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.switchTab(index);
+      });
+
+      // Handle keyboard navigation
+      tab.addEventListener('keydown', (e) => {
+        let newIndex: number | null = null;
+        
+        if (e.key === 'ArrowLeft') {
+          newIndex = index - 1;
+        } else if (e.key === 'ArrowRight') {
+          newIndex = index + 1;
+        } else if (e.key === 'Home') {
+          newIndex = 0;
+        } else if (e.key === 'End') {
+          newIndex = this.tabs.length - 1;
+        }
+
+        if (newIndex !== null && this.tabs[newIndex]) {
+          e.preventDefault();
+          this.switchTab(newIndex);
+        }
+      });
+
+      this.tabs.push(tab);
+      tablist.appendChild(tab);
+    });
+
+    // Insert tab navigation before panels
+    this.insertBefore(tablist, this.firstChild);
+
+    // Show/hide panels based on initial state
+    this.panels.forEach((panel, index) => {
+      if (index === 0) {
+        panel.removeAttribute('data-hidden');
+        panel.style.display = 'block';
+      } else {
+        panel.style.display = 'none';
+      }
+    });
+  }
+
+  private switchTab(newIndex: number, shouldSync = true) {
+    const previousOffset = shouldSync ? this.getBoundingClientRect().top : 0;
+
+    // Update tabs
+    this.tabs.forEach((tab, index) => {
+      if (index === newIndex) {
+        tab.setAttribute('aria-selected', 'true');
+        tab.setAttribute('tabindex', '0');
+        if (shouldSync) tab.focus();
+      } else {
+        tab.setAttribute('aria-selected', 'false');
+        tab.setAttribute('tabindex', '-1');
+      }
+    });
+
+    // Update panels
+    this.panels.forEach((panel, index) => {
+      if (index === newIndex) {
+        panel.style.display = 'block';
+        panel.removeAttribute('data-hidden');
+      } else {
+        panel.style.display = 'none';
+        panel.setAttribute('data-hidden', 'true');
+      }
+    });
+
+    // Sync with other tabs
+    if (shouldSync) {
+      this.syncTabs(newIndex);
+      
+      // Maintain scroll position
+      window.scrollTo({
+        top: window.scrollY + (this.getBoundingClientRect().top - previousOffset),
+        behavior: 'instant' as ScrollBehavior,
+      });
+    }
+
+    // Persist synced tabs
+    if (this.syncKey) {
+      const label = this.panels[newIndex]?.dataset.tabLabel;
+      if (label) {
+        localStorage.setItem(`tabs-sync__${this.syncKey}`, label);
+      }
+    }
+  }
+
+  private syncTabs(activeIndex: number) {
+    if (!this.syncKey) return;
+
+    const label = this.panels[activeIndex]?.dataset.tabLabel;
+    if (!label) return;
+
+    const syncedTabs = TabsManager.syncedTabs.get(this.syncKey);
+    if (!syncedTabs) return;
+
+    syncedTabs.forEach((tabsManager) => {
+      if (tabsManager === this) return;
+
+      const matchingIndex = tabsManager.panels.findIndex(
+        (panel) => panel.dataset.tabLabel === label
+      );
+
+      if (matchingIndex !== -1) {
+        tabsManager.switchTab(matchingIndex, false);
+      }
+    });
+  }
+
+  private restoreSyncedTab() {
+    if (!this.syncKey) return;
+
+    const storedLabel = localStorage.getItem(`tabs-sync__${this.syncKey}`);
+    if (!storedLabel) return;
+
+    const matchingIndex = this.panels.findIndex(
+      (panel) => panel.dataset.tabLabel === storedLabel
+    );
+
+    if (matchingIndex > 0) {
+      this.switchTab(matchingIndex, false);
+    }
+  }
+}
+
+// Define the custom element
+customElements.define('tabs-manager', TabsManager);
+
+// Initialize function to wrap all .tabs-wrapper divs
+function initializeTabs() {
+  document.querySelectorAll('.tabs-wrapper').forEach((wrapper) => {
+    // Skip if already wrapped
+    if (wrapper.parentElement?.tagName === 'TABS-MANAGER') return;
+
+    const manager = document.createElement('tabs-manager');
+    const syncKey = wrapper.getAttribute('data-sync-key');
+    if (syncKey) {
+      manager.dataset.syncKey = syncKey;
+    }
+    
+    wrapper.parentNode?.insertBefore(manager, wrapper);
+    manager.appendChild(wrapper);
+  });
+}
+
+// Run on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeTabs);
+} else {
+  initializeTabs();
+}
+
+// Re-run after Swup page transitions
+document.addEventListener('swup:page:view', initializeTabs);

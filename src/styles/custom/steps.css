@@ -1,0 +1,88 @@
+/* Steps Component Styles - Inspired by Starlight */
+.steps-wrapper {
+  --bullet-size: 1.5rem;
+  --bullet-margin: 0;
+  margin: 2rem 0;
+}
+
+.steps-wrapper > ol {
+  list-style: none;
+  counter-reset: steps-counter 0;
+  padding-left: 0;
+  margin: 0;
+}
+
+.steps-wrapper > ol > li {
+  counter-increment: steps-counter;
+  position: relative;
+  padding-left: calc(var(--bullet-size) + 1rem);
+  padding-bottom: 1rem;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  min-height: calc(var(--bullet-size) + 1rem);
+}
+
+/* Remove default spacing between items */
+.steps-wrapper > ol > li + li {
+  margin-top: 0 !important;
+}
+
+/* Custom numbered circle */
+.steps-wrapper > ol > li::before {
+  content: counter(steps-counter);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--bullet-size);
+  height: var(--bullet-size);
+  line-height: var(--bullet-size);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+  color: white;
+  background-color: var(--primary);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Vertical connecting line - darkened primary color */
+.steps-wrapper > ol > li::after {
+  content: '';
+  position: absolute;
+  top: var(--bullet-size);
+  bottom: 0;
+  left: calc((var(--bullet-size) - 2px) / 2);
+  width: 1.5px;
+  background-color: var(--primary);
+}
+
+/* Remove line after last item */
+.steps-wrapper > ol > li:last-child::after {
+  display: none;
+}
+
+/* Adjust spacing for content inside steps */
+.steps-wrapper > ol > li > * {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* First element should have less top margin */
+.steps-wrapper > ol > li > *:first-child {
+  margin-top: 0;
+}
+
+/* Last element should have less bottom margin */
+.steps-wrapper > ol > li > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Dark mode adjustments */
+:root.dark .steps-wrapper > ol > li::before {
+  background-color: oklch(0.50 0.14 var(--hue));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .steps-wrapper > ol > li::after {
+  background-color: oklch(0.50 0.14 var(--hue));
+}

@@ -19,6 +19,7 @@ import { expressiveCodeConfig } from "./src/config.ts";
 // CUSTOM: Image gallery plugin
 import { ImageGalleryComponent } from "./src/plugins/custom/rehype-component-gallery.mjs";
 import { remarkGallery } from "./src/plugins/custom/remark-gallery.ts";
+import { remarkSteps } from "./src/plugins/custom/remark-steps.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
@@ -117,6 +118,7 @@ export default defineConfig({
 			remarkSectionize,
 			parseDirectiveNode,
 			remarkGallery, // CUSTOM: Image gallery support
+			remarkSteps, // CUSTOM: Steps component support
 		],
 		rehypePlugins: [
 			rehypeKatex,
