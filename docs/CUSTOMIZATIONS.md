@@ -28,29 +28,7 @@ Displays multiple images in a Pinterest/masonry-style layout that:
 /posts/image4.jpg
 :::
 ```
-
-#### With Custom Columns
-
-```markdown
-:::gallery{columns="4"}
-/posts/photo1.jpg
-/posts/photo2.jpg
-/posts/photo3.jpg
-/posts/photo4.jpg
-/posts/photo5.jpg
-/posts/photo6.jpg
-:::
-```
-
-#### With Custom Gap
-
-```markdown
-:::gallery{gap="2rem"}
-/posts/img1.jpg
-/posts/img2.jpg
-/posts/img3.jpg
-:::
-```
+`
 
 #### All Options
 
@@ -61,32 +39,12 @@ Displays multiple images in a Pinterest/masonry-style layout that:
 /posts/image3.jpg
 :::
 ```
-
-### Options
-
-| Option    | Type   | Default | Description                         |
-| --------- | ------ | ------- | ----------------------------------- |
-| `columns` | number | `3`     | Number of columns on desktop        |
-| `gap`     | string | `1rem`  | Space between images (any CSS unit) |
-
 ### Features
 
 - **Responsive Breakpoints**:
   - Desktop (>1024px): Your specified columns
   - Tablet (640-1024px): 2 columns
   - Mobile (<640px): 1 column
-
-- **Visual Effects**:
-  - Hover: Lift + shadow + subtle zoom
-  - Entrance animation: Staggered fade-in
-  - Rounded corners: 0.75rem
-  - Dark mode compatible
-
-- **Performance**:
-  - Lazy loading enabled
-  - CSS-only masonry (no JS library)
-  - Async image decoding
-
 ### Implementation Details
 
 #### Files Modified (Minimal Conflict Risk)
@@ -115,24 +73,64 @@ Displays multiple images in a Pinterest/masonry-style layout that:
 4. **Render**: Astro component renders masonry layout
 5. **Enhance**: JavaScript adds entrance animations
 
-### Testing
-
-Test the component with:
-
-```markdown
-:::gallery
-/posts/bike.jpg
-/posts/coffee-cup.png
-/posts/ride.jpg
-/posts/right-hand-light.jpg
-/posts/workstation-grey.jpg
-:::
-```
-
----
-
 **Maintenance Notes**:
 - Component is self-contained
 - No external dependencies
 - Works with existing theme features (lightbox, lazy loading)
 - Safe to update independently of theme
+
+---
+
+# 🔤 Font Customizations
+
+**Status**: ✅ Custom configuration - Safe for upstream merges  
+### Monospace Font (Code Blocks)
+
+**Font**: Iosevka  
+**Package**: `@fontsource/iosevka`
+
+#### Configuration Location
+
+All code block font settings are in `astro.config.mjs` using Expressive Code's `styleOverrides`:
+
+```javascript
+expressiveCode({
+  styleOverrides: {
+    codeFontFamily: "'Iosevka', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+    codeFontSize: "0.9rem",
+    codeFontWeight: "400",
+  }
+})
+```
+#### Files Modified
+
+1. **`astro.config.mjs`** ⚠️
+   - Line ~84-86: Font family, size, and weight in `styleOverrides`
+
+2. **`src/layouts/Layout.astro`** ⚠️
+   ```javascript
+   // Lines 5-7: Font imports
+   import "@fontsource/iosevka/400.css";
+   import "@fontsource/iosevka/500.css";
+   import "@fontsource/iosevka/700.css";
+   ```
+
+3. **`tailwind.config.cjs`** ⚠️
+   ```javascript
+   fontFamily: {
+     sans: ["Roboto", "sans-serif", ...defaultTheme.fontFamily.sans],
+     mono: ["Iosevka", "monospace", ...defaultTheme.fontFamily.mono],
+   }
+   ```
+
+4. **`src/styles/markdown.css`** ⚠️
+   - Line ~40: Inline code font family
+   ```css
+   font-family: 'Iosevka', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+   font-size: 0.9em;
+   font-weight: 400;
+   ```
+
+5. **`package.json`** ⚠️
+   - Added dependency: `@fontsource/iosevka`
+

@@ -1,3 +1,4 @@
+@import './main.css';
 .custom-md {
     h1 {
         @apply text-3xl;
@@ -37,7 +38,9 @@
     code {
         @apply bg-[var(--inline-code-bg)] text-[var(--inline-code-color)] px-1 py-0.5 rounded-md overflow-hidden;
 
-        font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+        font-family: 'Iosevka', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+        font-size: 0.9em;  /* Adjust: 0.85em (smaller) to 1em (same as text) */
+        font-weight: 400;  /* Adjust: 300 (light), 400 (normal), 500 (medium), 600 (semibold), 700 (bold) */
         &:before {
             content:none;
         }

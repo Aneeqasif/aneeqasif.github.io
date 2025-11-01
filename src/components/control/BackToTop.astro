@@ -3,9 +3,9 @@ import { Icon } from "astro-icon/components";
 ---
 
 <!-- There can't be a filter on parent element, or it will break `fixed` -->
-<div class="back-to-top-wrapper hidden lg:block">
-    <div id="back-to-top-btn" class="back-to-top-btn hide flex items-center rounded-2xl overflow-hidden transition" onclick="backToTop()">
-        <button aria-label="Back to Top" class="btn-card h-[3.75rem] w-[3.75rem]">
+<div class="back-to-top-wrapper">
+    <div id="back-to-top-btn" class="back-to-top-btn hide flex items-center justify-center overflow-hidden transition" onclick="backToTop()">
+        <button aria-label="Back to Top" class="btn-card w-full h-full flex items-center justify-center">
             <Icon name="material-symbols:keyboard-arrow-up-rounded" class="mx-auto"></Icon>
         </button>
     </div>
@@ -13,32 +13,42 @@ import { Icon } from "astro-icon/components";
 
 <style lang="stylus">
 .back-to-top-wrapper
-    width: 3.75rem
-    height: 3.75rem
-    position: absolute
-    right: 0
-    top: 0
+    position: fixed
+    right: 2rem
+    bottom: 2rem
+    width: 3rem
+    height: 3rem
     pointer-events: none
+    z-index: 50
 
 .back-to-top-btn
     color: var(--primary)
-    font-size: 2.25rem
+    font-size: 1.875rem
     font-weight: bold
-    border: none
-    position: fixed
-    bottom: 10rem
+    border: 2px solid unquote('color-mix(in srgb, var(--btn-card-bg-hover) 100%, transparent)')
+    position: relative
     opacity: 1
     cursor: pointer
-    transform: translateX(5rem)
+    transform: scale(1)
     pointer-events: auto
+    transition: all 0.3s ease
+    border-radius: 50%
+    width: 3rem
+    height: 3rem
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)
+    &:hover
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15)
+        border-color: unquote('color-mix(in srgb, var(--primary) 50%, transparent)')
+    button
+        border-radius: 50%
     i
-        font-size: 1.75rem
+        font-size: 1.5rem
     &.hide
-        transform: translateX(5rem) scale(0.9)
+        transform: scale(0.8)
         opacity: 0
         pointer-events: none
     &:active
-      transform: translateX(5rem) scale(0.9)
+      transform: scale(0.9)
 
 </style>
 

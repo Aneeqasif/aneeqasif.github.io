@@ -42,6 +42,27 @@ And that's when it all clicked. When we're caught in moments of darkness or unce
 
 So, my friends, that's what I learned from that journey: when the way forward isn't clear, don't get stuck in 'paralysis by analysis.' Keep your ass movin'. The road has a way of revealing itself when we keep moving.
 
+```python
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Generate some data
+x = np.linspace(0, 2 * np.pi, 200)
+y = np.sin(x)
+
+# Create the plot
+plt.figure()
+plt.plot(x, y, label="sin(x)", color="tomato")
+plt.title("Matplotlib Inline Rendering (Pyodide)")
+plt.xlabel("x")
+plt.ylabel("sin(x)")
+plt.legend()
+
+# Just call plt.show() — it will render inline in the browser
+plt.show()
+
+```
 
 :::gallery
 /posts/ride.jpg
