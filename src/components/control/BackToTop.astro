@@ -14,7 +14,7 @@ import { Icon } from "astro-icon/components";
 <style lang="stylus">
 .back-to-top-wrapper
     position: fixed
-    right: 2rem
+    right: unquote('max(2rem, calc((100vw - var(--page-width)) / 2 - 5rem))')
     bottom: 2rem
     width: 3rem
     height: 3rem
