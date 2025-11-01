@@ -23,6 +23,9 @@ import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
+// CUSTOM: Image gallery plugin
+import { remarkGallery } from "./src/plugins/custom/remark-gallery.ts";
+import { ImageGalleryComponent } from "./src/plugins/custom/rehype-component-gallery.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -111,6 +114,7 @@ export default defineConfig({
 			remarkDirective,
 			remarkSectionize,
 			parseDirectiveNode,
+			remarkGallery, // CUSTOM: Image gallery support
 		],
 		rehypePlugins: [
 			rehypeKatex,
@@ -125,6 +129,7 @@ export default defineConfig({
 						important: (x, y) => AdmonitionComponent(x, y, "important"),
 						caution: (x, y) => AdmonitionComponent(x, y, "caution"),
 						warning: (x, y) => AdmonitionComponent(x, y, "warning"),
+						ImageGallery: ImageGalleryComponent, // CUSTOM: Gallery component
 					},
 				},
 			],

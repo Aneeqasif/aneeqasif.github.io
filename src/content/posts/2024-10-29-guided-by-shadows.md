@@ -8,6 +8,14 @@ category: 'Personal'
 draft: false
 ---
 
+
+<figure class="spotify-song" style=" width: 80%; margin: 0 auto 20px auto; text-align: center;">
+  <iframe style="border-radius: 12px; " src="https://open.spotify.com/embed/track/65EGyXq1ZSEQ47vOWdIkMC?utm_source=generator" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <figcaption style="color: #5a5a66; font-size: 0.9em;overflow-wrap: break-word; text-align: center; margin-top: 5px;">You can listen to this while reading this post.</figcaption>
+</figure>
+<style> @media (max-width: 768px) {.spotify-song {width: 100% !important;}} </style>
+
+
 It was the last stretch of my final semester in uni—the most chaotic, high-pressure time of the entire degree. Deadlines were stacking up, with research project presentations, thesis submissions, and exams Everyone was barely keeping it together. But my friend Junaid, ever the optimist, just wanted a break. For weeks, he'd been suggesting we take a day off, go somewhere, do something to get our minds off it all.
 
 Every time he asked, I dodged him, again and again, with excuses about assignments, exams, or simply not having the time. But one day, when he brought it up again, I couldn't really argue. Maybe I was finally feeling the weight of it myself, or something else, I gave in and said, "Fine, just bring the bike, and we'll see."
@@ -34,10 +42,12 @@ And that's when it all clicked. When we're caught in moments of darkness or unce
 
 So, my friends, that's what I learned from that journey: when the way forward isn't clear, don't get stuck in 'paralysis by analysis.' Keep your ass movin'. The road has a way of revealing itself when we keep moving.
 
-![the view](/posts/ride.jpg)
-![me on bike](/posts/bike.jpg)
-![coffee](/posts/coffee-cup.png)
 
+:::gallery
+/posts/ride.jpg
+/posts/bike.jpg
+/posts/coffee-cup.png
+:::
 ---
 
 > **A juicy quote**: When you can't see through the dark, focus on the step right in front of you. Each small step forward reveals the path. Keep moving; the light will follow.

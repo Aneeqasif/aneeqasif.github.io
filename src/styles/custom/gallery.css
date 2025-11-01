@@ -1,0 +1,95 @@
+/**
+ * CUSTOM STYLES: Image Gallery
+ * Safe for upstream merges - doesn't modify theme core
+ */
+
+/* Image Gallery - Masonry Layout */
+.image-gallery {
+	display: block;
+	column-count: var(--gallery-columns, 3);
+	column-gap: var(--gallery-gap, 1rem);
+	margin: 2rem 0;
+}
+
+.gallery-item {
+	break-inside: avoid;
+	margin-bottom: var(--gallery-gap, 1rem);
+	position: relative;
+	overflow: hidden;
+	border-radius: 0.75rem;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	/* CUSTOM FIX: Ensure container fits image exactly */
+	line-height: 0; /* Remove extra space below inline images */
+	background-color: transparent;
+}
+
+.gallery-item img {
+	width: 100%;
+	height: auto;
+	display: block;
+	object-fit: cover;
+	transition: transform 0.3s ease;
+	/* CUSTOM FIX: Remove any extra spacing */
+	margin: 0;
+	padding: 0;
+	border-radius: 0.75rem; /* Match parent border-radius */
+}
+
+/* Hover effect */
+.gallery-item:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	z-index: 1;
+}
+
+.gallery-item:hover img {
+	transform: scale(1.05);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+	.image-gallery {
+		column-count: 2 !important;
+	}
+}
+
+@media (max-width: 640px) {
+	.image-gallery {
+		column-count: 1 !important;
+	}
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .gallery-item {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .gallery-item:hover {
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* Entrance animation */
+.gallery-item {
+	opacity: 0;
+	transform: translateY(20px);
+	animation: fadeInUp 0.5s ease forwards;
+}
+
+.gallery-item:nth-child(1) { animation-delay: 0ms; }
+.gallery-item:nth-child(2) { animation-delay: 50ms; }
+.gallery-item:nth-child(3) { animation-delay: 100ms; }
+.gallery-item:nth-child(4) { animation-delay: 150ms; }
+.gallery-item:nth-child(5) { animation-delay: 200ms; }
+.gallery-item:nth-child(6) { animation-delay: 250ms; }
+.gallery-item:nth-child(7) { animation-delay: 300ms; }
+.gallery-item:nth-child(8) { animation-delay: 350ms; }
+.gallery-item:nth-child(9) { animation-delay: 400ms; }
+.gallery-item:nth-child(10) { animation-delay: 450ms; }
+
+@keyframes fadeInUp {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

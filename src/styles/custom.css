@@ -1,0 +1,16 @@
+/**
+ * CUSTOM STYLES: Main import file
+ * Safe for upstream merges - doesn't modify theme core
+ * 
+ * This file imports all custom styles from the custom/ directory.
+ * Add new feature styles in separate files under custom/ and import them here.
+ * 
+ * Only this single file needs to be imported in Layout.astro (line 23)
+ */
+
+/* Import custom feature styles */
+@import './custom/gallery.css';
+
+/* Add more custom feature imports here:
+ * @import './custom/your-feature.css';
+ */
