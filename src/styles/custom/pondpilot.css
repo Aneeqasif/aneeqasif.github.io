@@ -149,12 +149,22 @@
   color: var(--pondpilot-editor-text) !important;
   border-radius: 0.75rem !important;
   outline: none !important;
+  /* Dont wrap code in the text area */
+  white-space: pre !important;
+  overflow-x: auto !important;
+  word-wrap: normal !important;
+  word-break: normal !important;
 }
 
-/* Focus state for editor */
+/* Focus state for editor - default rounded corners */
 .pondpilot-editor pre:focus {
   outline: 2px solid var(--pondpilot-primary-bg) !important;
   outline-offset: -2px !important;
+}
+
+/* When output is visible, square the bottom corners on focus */
+.pondpilot-widget:has(.pondpilot-output-content:not(:empty)) .pondpilot-editor pre:focus {
+  border-radius: 0.75rem 0.75rem 0 0 !important; /* Rounded top, squared bottom */
 }
 
 /* ============================================================================

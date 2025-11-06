@@ -3,12 +3,12 @@
 // Theme: github-dark
 
 export const themeColors = {
-	syntaxKeyword: "#F97583",
-	syntaxIdentifier: "#79B8FF",
-	syntaxNumber: "#79B8FF",
-	syntaxString: "#9ECBFF",
-	syntaxComment: "#6A737D",
-	syntaxSpecial: "#79B8FF",
+  "syntaxKeyword": "#F97583",
+  "syntaxIdentifier": "#79B8FF",
+  "syntaxNumber": "#79B8FF",
+  "syntaxString": "#9ECBFF",
+  "syntaxComment": "#6A737D",
+  "syntaxSpecial": "#79B8FF"
 } as const;
 
 export type ThemeColors = typeof themeColors;

@@ -56,7 +56,8 @@
 
 @media (max-width: 640px) {
 	.image-gallery {
-		column-count: 1 !important;
+		column-count: 2 !important;
+		column-gap: 0.5rem !important;
 	}
 }
 
