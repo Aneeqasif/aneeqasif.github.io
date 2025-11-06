@@ -1,0 +1,299 @@
+/**
+ * CUSTOM STYLES: PondPilot Widget Integration
+ * Matches Expressive Code styling exactly
+ * Uses !important to override PondPilot's inline styles
+ */
+
+/* ============================================================================
+ * SECTION 1: DERIVED COLORS
+ * Computed from --codeblock-bg, automatically adapt when theme changes
+ * ============================================================================ */
+
+:root,
+:root.dark {
+  /* Output background - slightly lighter than codeblock-bg (+0.02) */
+  --pondpilot-output-bg-derived: oklch(from var(--codeblock-bg) calc(l + 0.02) c h);
+
+  /* Table header background - noticeably darker for hierarchy */
+  --pondpilot-table-header-bg-derived: oklch(from var(--pondpilot-output-bg-derived) calc(l - 0.04) c h);
+
+  /* Table separator/border color (more visible) */
+  --pondpilot-table-border: oklch(from var(--pondpilot-output-bg-derived) calc(l + 0.08) c h / 0.4);
+
+  /* Alternating row background (more noticeable) */
+  --pondpilot-table-row-alt: oklch(from var(--pondpilot-output-bg-derived) calc(l - 0.025) c h);
+
+  /* Hover state for table rows (clearer) */
+  --pondpilot-table-row-hover: oklch(from var(--pondpilot-output-bg-derived) calc(l + 0.05) c h);
+}
+
+/* ============================================================================
+ * SECTION 2: CSS CUSTOM PROPERTIES
+ * Theme configuration matching Expressive Code blocks
+ * ============================================================================ */
+
+:root,
+:root.dark {
+  /* --- Background Colors --- */
+  --pondpilot-bg-color: var(--codeblock-bg) !important;
+  --pondpilot-editor-bg: var(--codeblock-bg) !important;
+  --pondpilot-output-bg: var(--pondpilot-output-bg-derived) !important;
+  --pondpilot-controls-bg: var(--codeblock-topbar-bg) !important;
+  --pondpilot-editor-focus-bg: oklch(0.19 0.02 var(--hue)) !important;
+
+  /* --- Text Colors --- */
+  --pondpilot-text-color: oklch(0.85 0.02 var(--hue)) !important;
+  --pondpilot-editor-text: oklch(0.90 0.01 var(--hue)) !important;
+  --pondpilot-muted-text: oklch(0.60 0.03 var(--hue)) !important;
+
+  /* --- Border Colors --- */
+  --pondpilot-border-color: oklch(0.25 0.03 var(--hue) / 0.3) !important;
+
+  /* --- Button Colors: Primary (Run button) --- */
+  --pondpilot-primary-bg: var(--primary) !important;
+  --pondpilot-primary-text: oklch(0.95 0.01 var(--hue)) !important;
+  --pondpilot-primary-hover: oklch(0.80 0.14 var(--hue)) !important;
+
+  /* --- Button Colors: Secondary --- */
+  --pondpilot-secondary-bg: oklch(0.25 0.03 var(--hue) / 0.5) !important;
+  --pondpilot-secondary-text: oklch(0.80 0.05 var(--hue)) !important;
+  --pondpilot-secondary-hover: oklch(0.30 0.04 var(--hue)) !important;
+
+  /* --- Error States --- */
+  --pondpilot-error-text: oklch(0.70 0.18 25) !important;
+  --pondpilot-error-bg: oklch(0.25 0.08 25 / 0.3) !important;
+  --pondpilot-error-border: oklch(0.40 0.12 25 / 0.5) !important;
+
+  /* --- Table Colors (use derived colors) --- */
+  --pondpilot-table-header-bg: var(--pondpilot-table-header-bg-derived) !important;
+  --pondpilot-table-header-text: oklch(0.85 0.02 var(--hue)) !important;
+  --pondpilot-table-hover: var(--pondpilot-table-row-hover) !important;
+
+  /* --- Typography --- */
+  --pondpilot-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  --pondpilot-editor-font-family: 'Iosevka', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
+  --pondpilot-font-size: 1.0rem !important;
+  --pondpilot-editor-font-size: 1.0rem !important;
+  --pondpilot-button-font-size: 13px !important;
+  --pondpilot-metadata-font-size: 14px !important;
+
+  /* Note: Syntax highlighting colors injected by JavaScript at runtime */
+}
+
+/* ============================================================================
+ * SECTION 3: WIDGET CONTAINER
+ * Main widget wrapper and base styles
+ * ============================================================================ */
+
+.pondpilot-widget-wrapper {
+  position: relative;
+  margin: 2rem 0;
+}
+
+.custom-md .pondpilot-widget-wrapper {
+  margin: 2rem 0;
+}
+
+.pondpilot-widget {
+  background: var(--pondpilot-bg-color) !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+}
+
+/* Button container - add spacing between buttons */
+.pondpilot-button-container {
+  display: flex !important;
+  gap: 8px !important;
+  padding: 5px 5px !important;
+}
+
+/* Run button - uses pondpilot variables */
+.pondpilot-run-button {
+  background: var(--pondpilot-primary-bg) !important;
+  color: var(--pondpilot-primary-text) !important;
+  border-radius: 0.55rem !important;
+}
+
+.pondpilot-run-button:hover {
+  background: var(--pondpilot-primary-hover) !important;
+}
+
+/* Reset button */
+.pondpilot-reset-button {
+  background: var(--pondpilot-secondary-bg) !important;
+  color: var(--pondpilot-secondary-text) !important;
+  border-radius: 0.55rem !important;
+}
+
+.pondpilot-reset-button:hover {
+  background: var(--pondpilot-secondary-hover) !important;
+}
+
+/* ============================================================================
+ * SECTION 4: EDITOR SECTION
+ * SQL editor input area styling
+ * ============================================================================ */
+
+.pondpilot-editor {
+  background: var(--pondpilot-editor-bg) !important;
+}
+
+.pondpilot-editor pre {
+  background: var(--pondpilot-editor-bg) !important;
+  font-family: var(--pondpilot-editor-font-family) !important;
+  font-size: var(--pondpilot-editor-font-size) !important;
+  line-height: 1.7rem !important;
+  font-weight: 400 !important;
+  color: var(--pondpilot-editor-text) !important;
+  border-radius: 0.75rem !important;
+  outline: none !important;
+}
+
+/* Focus state for editor */
+.pondpilot-editor pre:focus {
+  outline: 2px solid var(--pondpilot-primary-bg) !important;
+  outline-offset: -2px !important;
+}
+
+/* ============================================================================
+ * SECTION 5: OUTPUT SECTION
+ * Query results display area and layout
+ * ============================================================================ */
+
+.pondpilot-output {
+  background: var(--pondpilot-output-bg) !important;
+  border-top-color: var(--pondpilot-border-color) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.pondpilot-output-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Move metadata (timing info) to bottom */
+.pondpilot-output-content>div:first-child {
+  order: 2 !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+  padding: 0 12px !important;
+}
+
+/* Table comes first in visual order */
+.pondpilot-output-content>table {
+  order: 1 !important;
+}
+
+/* ============================================================================
+ * SECTION 6: TABLE STYLING
+ * Results table, headers, cells, and interactions
+ * ============================================================================ */
+
+.pondpilot-output table {
+  background: var(--pondpilot-output-bg) !important;
+  font-family: var(--pondpilot-editor-font-family) !important;
+  font-size: var(--pondpilot-font-size) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+/* Table header cells */
+.pondpilot-output th {
+  background: var(--pondpilot-table-header-bg) !important;
+  color: var(--pondpilot-table-header-text) !important;
+  font-family: var(--pondpilot-editor-font-family) !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 2px solid var(--pondpilot-border-color) !important;
+}
+
+/* Table data cells */
+.pondpilot-output td {
+  color: var(--pondpilot-text-color) !important;
+  font-size: 0.925rem !important;
+  border-bottom: none !important;
+}
+
+/* Alternating row colors - apply to odd rows (1, 3, 5) */
+.pondpilot-output tbody tr:nth-child(odd) {
+  background: var(--pondpilot-table-row-alt) !important;
+}
+
+/* Row hover effect */
+.pondpilot-output tbody tr:hover {
+  background: var(--pondpilot-table-row-hover) !important;
+}
+
+/* ============================================================================
+ * SECTION 7: SYNTAX HIGHLIGHTING CUSTOMIZATION
+ * Customize how SQL code looks in the editor (bold, italic, etc.)
+ * 
+ * Available classes:
+ * - .pondpilot-keyword     → SELECT, FROM, WHERE, JOIN
+ * - .pondpilot-identifier  → table/column names
+ * - .pondpilot-string      → 'text' or "text"
+ * - .pondpilot-number      → 123, 45.67
+ * - .pondpilot-comment     → -- comments
+ * - .pondpilot-special     → COUNT(*), SUM(), functions
+ * 
+ * See docs/PONDPILOT-CUSTOMIZATION-GUIDE.md for examples!
+ * ============================================================================ */
+
+/* Keywords: Make them bold (SELECT, FROM, JOIN, etc.) */
+.pondpilot-editor .pondpilot-keyword {
+  font-weight: 700 !important;     /* 700=bold, 600=semi-bold, 400=normal */
+}
+
+/* Identifiers: Table and column names */
+/* .pondpilot-editor .pondpilot-identifier {
+  font-weight: 400 !important;
+  text-decoration: underline dotted !important;
+} */
+
+/* Strings: 'hello' or "world" */
+/* .pondpilot-editor .pondpilot-string {
+  font-style: italic !important;
+} */
+
+/* Numbers: 123, 45.67 */
+/* .pondpilot-editor .pondpilot-number {
+  font-weight: 400 !important;
+} */
+
+/* Comments: -- this is a comment */
+/* .pondpilot-editor .pondpilot-comment {
+  opacity: 0.6 !important;
+  font-style: italic !important;
+} */
+
+/* Special: Functions like COUNT, SUM, AVG */
+/* .pondpilot-editor .pondpilot-special {
+  font-weight: 600 !important;
+} */
+
+/* ============================================================================
+ * SECTION 8: ERROR STYLING
+ * Error messages display
+ * ============================================================================ */
+
+.pondpilot-output-content .pondpilot-error {
+  margin: 140px 8px !important;
+  background: var(--pondpilot-error-bg) !important;
+  border: 1px solid var(--pondpilot-error-border) !important;
+  border-radius: 11px !important;
+  color: var(--pondpilot-error-text) !important;
+  font-family: var(--pondpilot-editor-font-family) !important;
+  font-size: 0.9rem ;
+  line-height: 1.5 !important;
+  word-break: break-word !important;
+  white-space: pre-wrap !important;
+}
+

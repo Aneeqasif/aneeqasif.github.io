@@ -11,6 +11,7 @@
 /* Import custom feature styles */
 @import './custom/gallery.css';
 @import './custom/steps.css';
+@import './custom/pondpilot.css';
 
 /* Add more custom feature imports here:
  * @import './custom/your-feature.css';

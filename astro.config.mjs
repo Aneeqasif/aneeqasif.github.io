@@ -19,6 +19,7 @@ import { expressiveCodeConfig } from "./src/config.ts";
 // CUSTOM: Image gallery plugin
 import { ImageGalleryComponent } from "./src/plugins/custom/rehype-component-gallery.mjs";
 import { remarkGallery } from "./src/plugins/custom/remark-gallery.ts";
+import { remarkPondPilot } from "./src/plugins/custom/remark-pondpilot.ts";
 import { remarkSteps } from "./src/plugins/custom/remark-steps.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
@@ -27,6 +28,7 @@ import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
+import { themeColorsPlugin } from "./src/plugins/vite-plugin-theme-colors.ts";
 
 // https://astro.build/config
 export default defineConfig({
@@ -119,6 +121,7 @@ export default defineConfig({
 			parseDirectiveNode,
 			remarkGallery, // CUSTOM: Image gallery support
 			remarkSteps, // CUSTOM: Steps component support
+			remarkPondPilot, // CUSTOM: PondPilot interactive SQL widgets
 		],
 		rehypePlugins: [
 			rehypeKatex,
@@ -163,6 +166,7 @@ export default defineConfig({
 		],
 	},
 	vite: {
+		plugins: [themeColorsPlugin()],
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {
