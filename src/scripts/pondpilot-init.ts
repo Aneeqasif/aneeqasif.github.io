@@ -215,9 +215,14 @@ async function initPondPilot(): Promise<void> {
 	} catch (error) {
 		console.error("[PondPilot] Initialization failed:", error);
 	}
-} // Initialize on DOM ready
+}
+
+// Initialize on DOM ready
 if (document.readyState === "loading") {
 	document.addEventListener("DOMContentLoaded", initPondPilot);
 } else {
 	initPondPilot();
 }
+
+// Export for Swup to call after page transitions
+export { initPondPilot };

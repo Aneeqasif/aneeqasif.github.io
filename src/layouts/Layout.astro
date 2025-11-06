@@ -423,6 +423,12 @@ const setup = () => {
 		}
 	})
 	window.swup.hooks.on('content:replace', initCustomScrollbar)
+	window.swup.hooks.on('content:replace', async () => {
+		// Re-initialize PondPilot widgets after Swup replaces page content
+		// Import the init function dynamically and call it
+		const { initPondPilot } = await import('../scripts/pondpilot-init');
+		await initPondPilot();
+	})
 	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
