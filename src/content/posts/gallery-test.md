@@ -5,7 +5,7 @@ description: 'Testing the new masonry-style image gallery component'
 image: '/posts/workstation-grey.jpg'
 tags: ['demo', 'draft']
 category: 'Examples'
-draft: true
+draft: false
 ---
 
 This post demonstrates the new image gallery feature. The gallery uses a masonry/Pinterest-style layout that automatically arranges images beautifully.

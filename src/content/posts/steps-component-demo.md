@@ -1,7 +1,7 @@
 ---
 title: "Steps Component Demo"
 published: 2024-11-01
-draft: true
+draft: false
 description: "Testing the new steps component for creating beautiful step-by-step guides"
 tags: ["demo", "components"]
 category: "Guide"

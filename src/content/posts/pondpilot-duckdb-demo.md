@@ -4,7 +4,7 @@ published: 2024-11-04
 description: 'Loading and querying a local .duckdb file with PondPilot widgets'
 tags: ['SQL', 'DuckDB', 'Database', 'Demo']
 category: 'Demo'
-draft: true
+draft: false
 duckdb: "/data/blog.duckdb"
 ---
 
