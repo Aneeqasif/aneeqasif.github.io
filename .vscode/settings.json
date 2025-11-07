@@ -19,5 +19,8 @@
 	"frontMatter.dashboard.openOnStart": false,
 	"[markdown]": {
 		"editor.defaultFormatter": "yzhang.markdown-all-in-one"
+	},
+	"[css]": {
+		"editor.defaultFormatter": "vscode.css-language-features"
 	}
 }

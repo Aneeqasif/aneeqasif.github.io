@@ -1,0 +1,131 @@
+:root {
+    --waline-font-size: 1rem;
+}
+
+.waline-card {
+    --waline-theme-color: var(--primary);
+    --waline-active-color: var(--primary);
+    --waline-white: #ffffff;
+    --waline-light-grey: rgba(100, 116, 139, 0.72);
+    --waline-dark-grey: rgba(17, 24, 39, 0.78);
+    --waline-color: rgba(17, 24, 39, 0.88);
+    --waline-bg-color: var(--card-bg);
+    --waline-bg-color-light: rgba(15, 23, 42, 0.05);
+    --waline-bg-color-hover: rgba(15, 23, 42, 0.08);
+    --waline-border-color: var(--line-divider);
+    --waline-disable-bg-color: rgba(15, 23, 42, 0.08);
+    --waline-disable-color: rgba(17, 24, 39, 0.45);
+    --waline-code-bg-color: var(--codeblock-bg);
+    --waline-bq-color: rgba(15, 23, 42, 0.08);
+    --waline-info-bg-color: rgba(15, 23, 42, 0.06);
+    --waline-info-color: rgba(17, 24, 39, 0.65);
+    --waline-border: 1px solid var(--waline-border-color);
+    --waline-box-shadow: none;
+}
+
+.dark .waline-card {
+    --waline-light-grey: rgba(148, 163, 184, 0.7);
+    --waline-white: #ffffff;
+    --waline-dark-grey: rgba(226, 232, 240, 0.78);
+    --waline-color: rgba(248, 250, 252, 0.88);
+    --waline-bg-color: var(--card-bg);
+    --waline-bg-color-light: rgba(189, 212, 231, 0.08);
+    --waline-bg-color-hover: rgba(255, 255, 255, 0.12);
+    --waline-border-color: rgba(255, 255, 255, 0.12);
+    --waline-disable-bg-color: rgba(255, 255, 255, 0.12);
+    --waline-disable-color: rgba(226, 232, 240, 0.45);
+    --waline-bq-color: rgba(255, 255, 255, 0.12);
+    --waline-info-bg-color: var(--btn-regular-bg);
+    --waline-info-color: rgba(226, 232, 240, 0.72);
+}
+
+.waline-card .wl-btn,
+.waline-card .wl-btn:active,
+.waline-card .wl-btn:visited {
+    border-radius: 8px;
+    border: none;
+    font-weight: 500;
+    background: var(--primary);
+    color: var(--tw-prose-body);
+}
+
+/* ----------------------------------- */
+.waline-card .wl-reaction-title {
+    color: var(--waline-color);
+    margin-top: 0.0rem;
+}
+
+.wl-preview {
+    color: var(--waline-color) !important;
+    /* Change to your desired text color */
+}
+
+/* Code block font in preview */
+.wl-preview .wl-content pre,
+.wl-preview .wl-content code {
+    font-family: "Iosevka", "Roboto", "Inter", ui-sans-serif !important;
+    font-size: 0.95rem;
+    line-height: 1.1 !important;
+}
+
+/* Remove all syntax highlighting colors from code blocks in preview */
+.wl-preview .wl-content pre code span[style*="color"] {
+    color: inherit !important;
+}
+
+
+[data-waline] a {
+    display: grid;
+}
+
+.waline-card .wl-count {
+    font-weight: 600;
+    color: var(--waline-color);
+}
+
+.wl-header input {
+    font-size: 0.8rem;
+}
+
+.wl-header label {
+    font-size: 0.8rem;
+}
+
+
+.waline-card .wl-editor:focus-within,
+.waline-card .wl-input:focus-within {
+    border-color: var(--waline-theme-color);
+    box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.35);
+    background-color: rgba(79, 70, 229, 0.08);
+}
+
+.dark .waline-card .wl-editor:focus-within,
+.dark .waline-card .wl-input:focus-within {
+    box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.45);
+    background-color: rgba(129, 140, 248, 0.18);
+}
+
+
+
+/* User text styling */
+.wl-editor {
+    /* Style for when user has entered text */
+    padding-left: 10px;
+    padding-top: 8px;
+    font-family: "Iosevka", "Roboto", "Inter", ui-sans-serif;
+    font-size: 0.95rem;
+}
+
+
+
+/* ----------------------------------- */
+
+.waline-card .wl-btn:hover,
+.waline-card .wl-btn:focus-visible {
+    background: var(--btn-regular-bg);
+    color: var(--btn-content);
+}
+
+.waline-card .wl-power {
+    display: none;
+}
