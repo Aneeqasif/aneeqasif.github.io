@@ -1,4 +1,4 @@
-<script lang="ts"></script>
+<script lang="ts">
 	import { onMount } from "svelte";
 	import SeriesPanel from "./SeriesPanel.svelte";
 
