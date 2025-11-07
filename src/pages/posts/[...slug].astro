@@ -2,6 +2,7 @@
 import path from "node:path";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
+import SeriesWidget from "@components/SeriesWidget.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
@@ -26,6 +27,28 @@ const { entry } = Astro.props;
 const { Content, headings } = await entry.render();
 
 const { remarkPluginFrontmatter } = await entry.render();
+
+// Get series data if this post is part of a series
+let seriesData = null;
+if (entry.data.series) {
+	const allPosts = await getSortedPosts();
+	const seriesPosts = allPosts
+		.filter((post) => post.data.series?.name === entry.data.series.name)
+		.sort((a, b) => a.data.series!.part - b.data.series!.part);
+	
+	seriesData = {
+		currentPart: entry.data.series.part,
+		totalParts: seriesPosts.length,
+		seriesName: entry.data.series.name,
+		allSeriesPosts: seriesPosts.map(post => ({
+			slug: post.slug,
+			data: {
+				title: post.data.title,
+				series: post.data.series
+			}
+		}))
+	};
+}
 
 const jsonLd = {
 	"@context": "https://schema.org",
@@ -101,6 +124,17 @@ const jsonLd = {
                 <ImageWrapper id="post-cover" src={entry.data.image} basePath={path.join("content/posts/", getDir(entry.id))} class="mb-8 rounded-xl banner-container onload-animation"/>
             }
 
+            <!-- Series Widget (if post is part of a series) -->
+            {seriesData && (
+                <SeriesWidget
+                    currentPart={seriesData.currentPart}
+                    totalParts={seriesData.totalParts}
+                    seriesName={seriesData.seriesName}
+                    allSeriesPosts={seriesData.allSeriesPosts}
+                    currentSlug={entry.slug}
+                    client:load
+                />
+            )}
 
             <Markdown class="mb-6 markdown-content onload-animation">
                 <Content />

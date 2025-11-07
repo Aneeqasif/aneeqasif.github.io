@@ -6,6 +6,13 @@ html.is-animating .transition-swup-fade {
     @apply opacity-0 translate-y-4
 }
 
+/* Exclude elements with data-no-swup from Swup transitions */
+html.is-animating [data-no-swup],
+html.is-animating [data-no-swup] * {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
 /* Fade-in animations for components */
 @keyframes fade-in-up {
     0% {

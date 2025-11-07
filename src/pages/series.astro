@@ -1,0 +1,13 @@
+---
+import SeriesPanel from "@components/SeriesPanel.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { getSortedPostsList } from "../utils/content-utils";
+
+const sortedPostsList = await getSortedPostsList();
+---
+
+<MainGridLayout title="Series">
+    <SeriesPanel sortedPosts={sortedPostsList} client:only="svelte"></SeriesPanel>
+</MainGridLayout>

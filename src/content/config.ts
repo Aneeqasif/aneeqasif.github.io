@@ -12,6 +12,12 @@ const postsCollection = defineCollection({
 		category: z.string().optional().nullable().default(""),
 		lang: z.string().optional().default(""),
 		duckdb: z.string().optional(), // CUSTOM: Path to .duckdb file in public folder
+		series: z
+			.object({
+				name: z.string(),
+				part: z.number(),
+			})
+			.optional(), // CUSTOM: Series grouping with name and part number
 
 		/* For internal use */
 		prevTitle: z.string().default(""),
