@@ -41,6 +41,11 @@ import { Icon } from "astro-icon/components";
         border-color: unquote('color-mix(in srgb, var(--primary) 50%, transparent)')
     button
         border-radius: 50%
+        background-color: unquote('color-mix(in srgb, var(--card-bg) 85%, black 15%)')
+        &:hover
+            background-color: var(--btn-card-bg-hover)
+        &:active
+            background-color: var(--btn-card-bg-active)
     i
         font-size: 1.5rem
     &.hide

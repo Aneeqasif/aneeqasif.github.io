@@ -42,3 +42,5 @@ devenv.local.yaml
 .pre-commit-config.yaml
 old-jekyll-blog/
 code-for-reference/
+userinput.md
+.github/instructions/user-interaction.instructions.md

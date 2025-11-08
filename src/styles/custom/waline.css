@@ -105,6 +105,14 @@
     background-color: oklch(.9 .08 var(--hue) / 0.18);
 }
 
+.waline-card .wl-editor textarea:focus,
+.waline-card .wl-editor textarea:focus-visible,
+.waline-card .wl-input input:focus,
+.waline-card .wl-input input:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
 
 
 /* User text styling */

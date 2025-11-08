@@ -1,0 +1,48 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import TOC from "./TOC.astro";
+
+interface Props {
+    headings: MarkdownHeading[];
+    initiallyHidden?: boolean;
+}
+
+const { headings = [], initiallyHidden = false } = Astro.props;
+---
+{headings.length > 0 ? (
+    <div
+        id="toc-wrapper"
+        class:list={["toc-overlay hidden lg:flex", { "toc-hide": initiallyHidden }]}
+        aria-live="polite"
+    >
+        <button
+            id="toc-toggle"
+            type="button"
+            class="toc-overlay__fab"
+            aria-expanded="false"
+            aria-controls="toc-panel"
+        >
+            <span class="sr-only">Toggle table of contents</span>
+            <Icon name="si:featured-playlist-duotone" class="toc-overlay__fab-icon" aria-hidden="true" />
+        </button>
+        <div
+            id="toc-panel"
+            role="dialog"
+            tabindex="-1"
+            aria-label="Table of contents"
+            aria-hidden="true"
+            class="toc-overlay__panel"
+        >
+            <div class="toc-overlay__panel-surface">
+                <div id="toc-inner-wrapper" class="toc-overlay__panel-body hide-scrollbar">
+                    <div id="toc" class="toc-overlay__panel-content">
+                        <TOC headings={headings}></TOC>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+) : (
+    <div id="toc"></div>
+)}

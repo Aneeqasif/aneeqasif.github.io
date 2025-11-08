@@ -1,0 +1,207 @@
+/* Floating TOC overlay styles */
+
+/* Wrapper positioning matches the back-to-top button with extra breathing room */
+#toc-wrapper.toc-overlay {
+    position: fixed;
+    right: max(2rem, calc((100vw - var(--page-width)) / 2 - 5rem));
+    bottom: calc(2rem + 3.75rem);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    z-index: 45;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(0.75rem);
+    transition: opacity 200ms ease, transform 250ms ease;
+    --toc-fab-size: 3rem;
+    --toc-fab-half: calc(var(--toc-fab-size) / 2);
+    --toc-panel-radius: 1.75rem;
+    --toc-panel-width: min(21rem, calc(100vw - 4rem));
+    --toc-panel-height: min(70vh, 26.5rem);
+}
+
+#toc-wrapper.toc-overlay:not(.toc-hide):not(.toc-not-ready) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+#toc-wrapper.toc-overlay.toc-hide,
+#toc-wrapper.toc-overlay.toc-not-ready {
+    pointer-events: none;
+}
+
+/* Toggle button */
+.toc-overlay__fab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--toc-fab-size);
+    height: var(--toc-fab-size);
+    border-radius: 9999px;
+    border: 2px solid color-mix(in srgb, var(--btn-card-bg-hover) 90%, transparent);
+    background-color: color-mix(in srgb, var(--card-bg) 85%, black 15%);
+    color: var(--btn-content);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 220ms ease, box-shadow 220ms ease, background-color 200ms ease, opacity 160ms ease, border-color 200ms ease;
+    cursor: pointer;
+    pointer-events: auto;
+    padding: 0.5rem 0.45rem;
+    appearance: none;
+    transform-origin: center;
+    z-index: 1;
+}
+
+.toc-overlay__fab:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18), 0 6px 14px rgba(0, 0, 0, 0.14);
+    background-color: var(--btn-card-bg-hover);
+    border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    color: var(--primary);
+}
+
+.toc-overlay__fab:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+
+.toc-overlay__fab:active {
+    transform: scale(0.92);
+    background-color: var(--btn-card-bg-active);
+}
+
+.toc-overlay.toc-open .toc-overlay__fab {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.toc-overlay__fab-icon {
+    font-size: 1.65rem;
+}
+
+/* Panel container */
+.toc-overlay__panel {
+    position: absolute;
+    right: 0;
+    bottom: calc(var(--toc-fab-size) + 0.75rem);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.96);
+    transform-origin: bottom right;
+    transition: opacity 200ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 2;
+}
+
+.toc-overlay.toc-open .toc-overlay__panel {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.toc-overlay__panel-surface {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: var(--toc-panel-width);
+    max-height: var(--toc-panel-height);
+    border-radius: var(--toc-panel-radius);
+    border: 1px solid color-mix(in srgb, var(--line-divider) 45%, transparent);
+    background-color: color-mix(in srgb, var(--float-panel-bg) 78%, transparent);
+    backdrop-filter: blur(22px);
+    box-shadow: 0 24px 42px rgba(0, 0, 0, 0.22), 0 12px 24px rgba(0, 0, 0, 0.14);
+    color: var(--btn-content);
+    overflow: hidden;
+}
+
+@supports not (backdrop-filter: blur(22px)) {
+
+    .toc-overlay__panel-surface,
+    .toc-overlay__fab {
+        background-color: var(--float-panel-bg);
+    }
+}
+
+.toc-overlay__panel-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0.75rem 0.85rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 1rem, black calc(100% - 1rem), transparent 100%);
+}
+
+.toc-overlay__panel-content {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+#toc a {
+    position: relative;
+    z-index: 1;
+}
+
+.toc-overlay__panel-content {
+    color: color-mix(in srgb, var(--btn-content) 85%, #ffffff 15%);
+}
+
+.toc-overlay__panel-content .text-50 {
+    color: color-mix(in srgb, var(--btn-content) 82%, #ffffff 18%);
+}
+
+.toc-overlay__panel-content .text-30 {
+    color: color-mix(in srgb, var(--btn-content) 70%, #ffffff 30%);
+}
+
+.toc-heading-flash {
+    position: relative;
+    border-radius: 0.9rem;
+}
+
+.toc-heading-flash::after {
+    content: "";
+    position: absolute;
+    inset: -0.35rem -0.6rem;
+    border-radius: 0.75rem;
+    background-color: color-mix(in srgb, var(--primary) 30%, transparent);
+    opacity: 0;
+    animation: toc-heading-flash 1.2s ease-out forwards;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes toc-heading-flash {
+
+    0%,
+    50% {
+        opacity: 0.65;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #toc-wrapper.toc-overlay {
+        transition: none;
+    }
+
+    .toc-overlay__fab,
+    .toc-overlay__panel,
+    .toc-overlay__panel-surface {
+        transition: none;
+    }
+
+    .toc-overlay.toc-open .toc-overlay__fab {
+        transform: none;
+        opacity: 1;
+    }
+
+    .toc-heading-flash {
+        animation: none;
+    }
+}
