@@ -7,83 +7,103 @@ let closeRef: CleanupFn | undefined;
 export const getTocWrapper = () => wrapperRef;
 
 export const closeTocOverlay = () => {
-    closeRef?.();
+	closeRef?.();
 };
 
 export const cleanupTocOverlay = () => {
-    cleanupRef?.();
-    cleanupRef = undefined;
-    closeRef = undefined;
-    wrapperRef = null;
+	cleanupRef?.();
+	cleanupRef = undefined;
+	closeRef = undefined;
+	wrapperRef = null;
 };
 
 export const initTocOverlay = () => {
-    cleanupTocOverlay();
+	cleanupTocOverlay();
 
-    const wrapper = document.getElementById("toc-wrapper");
-    const toggle = document.getElementById("toc-toggle") as HTMLButtonElement | null;
-    const panel = document.getElementById("toc-panel") as HTMLElement | null;
-    if (!wrapper || !toggle || !panel) {
-        return;
-    }
+	const wrapper = document.getElementById("toc-wrapper");
+	const toggle = document.getElementById(
+		"toc-toggle",
+	) as HTMLButtonElement | null;
+	const panel = document.getElementById("toc-panel") as HTMLElement | null;
+	if (!wrapper || !toggle || !panel) {
+		return;
+	}
 
-    wrapperRef = wrapper;
+	const tocActive = wrapper.dataset.tocActive !== "false";
 
-    const closePanel = () => {
-        wrapper.classList.remove("toc-open");
-        toggle.setAttribute("aria-expanded", "false");
-        panel.setAttribute("aria-hidden", "true");
-        if (document.activeElement && panel.contains(document.activeElement)) {
-            toggle.focus({ preventScroll: true });
-        }
-    };
+	if (!tocActive) {
+		wrapper.setAttribute("hidden", "true");
+		wrapper.classList.add("toc-hide", "toc-not-ready");
+		toggle.setAttribute("aria-hidden", "true");
+		toggle.setAttribute("tabindex", "-1");
+		toggle.disabled = true;
+		closeRef = undefined;
+		return;
+	}
 
-    const openPanel = () => {
-        wrapper.classList.add("toc-open");
-        toggle.setAttribute("aria-expanded", "true");
-        panel.setAttribute("aria-hidden", "false");
-        panel.focus({ preventScroll: true });
-    };
+	wrapper.removeAttribute("hidden");
+	wrapper.classList.remove("toc-not-ready");
+	toggle.setAttribute("aria-hidden", "false");
+	toggle.setAttribute("tabindex", "0");
+	toggle.disabled = false;
 
-    const handleToggle = (event: Event) => {
-        event.stopPropagation();
-        if (wrapper.classList.contains("toc-open")) {
-            closePanel();
-        } else {
-            openPanel();
-        }
-    };
+	wrapperRef = wrapper;
 
-    const stopPropagation = (event: Event) => {
-        event.stopPropagation();
-    };
+	const closePanel = () => {
+		wrapper.classList.remove("toc-open");
+		toggle.setAttribute("aria-expanded", "false");
+		panel.setAttribute("aria-hidden", "true");
+		if (document.activeElement && panel.contains(document.activeElement)) {
+			toggle.focus({ preventScroll: true });
+		}
+	};
 
-    const handleOutsideClick = (event: MouseEvent) => {
-        const target = event.target;
-        if (!(target instanceof Node)) return;
-        if (wrapper.contains(target)) return;
-        closePanel();
-    };
+	const openPanel = () => {
+		wrapper.classList.add("toc-open");
+		toggle.setAttribute("aria-expanded", "true");
+		panel.setAttribute("aria-hidden", "false");
+		panel.focus({ preventScroll: true });
+	};
 
-    const handleKeydown = (event: KeyboardEvent) => {
-        if (event.key === "Escape") {
-            closePanel();
-        }
-    };
+	const handleToggle = (event: Event) => {
+		event.stopPropagation();
+		if (wrapper.classList.contains("toc-open")) {
+			closePanel();
+		} else {
+			openPanel();
+		}
+	};
 
-    toggle.addEventListener("click", handleToggle);
-    panel.addEventListener("click", stopPropagation);
-    document.addEventListener("click", handleOutsideClick);
-    document.addEventListener("keydown", handleKeydown);
-    closePanel();
+	const stopPropagation = (event: Event) => {
+		event.stopPropagation();
+	};
 
-    cleanupRef = () => {
-        toggle.removeEventListener("click", handleToggle);
-        panel.removeEventListener("click", stopPropagation);
-        document.removeEventListener("click", handleOutsideClick);
-        document.removeEventListener("keydown", handleKeydown);
-        closePanel();
-    };
+	const handleOutsideClick = (event: MouseEvent) => {
+		const target = event.target;
+		if (!(target instanceof Node)) return;
+		if (wrapper.contains(target)) return;
+		closePanel();
+	};
 
-    closeRef = closePanel;
+	const handleKeydown = (event: KeyboardEvent) => {
+		if (event.key === "Escape") {
+			closePanel();
+		}
+	};
+
+	toggle.addEventListener("click", handleToggle);
+	panel.addEventListener("click", stopPropagation);
+	document.addEventListener("click", handleOutsideClick);
+	document.addEventListener("keydown", handleKeydown);
+	closePanel();
+
+	cleanupRef = () => {
+		toggle.removeEventListener("click", handleToggle);
+		panel.removeEventListener("click", stopPropagation);
+		document.removeEventListener("click", handleOutsideClick);
+		document.removeEventListener("keydown", handleKeydown);
+		closePanel();
+	};
+
+	closeRef = closePanel;
 };
