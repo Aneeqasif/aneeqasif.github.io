@@ -4,14 +4,16 @@
  * Uses !important to override PondPilot's inline styles
  */
 
+
+
 /* ============================================================================
- * SECTION 1: DERIVED COLORS
- * Computed from --codeblock-bg, automatically adapt when theme changes
+ * SECTION 2: CSS CUSTOM PROPERTIES
+ * Theme configuration matching Expressive Code blocks
  * ============================================================================ */
 
 :root,
 :root.dark {
-  /* Output background - slightly lighter than codeblock-bg (+0.02) */
+
   --pondpilot-output-bg-derived: oklch(from var(--codeblock-bg) calc(l + 0.02) c h);
 
   /* Table header background - noticeably darker for hierarchy */
@@ -25,15 +27,9 @@
 
   /* Hover state for table rows (clearer) */
   --pondpilot-table-row-hover: oklch(from var(--pondpilot-output-bg-derived) calc(l + 0.05) c h);
-}
 
-/* ============================================================================
- * SECTION 2: CSS CUSTOM PROPERTIES
- * Theme configuration matching Expressive Code blocks
- * ============================================================================ */
 
-:root,
-:root.dark {
+
   /* --- Background Colors --- */
   --pondpilot-bg-color: var(--codeblock-bg) !important;
   --pondpilot-editor-bg: var(--codeblock-bg) !important;
@@ -111,13 +107,14 @@
 
 /* Run button - uses pondpilot variables */
 .pondpilot-run-button {
-  background: var(--pondpilot-primary-bg) !important;
-  color: var(--pondpilot-primary-text) !important;
+  background: var(--primary) !important;
+  color: var(--deep-text) !important;
   border-radius: 0.55rem !important;
 }
 
 .pondpilot-run-button:hover {
-  background: var(--pondpilot-primary-hover) !important;
+  /* background: var(--pondpilot-primary-hover) !important; */
+  background: var(--primary) !important;
 }
 
 /* Reset button */
@@ -164,7 +161,8 @@
 
 /* When output is visible, square the bottom corners on focus */
 .pondpilot-widget:has(.pondpilot-output-content:not(:empty)) .pondpilot-editor pre:focus {
-  border-radius: 0.75rem 0.75rem 0 0 !important; /* Rounded top, squared bottom */
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+  /* Rounded top, squared bottom */
 }
 
 /* ============================================================================
@@ -259,7 +257,8 @@
 
 /* Keywords: Make them bold (SELECT, FROM, JOIN, etc.) */
 .pondpilot-editor .pondpilot-keyword {
-  font-weight: 700 !important;     /* 700=bold, 600=semi-bold, 400=normal */
+  font-weight: 700 !important;
+  /* 700=bold, 600=semi-bold, 400=normal */
 }
 
 /* Identifiers: Table and column names */
@@ -301,9 +300,8 @@
   border-radius: 11px !important;
   color: var(--pondpilot-error-text) !important;
   font-family: var(--pondpilot-editor-font-family) !important;
-  font-size: 0.9rem ;
+  font-size: 0.9rem;
   line-height: 1.5 !important;
   word-break: break-word !important;
   white-space: pre-wrap !important;
 }
-

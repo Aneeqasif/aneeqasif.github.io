@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import Icon from "@iconify/svelte";
 
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
@@ -21,6 +22,7 @@ interface Post {
 		tags: string[];
 		category?: string;
 		published: Date;
+        pinned?: boolean;
 	};
 }
 
@@ -130,9 +132,12 @@ onMount(async () => {
                         <!-- post title -->
                         <div
                                 class="w-[70%] md:max-w-[65%] md:w-[65%] text-left font-bold
-                     group-hover:translate-x-1 transition-all group-hover:text-[var(--primary)]
-                     text-75 pr-8 whitespace-nowrap overflow-ellipsis overflow-hidden"
+                 group-hover:translate-x-1 transition-all group-hover:text-[var(--primary)]
+                 text-75 pr-8 whitespace-nowrap overflow-ellipsis overflow-hidden"
                         >
+                            {#if post.data.pinned}
+                                <Icon icon="material-symbols:push-pin" class="inline-block text-[1rem] text-[var(--primary)] mr-1 align-middle translate-y-[-1px]"></Icon>
+                            {/if}
                             {post.data.title}
                         </div>
 

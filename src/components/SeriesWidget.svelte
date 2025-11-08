@@ -147,7 +147,7 @@
 			: MODAL_PADDING;
 		const appliedTop = Math.max(topPadding, MODAL_PADDING);
 		const appliedBottom = Math.max(bottomPadding, MODAL_PADDING);
-		modalOverlayElement.style.setProperty("--series-modal-padding-top", `${appliedTop}px`);
+		modalOverlayElement.style.setProperty("--series-modal-padding-top", `${appliedTop+105}px`);
 		modalOverlayElement.style.setProperty("--series-modal-padding-bottom", `${appliedBottom}px`);
 		const containerHeight = containerBottom - containerTop;
 		const visibleHeight = Math.min(
@@ -406,7 +406,7 @@
 		z-index: 99999 !important;
 		
 		/* Dark backdrop */
-		background: rgba(0, 0, 0, 0.7);
+		background: rgba(0, 0, 0, 0.5);
 		
 		/* Flex for centering modal content */
 		display: flex;
@@ -417,6 +417,9 @@
 		/* Allow scrolling if content is tall */
 		overflow-y: auto;
 		
+    	backdrop-filter: blur(6px); /* Adjust blur intensity (e.g., 5px) as needed */
+    	-webkit-backdrop-filter: blur(6px); /* Safari support */
+
 		/* Rounded corners to match container aesthetic */
 		border-radius: var(--radius-large);
 	}
@@ -433,6 +436,8 @@
 		/* NO ANIMATION - causes flicker */
 		position: relative;
 		z-index: 10000;
+
+    outline: 1px solid color-mix(in srgb, var(--card-bg) 93%, white); /* Lightened outline based on --card-bg */
 	}
 
 	.close-btn {

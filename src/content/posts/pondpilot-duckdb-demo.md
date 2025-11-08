@@ -6,6 +6,7 @@ tags: ['SQL', 'DuckDB', 'Database', 'Demo']
 category: 'Demo'
 draft: false
 duckdb: "/data/blog.duckdb"
+pinned: true
 ---
 
 # Loading Local DuckDB Files
