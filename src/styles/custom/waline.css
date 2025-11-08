@@ -45,8 +45,8 @@
     border-radius: 8px;
     border: none;
     font-weight: 500;
-    background: var(--primary);
-    color: var(--tw-prose-body);
+    background: var(--btn-regular-bg-hover);
+    color: var(--btn-content);
 }
 
 /* ----------------------------------- */
@@ -95,14 +95,14 @@
 .waline-card .wl-editor:focus-within,
 .waline-card .wl-input:focus-within {
     border-color: var(--waline-theme-color);
-    box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.35);
-    background-color: rgba(79, 70, 229, 0.08);
+    box-shadow: 0 0 0 1px oklch(.5 .08 var(--hue) / 0.35);
+    background-color: oklch(.85 .08 var(--hue) / 0.08);
 }
 
 .dark .waline-card .wl-editor:focus-within,
 .dark .waline-card .wl-input:focus-within {
-    box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.45);
-    background-color: rgba(129, 140, 248, 0.18);
+    box-shadow: 0 0 0 1px oklch(.6 .08 var(--hue) / 0.45);
+    background-color: oklch(.9 .08 var(--hue) / 0.18);
 }
 
 

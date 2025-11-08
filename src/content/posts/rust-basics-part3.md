@@ -6,6 +6,7 @@ tags: ['Rust', 'Programming', 'Tutorial']
 category: 'Tutorial'
 draft: false
 duckdb: "/data/blog.duckdb"
+pinned: true
 series:
   name: "Learning Rust from Scratch"
   part: 3

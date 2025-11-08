@@ -148,10 +148,16 @@ async function initPondPilot(): Promise<void> {
 
 		// Get computed CSS variables for backgrounds
 		const rootStyles = getComputedStyle(document.documentElement);
-		const codeblockBg = rootStyles.getPropertyValue("--codeblock-bg").trim();
-		const codeblockTopbarBg = rootStyles
-			.getPropertyValue("--codeblock-topbar-bg")
-			.trim();
+		const getCssVar = (name: string) => rootStyles.getPropertyValue(name).trim();
+		const codeblockBg = getCssVar("--codeblock-bg");
+		const codeblockTopbarBg = getCssVar("--codeblock-topbar-bg");
+		const pondpilotBg = getCssVar("--pondpilot-bg-color") || codeblockBg;
+		const pondpilotEditorBg = getCssVar("--pondpilot-editor-bg") || codeblockBg;
+		const pondpilotOutputBg = getCssVar("--pondpilot-output-bg") || codeblockTopbarBg;
+		const pondpilotTableHeaderBg =
+			getCssVar("--pondpilot-table-header-bg") || pondpilotOutputBg;
+		const pondpilotTableHeaderText =
+			getCssVar("--pondpilot-table-header-text") || themeColors.syntaxKeyword;
 
 		// Configure PondPilot with extracted theme
 		window.PondPilot.config({
@@ -163,10 +169,11 @@ async function initPondPilot(): Promise<void> {
 					extends: "dark",
 					config: {
 						// Backgrounds from CSS variables
-						bgColor: codeblockBg,
-						editorBg: codeblockBg,
-						outputBg: codeblockTopbarBg,
-						tableHeaderBg: codeblockTopbarBg,
+						bgColor: pondpilotBg || codeblockBg,
+						editorBg: pondpilotEditorBg || codeblockBg,
+						outputBg: pondpilotOutputBg || codeblockTopbarBg,
+						tableHeaderBg: pondpilotTableHeaderBg || pondpilotOutputBg,
+						tableHeaderText: pondpilotTableHeaderText,
 
 						// Syntax colors - YOU CAN REMAP THESE!
 						// Example: Use keyword color for strings
