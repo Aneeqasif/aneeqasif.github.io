@@ -65,6 +65,7 @@ const FLASH_DURATION = 2000;
 class TableOfContents extends HTMLElement {
     tocEl: HTMLElement | null = null;
     visibleClass = "visible";
+    didInit = false;
     observer: IntersectionObserver;
     anchorNavTarget: HTMLElement | null = null;
     headingIdxMap = new Map<string, number>();
@@ -149,7 +150,7 @@ class TableOfContents extends HTMLElement {
 
         if (this.anchorNavTarget || !this.tocEl || this.manualScrollActive) return;
         const activeHeading =
-            document.querySelectorAll<HTMLDivElement>(`#toc .${this.visibleClass}`);
+            document.querySelectorAll<HTMLAnchorElement>(`#toc .${this.visibleClass}`);
         if (!activeHeading.length) return;
 
         const topmost = activeHeading[0];
@@ -314,18 +315,28 @@ class TableOfContents extends HTMLElement {
     };
 
     connectedCallback() {
-        // wait for the onload animation to finish, which makes the `getBoundingClientRect` return correct values
+        const kickstart = () => this.init();
+
+        if (typeof window !== 'undefined' && 'requestAnimationFrame' in window) {
+            window.requestAnimationFrame(kickstart);
+        } else {
+            kickstart();
+        }
+
         const element = document.querySelector('.prose');
         if (element) {
             element.addEventListener('animationend', () => {
                 this.init();
             }, { once: true });
-        } else {
-            console.debug('Animation element not found');
         }
     };
 
     init() {
+        if (this.didInit) {
+            this.update();
+            return;
+        }
+
         this.tocEl = document.getElementById(
             "toc-inner-wrapper"
         );
@@ -351,7 +362,10 @@ class TableOfContents extends HTMLElement {
             document.querySelectorAll<HTMLAnchorElement>("#toc a[href^='#']")
         );
 
-        if (this.tocEntries.length === 0) return;
+        if (this.tocEntries.length === 0) {
+            this.didInit = true;
+            return;
+        }
 
         this.sections = new Array(this.tocEntries.length);
         this.headings = new Array(this.tocEntries.length);
@@ -371,6 +385,7 @@ class TableOfContents extends HTMLElement {
             this.observer.observe(section)
         );
 
+        this.didInit = true;
         this.fallback();
         this.update();
     };

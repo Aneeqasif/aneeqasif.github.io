@@ -1,174 +1,184 @@
 <script lang="ts">
-	import { onDestroy, onMount, tick } from "svelte";
-	import SeriesPanel from "./SeriesPanel.svelte";
+import { onDestroy, onMount, tick } from "svelte";
+import SeriesPanel from "./SeriesPanel.svelte";
 
-	export let currentPart: number;
-	export let totalParts: number;
-	export let seriesName: string;
-	export let allSeriesPosts: any[] = []; // Posts in this series
-	export let currentSlug: string; // Current post slug
+export let currentPart: number;
+export let totalParts: number;
+export let seriesName: string;
+export let allSeriesPosts: any[] = []; // Posts in this series
+export let currentSlug: string; // Current post slug
 
-	let showModal = false;
-	let isHovered = false;
-	let isLoaded = false; // Track if page has loaded
-	let isClicked = false; // Track if button is clicked
-	let isAnimating = false; // Track if we're in the middle of animation
-	let modalContentElement: HTMLDivElement | null = null; // Reference to modal content
-	let modalOverlayElement: HTMLDivElement | null = null; // Reference to modal overlay
-	let widgetContainerElement: HTMLDivElement | null = null; // Reference to widget container
-	const MODAL_PADDING = 24; // 1.5rem baseline for spacing
-	let listenersAttached = false;
-	let measurementRaf: number | null = null;
+let showModal = false;
+let isHovered = false;
+let isLoaded = false; // Track if page has loaded
+let isClicked = false; // Track if button is clicked
+let isAnimating = false; // Track if we're in the middle of animation
+let modalContentElement: HTMLDivElement | null = null; // Reference to modal content
+let modalOverlayElement: HTMLDivElement | null = null; // Reference to modal overlay
+let widgetContainerElement: HTMLDivElement | null = null; // Reference to widget container
+const MODAL_PADDING = 24; // 1.5rem baseline for spacing
+let listenersAttached = false;
+let measurementRaf: number | null = null;
 
-	onMount(() => {
-		// Trigger slide animation once on page load
-		setTimeout(() => {
-			isLoaded = true;
-		}, 100);
+onMount(() => {
+	// Trigger slide animation once on page load
+	setTimeout(() => {
+		isLoaded = true;
+	}, 100);
 
-		// Global click handler to close modal when clicking outside
-		function handleGlobalClick(event: MouseEvent) {
-			if (!showModal || !modalContentElement) return;
-			
-			// Check if click is outside modal content
-			if (!modalContentElement.contains(event.target as Node)) {
-				closeModal();
-			}
+	// Global click handler to close modal when clicking outside
+	function handleGlobalClick(event: MouseEvent) {
+		if (!showModal || !modalContentElement) return;
+
+		// Check if click is outside modal content
+		if (!modalContentElement.contains(event.target as Node)) {
+			closeModal();
 		}
+	}
 
-		// Add listener to window for global click detection
-		window.addEventListener('click', handleGlobalClick);
+	// Add listener to window for global click detection
+	window.addEventListener("click", handleGlobalClick);
 
-		return () => {
-			// Cleanup on unmount
-			window.removeEventListener('click', handleGlobalClick);
-		};
-	});
+	return () => {
+		// Cleanup on unmount
+		window.removeEventListener("click", handleGlobalClick);
+	};
+});
 
-	onDestroy(() => {
-		resetModalMeasurements();
-	});
+onDestroy(() => {
+	resetModalMeasurements();
+});
 
-	function openModal(event: MouseEvent) {
+function openModal(event: MouseEvent) {
+	event.preventDefault();
+	event.stopPropagation();
+
+	if (showModal) return;
+
+	// Show modal immediately - no delay
+	isClicked = true;
+	isHovered = false;
+	showModal = true;
+	document.body.style.overflow = "hidden";
+	queueModalMeasurements();
+}
+
+function closeModal() {
+	showModal = false;
+	document.body.style.overflow = "";
+	resetModalMeasurements();
+
+	// Reset click state so cards slide out again immediately
+	isClicked = false;
+}
+
+function handleKeydown(e: KeyboardEvent) {
+	if (e.key === "Escape" && showModal) {
+		closeModal();
+	}
+}
+
+function handlePostClick(event: MouseEvent, postSlug: string) {
+	// If clicking on current post, just close the modal
+	if (postSlug === currentSlug) {
 		event.preventDefault();
-		event.stopPropagation();
-		
-		if (showModal) return;
-		
-		// Show modal immediately - no delay
-		isClicked = true;
-		isHovered = false;
-		showModal = true;
-		document.body.style.overflow = "hidden";
+		closeModal();
+	}
+	// Otherwise, let the link navigate normally
+}
+
+function getScrollableAncestor(element: HTMLElement | null): HTMLElement {
+	let current = element?.parentElement ?? null;
+	while (current && current !== document.body) {
+		const style = getComputedStyle(current);
+		const overflow = `${style.overflow}${style.overflowX}${style.overflowY}`;
+		if (/(auto|scroll|hidden)/.test(overflow)) {
+			return current;
+		}
+		current = current.parentElement;
+	}
+	return document.documentElement;
+}
+
+function attachModalListeners() {
+	if (listenersAttached) return;
+	listenersAttached = true;
+	window.addEventListener("resize", queueModalMeasurements);
+	document.addEventListener("scroll", queueModalMeasurements, true);
+}
+
+function detachModalListeners() {
+	if (!listenersAttached) return;
+	listenersAttached = false;
+	window.removeEventListener("resize", queueModalMeasurements);
+	document.removeEventListener("scroll", queueModalMeasurements, true);
+}
+
+function queueModalMeasurements() {
+	if (!showModal) return;
+	if (measurementRaf) {
+		cancelAnimationFrame(measurementRaf);
+	}
+	measurementRaf = requestAnimationFrame(() => {
+		measurementRaf = null;
+		updateModalMeasurements();
+	});
+}
+
+async function updateModalMeasurements() {
+	if (!showModal) return;
+	await tick();
+	if (!modalOverlayElement || !modalContentElement) {
 		queueModalMeasurements();
+		return;
 	}
-
-	function closeModal() {
-		showModal = false;
-		document.body.style.overflow = "";
-		resetModalMeasurements();
-
-		// Reset click state so cards slide out again immediately
-		isClicked = false;
-	}
-
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && showModal) {
-			closeModal();
-		}
-	}
-
-	function handlePostClick(event: MouseEvent, postSlug: string) {
-		// If clicking on current post, just close the modal
-		if (postSlug === currentSlug) {
-			event.preventDefault();
-			closeModal();
-		}
-		// Otherwise, let the link navigate normally
-	}
-
-	function getScrollableAncestor(element: HTMLElement | null): HTMLElement {
-		let current = element?.parentElement ?? null;
-		while (current && current !== document.body) {
-			const style = getComputedStyle(current);
-			const overflow = `${style.overflow}${style.overflowX}${style.overflowY}`;
-			if (/(auto|scroll|hidden)/.test(overflow)) {
-				return current;
-			}
-			current = current.parentElement;
-		}
-		return document.documentElement;
-	}
-
-	function attachModalListeners() {
-		if (listenersAttached) return;
-		listenersAttached = true;
-		window.addEventListener("resize", queueModalMeasurements);
-		document.addEventListener("scroll", queueModalMeasurements, true);
-	}
-
-	function detachModalListeners() {
-		if (!listenersAttached) return;
-		listenersAttached = false;
-		window.removeEventListener("resize", queueModalMeasurements);
-		document.removeEventListener("scroll", queueModalMeasurements, true);
-	}
-
-	function queueModalMeasurements() {
-		if (!showModal) return;
-		if (measurementRaf) {
-			cancelAnimationFrame(measurementRaf);
-		}
-		measurementRaf = requestAnimationFrame(() => {
-			measurementRaf = null;
-			updateModalMeasurements();
-		});
-	}
-
-	async function updateModalMeasurements() {
-		if (!showModal) return;
-		await tick();
-		if (!modalOverlayElement || !modalContentElement) {
-			queueModalMeasurements();
-			return;
-		}
-		const scrollContainer = getScrollableAncestor(widgetContainerElement);
-		const viewportHeight = window.innerHeight;
-		const rect = scrollContainer === document.documentElement
+	const scrollContainer = getScrollableAncestor(widgetContainerElement);
+	const viewportHeight = window.innerHeight;
+	const rect =
+		scrollContainer === document.documentElement
 			? { top: 0, bottom: viewportHeight }
 			: scrollContainer.getBoundingClientRect();
-		const containerTop = rect.top;
-		const containerBottom = rect.bottom;
-		const topPadding = containerTop < MODAL_PADDING
-			? MODAL_PADDING - containerTop
+	const containerTop = rect.top;
+	const containerBottom = rect.bottom;
+	const topPadding =
+		containerTop < MODAL_PADDING ? MODAL_PADDING - containerTop : MODAL_PADDING;
+	const bottomPadding =
+		containerBottom > viewportHeight - MODAL_PADDING
+			? Math.max(
+					MODAL_PADDING,
+					containerBottom - (viewportHeight - MODAL_PADDING),
+				)
 			: MODAL_PADDING;
-		const bottomPadding = containerBottom > viewportHeight - MODAL_PADDING
-			? Math.max(MODAL_PADDING, containerBottom - (viewportHeight - MODAL_PADDING))
-			: MODAL_PADDING;
-		const appliedTop = Math.max(topPadding, MODAL_PADDING);
-		const appliedBottom = Math.max(bottomPadding, MODAL_PADDING);
-		modalOverlayElement.style.setProperty("--series-modal-padding-top", `${appliedTop+105}px`);
-		modalOverlayElement.style.setProperty("--series-modal-padding-bottom", `${appliedBottom}px`);
-		const containerHeight = containerBottom - containerTop;
-		const visibleHeight = Math.min(
-			viewportHeight - MODAL_PADDING * 2,
-			containerHeight - appliedTop - appliedBottom
-		);
-		const maxHeight = Math.max(280, visibleHeight);
-		modalContentElement.style.maxHeight = `${Math.floor(maxHeight)}px`;
-		attachModalListeners();
-	}
+	const appliedTop = Math.max(topPadding, MODAL_PADDING);
+	const appliedBottom = Math.max(bottomPadding, MODAL_PADDING);
+	modalOverlayElement.style.setProperty(
+		"--series-modal-padding-top",
+		`${appliedTop + 105}px`,
+	);
+	modalOverlayElement.style.setProperty(
+		"--series-modal-padding-bottom",
+		`${appliedBottom}px`,
+	);
+	const containerHeight = containerBottom - containerTop;
+	const visibleHeight = Math.min(
+		viewportHeight - MODAL_PADDING * 2,
+		containerHeight - appliedTop - appliedBottom,
+	);
+	const maxHeight = Math.max(280, visibleHeight);
+	modalContentElement.style.maxHeight = `${Math.floor(maxHeight)}px`;
+	attachModalListeners();
+}
 
-	function resetModalMeasurements() {
-		detachModalListeners();
-		if (measurementRaf) {
-			cancelAnimationFrame(measurementRaf);
-			measurementRaf = null;
-		}
-		modalOverlayElement?.style.removeProperty("--series-modal-padding-top");
-		modalOverlayElement?.style.removeProperty("--series-modal-padding-bottom");
-		modalContentElement?.style.removeProperty("maxHeight");
+function resetModalMeasurements() {
+	detachModalListeners();
+	if (measurementRaf) {
+		cancelAnimationFrame(measurementRaf);
+		measurementRaf = null;
 	}
+	modalOverlayElement?.style.removeProperty("--series-modal-padding-top");
+	modalOverlayElement?.style.removeProperty("--series-modal-padding-bottom");
+	modalContentElement?.style.removeProperty("maxHeight");
+}
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -300,8 +310,8 @@
 	}
 
 	.main-card {
-		width: 100px; /* Smaller */
-		height: 70px; /* Smaller */
+		width: 95px;
+		height: 70px;
 		background: var(--primary);
 		z-index: 3;
 		left: 0;
@@ -311,7 +321,7 @@
 
 	.fraction {
 		font-family: 'Iosevka', 'Iosevka Web', 'Courier New', monospace;
-		font-size: 2rem; /* Smaller */
+		font-size: 2.2rem; /* Smaller */
 		font-weight: bold;
 		color: #1a1a1a;
 	}
@@ -323,7 +333,7 @@
 
 	/* All cards vertically centered, progressively smaller with MORE spacing */
 	.card-2 {
-		width: 90px; /* 91% of main */
+		width: 84px; /* 91% of main */
 		height: 62px; /* 91% of main */
 		z-index: 2;
 		left: 0;
@@ -332,7 +342,7 @@
 	}
 
 	.card-3 {
-		width: 80px; /* 82% of main */
+		width: 74px; /* 82% of main */
 		height: 50px; /* 82% of main */
 		z-index: 1;
 		left: 0;

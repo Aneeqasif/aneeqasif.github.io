@@ -3,7 +3,7 @@
 /* Wrapper positioning matches the back-to-top button with extra breathing room */
 #toc-wrapper.toc-overlay {
     position: fixed;
-    right: max(2rem, calc((100vw - var(--page-width)) / 2 - 5rem));
+    right: max(2rem, calc((100vw - var(--page-width)) / 2 + 2.75rem));
     bottom: calc(2rem + 3.75rem);
     display: flex;
     align-items: flex-end;
@@ -182,6 +182,16 @@
 
     100% {
         opacity: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    #toc-wrapper.toc-overlay {
+        bottom: calc(3.25rem + 3.75rem);
+    }
+
+    .toc-overlay__panel {
+        bottom: calc(var(--toc-fab-size) + 1.5rem);
     }
 }
 
