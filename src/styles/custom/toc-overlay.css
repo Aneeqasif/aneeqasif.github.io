@@ -144,7 +144,7 @@
     z-index: 1;
 }
 
-.toc-overlay__panel-content {
+/* .toc-overlay__panel-content {
     color: color-mix(in srgb, var(--btn-content) 85%, #ffffff 15%);
 }
 
@@ -154,7 +154,7 @@
 
 .toc-overlay__panel-content .text-30 {
     color: color-mix(in srgb, var(--btn-content) 70%, #ffffff 30%);
-}
+} */
 
 .toc-heading-flash {
     position: relative;
