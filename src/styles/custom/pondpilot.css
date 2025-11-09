@@ -56,21 +56,22 @@
 .pondpilot-button-container {
   display: flex !important;
   gap: 8px !important;
-  padding: 5px !important;
+  padding: 3px !important;
 }
 
 .pondpilot-run-button,
 .pondpilot-reset-button {
-  border-radius: 0.55rem !important;
+  border-radius: 0.6rem !important;
 }
 
 .pondpilot-run-button {
-  background: var(--primary) !important;
-  color: var(--deep-text) !important;
+  background: var(--btn-regular-bg) !important;
+  color: var(--btn-content) !important;
 }
 
 .pondpilot-run-button:hover {
-  background: var(--primary) !important;
+  color: var(--btn-regular-bg) !important;
+  background: var(--btn-content) !important;
 }
 
 .pondpilot-reset-button {
