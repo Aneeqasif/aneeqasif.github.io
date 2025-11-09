@@ -20,32 +20,24 @@ export const cleanupTocOverlay = () => {
 export const initTocOverlay = () => {
 	cleanupTocOverlay();
 
+	const container = document.getElementById("toc");
+	const isActive = container?.dataset.tocActive !== "false";
+
+	if (!isActive) {
+		container?.setAttribute("data-toc-active", "false");
+		return;
+	}
+
 	const wrapper = document.getElementById("toc-wrapper");
 	const toggle = document.getElementById(
 		"toc-toggle",
 	) as HTMLButtonElement | null;
 	const panel = document.getElementById("toc-panel") as HTMLElement | null;
+
 	if (!wrapper || !toggle || !panel) {
+		container?.setAttribute("data-toc-active", "false");
 		return;
 	}
-
-	const tocActive = wrapper.dataset.tocActive !== "false";
-
-	if (!tocActive) {
-		wrapper.setAttribute("hidden", "true");
-		wrapper.classList.add("toc-hide", "toc-not-ready");
-		toggle.setAttribute("aria-hidden", "true");
-		toggle.setAttribute("tabindex", "-1");
-		toggle.disabled = true;
-		closeRef = undefined;
-		return;
-	}
-
-	wrapper.removeAttribute("hidden");
-	wrapper.classList.remove("toc-not-ready");
-	toggle.setAttribute("aria-hidden", "false");
-	toggle.setAttribute("tabindex", "0");
-	toggle.disabled = false;
 
 	wrapperRef = wrapper;
 

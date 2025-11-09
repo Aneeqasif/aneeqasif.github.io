@@ -17,10 +17,7 @@ Keep the log tidy, and even hostile planets listen. This notice doubles as a rem
 
 ## A Morning Playlist for Thin Air
 
-<figure class="spotify-song" style="width: 80%; margin: 0 auto 20px auto; text-align: center;">
-  <iframe style="border-radius: 12px;" src="https://open.spotify.com/embed/track/7dqZgF33NQwGaQSuh88Fq1?utm_source=generator" width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  <figcaption style="color: #5a5a66; font-size: 0.9em; overflow-wrap: break-word; text-align: center; margin-top: 5px;">Looping a synthwave heartbeat while the habitat hums.</figcaption>
-</figure>
+
 
 ### Systems Check
 
