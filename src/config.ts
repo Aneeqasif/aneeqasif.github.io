@@ -12,13 +12,13 @@ export const siteConfig: SiteConfig = {
 	subtitle: "Cats, Code, and Syscall Stories",
 	lang: "en", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
 	themeColor: {
-		hue: 250, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
+		hue: 265, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
 		fixed: true, // Hide the theme color picker for visitors
 	},
 	banner: {
 		enable: true,
-		src: "assets/images/demo-banner.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-		position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
+		src: "assets/images/wallbg.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+		position: "bottom", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
 		credit: {
 			enable: false, // Display the credit text of the banner image
 			text: "", // Credit text to be displayed
@@ -68,9 +68,10 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "assets/images/image.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+	avatar: "assets/images/os16.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "Aneeq Asif Azad",
-	bio: "Engage with a tapestry of algorithms, physics, and subtle threads of personal reflections.",
+	bio: "Cats, Code, and Syscall Stories",
+	// bio: "Engage with a tapestry of algorithms, physics, and subtle threads of personal reflections.",
 	links: [
 		{
 			name: "Twitter",

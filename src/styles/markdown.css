@@ -5,6 +5,31 @@
         @apply text-3xl;
     }
 
+    h2 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+    }
+
+    h4 {
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+    }
+
+    h5 {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    h6 {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+
     h1,
     h2,
     h3,
@@ -44,7 +69,7 @@
     code {
         @apply bg-[var(--inline-code-bg)] text-[var(--inline-code-color)] px-1 py-0.5 rounded-md overflow-hidden;
 
-        font-family: 'Iosevka', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+        font-family: var(--post-mono-font, "Iosevka", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
         font-size: 0.9em;
         /* Adjust: 0.85em (smaller) to 1em (same as text) */
         font-weight: 400;

@@ -14,6 +14,9 @@ series:
 
 # Variables and Data Types
 
+Rust is a systems programming language designed for safety, speed, and concurrency without relying on a garbage collector. One of its defining features is **memory safety through ownership and borrowing**, which eliminates common bugs like null pointer dereferences, dangling pointers, and data races at compile time. Rust’s powerful **type system and pattern matching** encourage expressive yet predictable code, while its **zero-cost abstractions** ensure that high-level features don’t come at a runtime performance cost. The **Cargo** package manager and build tool simplify dependency management, testing, and documentation, making the developer experience both modern and efficient.
+
+Another standout feature is Rust’s emphasis on **concurrency without fear**, achieved through its strict compile-time guarantees that prevent data races by design. It also offers **traits and generics** for flexible, reusable code and integrates well with **C via FFI (Foreign Function Interface)**, making it practical for embedding or extending existing systems. With **comprehensive tooling**, a **vibrant ecosystem (crates.io)**, and an active community, Rust strikes a rare balance between low-level control and high-level ergonomics — making it a favorite for building operating systems, web servers, game engines, and other performance-critical applications.
 In this part, we'll explore how Rust handles variables and data types.
 
 ## 1. Count Orders

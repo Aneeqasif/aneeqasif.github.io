@@ -148,16 +148,21 @@ async function initPondPilot(): Promise<void> {
 
 		// Get computed CSS variables for backgrounds
 		const rootStyles = getComputedStyle(document.documentElement);
-		const getCssVar = (name: string) => rootStyles.getPropertyValue(name).trim();
+		const getCssVar = (name: string) =>
+			rootStyles.getPropertyValue(name).trim();
 		const codeblockBg = getCssVar("--codeblock-bg");
 		const codeblockTopbarBg = getCssVar("--codeblock-topbar-bg");
 		const pondpilotBg = getCssVar("--pondpilot-bg-color") || codeblockBg;
 		const pondpilotEditorBg = getCssVar("--pondpilot-editor-bg") || codeblockBg;
-		const pondpilotOutputBg = getCssVar("--pondpilot-output-bg") || codeblockTopbarBg;
+		const pondpilotOutputBg =
+			getCssVar("--pondpilot-output-bg") || codeblockTopbarBg;
 		const pondpilotTableHeaderBg =
 			getCssVar("--pondpilot-table-header-bg") || pondpilotOutputBg;
 		const pondpilotTableHeaderText =
 			getCssVar("--pondpilot-table-header-text") || themeColors.syntaxKeyword;
+		const postMonoFontStack =
+			getCssVar("--post-mono-font") ||
+			"Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace";
 
 		// Configure PondPilot with extracted theme
 		window.PondPilot.config({
@@ -189,8 +194,7 @@ async function initPondPilot(): Promise<void> {
 						// syntaxKeyword: "#4ECDC4", // Custom cyan for keywords
 
 						// Typography
-						editorFontFamily:
-							"Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+						editorFontFamily: postMonoFontStack,
 						editorFontSize: "1.0rem",
 						fontSize: "1.0rem",
 					},

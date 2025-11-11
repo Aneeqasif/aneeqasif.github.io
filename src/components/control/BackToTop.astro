@@ -55,6 +55,15 @@ import { Icon } from "astro-icon/components";
     &:active
       transform: scale(0.9)
 
+:global(html:not(.dark)) .back-to-top-btn
+    border-color: unquote('color-mix(in srgb, var(--primary) 40%, var(--btn-card-bg-hover) 60%)')
+    button
+        background-color: var(--btn-card-bg-hover)
+        &:hover
+            background-color: unquote('color-mix(in srgb, var(--btn-card-bg-hover) 70%, var(--primary) 30%)')
+        &:active
+            background-color: var(--btn-card-bg-active)
+
 @media (max-width: 640px)
     .back-to-top-wrapper
         bottom: 3.25rem

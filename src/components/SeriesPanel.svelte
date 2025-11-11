@@ -5,10 +5,11 @@ import { getPostUrlBySlug } from "../utils/url-utils";
 
 export let sortedPosts: Post[] = [];
 export let filterSeriesName: string | null = null; // Filter to show only one series
-export let hideDate: boolean = false; // Hide date column
-export let hideTags: boolean = false; // Hide tags column
+export let hideDate = false; // Hide date column
+export let hideTags = false; // Hide tags column
 export let currentPartNumber: number | null = null; // Highlight current part
-export let onPostClick: ((event: MouseEvent, slug: string) => void) | null = null; // Custom click handler
+export let onPostClick: ((event: MouseEvent, slug: string) => void) | null =
+	null; // Custom click handler
 
 interface Post {
 	slug: string;
@@ -90,7 +91,8 @@ onMount(async () => {
 			<div class:mb-8={index < seriesGroups.length - 1}>
 				<!-- Series Name Header - aligned with right edge of Part number column -->
 				<div class="mb-2">
-					<h2 class="text-2xl font-bold text-[var(--primary)] ml-[5%]">
+					<h2 class="text-2xl font-bold text-[var(--primary)] ml-[5%] ui-primary-font">
+					<!-- <h2 class="text-2xl font-bold text-75 ml-[5%] ui-primary-font"> -->
 						{series.name}
 					</h2>
 				</div>
@@ -147,7 +149,7 @@ onMount(async () => {
 								class:md:w-[80%]={hideDate && hideTags}
 								class:w-[40%]={!hideDate || !hideTags}
 								class:md:w-[50%]={!hideDate || !hideTags}
-								class="text-left font-bold
+								class="text-left font-bold ui-secondary-font
 								group-hover:translate-x-1 transition-all group-hover:text-[var(--primary)]
 								text-75 pr-4 whitespace-nowrap overflow-ellipsis overflow-hidden"
 							>

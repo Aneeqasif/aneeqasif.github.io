@@ -113,7 +113,9 @@
     box-shadow: none;
 }
 
-
+.wl-meta {
+    display: none !important;
+}
 
 /* User text styling */
 .wl-editor {

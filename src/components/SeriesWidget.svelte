@@ -211,7 +211,7 @@ function resetModalMeasurements() {
 		
 		<!-- Series label -->
 		<div class="series-label">
-			<button type="button" class="series-text" on:click={openModal}>Series</button>
+			<button type="button" class="series-text link-lg" on:click={openModal}>Series</button>
 			<span class="series-name text-75">{seriesName}</span>
 		</div>
 	</div>
@@ -320,7 +320,7 @@ function resetModalMeasurements() {
 	}
 
 	.fraction {
-		font-family: 'Iosevka', 'Iosevka Web', 'Courier New', monospace;
+		font-family: var(--series-widget-font, 'Iosevka', 'Iosevka Web', 'Courier New', monospace);
 		font-size: 2.2rem; /* Smaller */
 		font-weight: bold;
 		color: #1a1a1a;
@@ -378,6 +378,7 @@ function resetModalMeasurements() {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
+		font-family: var(--post-body-font);
 	}
 
 	.series-text {
@@ -388,11 +389,43 @@ function resetModalMeasurements() {
 		letter-spacing: 0.05em;
 		background: none;
 		border: none;
-		padding: 0;
 		cursor: pointer;
-		font-family: inherit;
 		display: inline-flex;
 		align-items: center;
+	}
+
+	:global(.series-link) {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.35rem 0.55rem;
+		margin: 0;
+		border-radius: 0.65rem;
+		transition: color 0.2s ease, transform 0.2s ease;
+	}
+
+	:global(.series-link)::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		background-color: color-mix(in srgb, var(--btn-plain-bg-hover) 80%, transparent);
+		transform: scale(0.88);
+		opacity: 0;
+		transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+		z-index: -1;
+	}
+
+	:global(.series-link:hover)::before,
+	:global(.series-link:focus-visible)::before {
+		transform: scale(1);
+		opacity: 1;
+		background-color: color-mix(in srgb, var(--btn-plain-bg-hover) 65%, var(--primary) 35%);
+	}
+
+	:global(.series-link:active)::before {
+		transform: scale(0.94);
 	}
 
 	.series-text:focus-visible {

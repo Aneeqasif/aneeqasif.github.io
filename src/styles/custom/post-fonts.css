@@ -1,0 +1,95 @@
+/* Example: uncomment to pull in a Google Font variant for experimentation */
+/* @import url("https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;600&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600&display=swap"); */
+/* @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&display=swap'); */
+@import url("https://fonts.googleapis.com/css2?family=Vollkorn:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600&display=swap");
+
+
+
+:root {
+    --ui-primary-font: "Vollkorn", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --ui-secondary-font: "MiSans", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --post-heading-font: var(--ui-primary-font);
+    /* --post-heading-font: "Crimson Text", "Merriweather", "IM FELL DW Pica", "Roboto", "Inter", ui-serif, Georgia, serif; */
+    --post-body-font: "MiSans", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --post-mono-font: "Iosevka", "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* choices :
+Header:
+
+Newsreader
+Crimson Text
+    Merriweather
+    IBM Plex Serif
+    Vollkorn
+    Source Serif 4 
+    IM FELL DW Pica
+    Marmelad
+    Buenard 
+    Spectral
+    Rosarivo
+    Oswald
+Ui:
+    MiSans
+    Spline Sans
+    IBM Plex Sans
+Body:
+    Pontano Sans 
+    Lato
+    PT Sans
+    Source Sans 3
+
+
+*/
+
+
+/* Global UI font defaults for navigation, cards, metadata, etc. */
+body,
+button,
+input,
+select,
+textarea {
+    font-family: var(--ui-secondary-font);
+}
+
+.ui-primary-font {
+    font-family: var(--ui-primary-font);
+}
+
+.ui-secondary-font {
+    font-family: var(--ui-secondary-font);
+
+}
+
+/* Post title on article pages */
+#post-container [data-pagefind-meta="title"] {
+    font-family: var(--post-heading-font);
+}
+
+/* Default typography inside post content */
+.custom-md {
+    font-family: var(--post-body-font);
+    font-size: 17px !important;
+}
+
+/* Headings inside Markdown content */
+.custom-md :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--post-heading-font);
+}
+
+/* Monospace elements inside Markdown content */
+.custom-md :is(code, pre, kbd, samp) {
+    font-family: var(--post-mono-font);
+}
+
+/* Ensure code tooling uses the shared monospace stack */
+.expressive-code :is(code, pre, .code, .title) {
+    font-family: var(--post-mono-font);
+}
