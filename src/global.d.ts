@@ -13,9 +13,20 @@ declare global {
 		};
 		PondPilot: {
 			config: (options: Record<string, unknown>) => Record<string, unknown>;
-			init: (selector?: string | Element | Element[] | NodeList, overrides?: Record<string, unknown>) => void;
-			registerTheme?: (name: string, definition: { extends?: string; config: Record<string, unknown> }) => void;
+			init: (
+				selector?: string | Element | Element[] | NodeList,
+				overrides?: Record<string, unknown>,
+			) => void;
+			create?: (
+				target: string | Element | Element[] | NodeList,
+				overrides?: Record<string, unknown>,
+			) => unknown;
+			registerTheme?: (
+				name: string,
+				definition: { extends?: string; config: Record<string, unknown> },
+			) => void;
 			getConfig?: () => Record<string, unknown>;
+			destroy?: (target?: string | Element | Element[] | NodeList) => void;
 		};
 		PONDPILOT_DB_FILE?: string;
 	}
@@ -23,9 +34,7 @@ declare global {
 
 declare module "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.31.1-dev1.0/+esm" {
 	export function getJsDelivrBundles(): unknown;
-	export function selectBundle(
-		bundles: unknown,
-	): Promise<{
+	export function selectBundle(bundles: unknown): Promise<{
 		mainWorker: string;
 		mainModule: string;
 		pthreadWorker: string;

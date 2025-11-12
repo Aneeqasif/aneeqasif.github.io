@@ -168,11 +168,10 @@ const bannerOffset =
 		<script is:inline>
 			window.PONDPILOT_AUTO_INIT = false;
 		</script>
-		{duckdb && (
-			<script is:inline define:vars={{ duckdb }}>
-				window.PONDPILOT_DB_FILE = duckdb;
-			</script>
-		)}
+		<script is:inline define:vars={{ duckdb }}>
+			const pondPilotPath = typeof duckdb === "string" && duckdb.trim().length > 0 ? duckdb : undefined;
+			window.PONDPILOT_DB_FILE = pondPilotPath;
+		</script>
 		<script src="https://unpkg.com/pondpilot-widget@1.4.0" data-no-auto-init is:inline></script>
 		<script src="/src/scripts/pondpilot-init.ts"></script>
 

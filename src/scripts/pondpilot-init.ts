@@ -76,6 +76,10 @@ const MONO_FONT_STACK =
 	"Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace";
 const DUCKDB_WASM_URL =
 	"https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.31.1-dev1.0/+esm";
+const WIDGET_SELECTOR = "pre.pondpilot-snippet, .pondpilot-snippet pre";
+const LAZY_WIDGET_THRESHOLD = 6;
+const EAGER_WIDGET_LIMIT = 3;
+const LAZY_ROOT_MARGIN = "200px 0px";
 
 let duckdbModulePromise: Promise<DuckDBModule> | null = null;
 let duckdbInstancePromise: Promise<DuckDBInstance> | null = null;
@@ -83,6 +87,8 @@ let pondPilotConfigured = false;
 let lastDbFilePath: string | undefined;
 let lastConfiguredDbPath: string | undefined;
 let themeObserver: MutationObserver | null = null;
+let lazyObserver: IntersectionObserver | null = null;
+const pendingLazyElements = new Set<Element>();
 
 async function waitForPondPilotReady(
 	maxAttempts = 40,
@@ -156,10 +162,7 @@ function collectThemeTokens(): PondPilotThemeConfig {
 		),
 		editorBg: resolveColor("--pondpilot-editor-bg", bgFallback),
 		editorText: resolveColor("--pondpilot-editor-text", textFallback),
-		editorFocusBg: resolveColor(
-			"--pondpilot-editor-focus-bg",
-			topbarFallback,
-		),
+		editorFocusBg: resolveColor("--pondpilot-editor-focus-bg", topbarFallback),
 		controlsBg: resolveColor("--pondpilot-controls-bg", topbarFallback),
 		primaryBg,
 		primaryText: resolveColor(
@@ -168,28 +171,19 @@ function collectThemeTokens(): PondPilotThemeConfig {
 		),
 		primaryHover: resolveColor("--pondpilot-primary-hover", primaryBg),
 		secondaryBg,
-		secondaryText: resolveColor(
-			"--pondpilot-secondary-text",
-			textFallback,
+		secondaryText: resolveColor("--pondpilot-secondary-text", textFallback),
+		secondaryHover: resolveColor("--pondpilot-secondary-hover", secondaryBg),
+		mutedText: resolveColor(
+			"--pondpilot-muted-text",
+			themeColors.syntaxComment,
 		),
-		secondaryHover: resolveColor(
-			"--pondpilot-secondary-hover",
-			secondaryBg,
-		),
-		mutedText: resolveColor("--pondpilot-muted-text", themeColors.syntaxComment),
 		errorText: resolveColor("--pondpilot-error-text", "#f87171"),
-		errorBg: resolveColor(
-			"--pondpilot-error-bg",
-			"rgba(248, 113, 113, 0.12)",
-		),
+		errorBg: resolveColor("--pondpilot-error-bg", "rgba(248, 113, 113, 0.12)"),
 		errorBorder: resolveColor(
 			"--pondpilot-error-border",
 			"rgba(248, 113, 113, 0.32)",
 		),
-		tableHeaderBg: resolveColor(
-			"--pondpilot-table-header-bg",
-			topbarFallback,
-		),
+		tableHeaderBg: resolveColor("--pondpilot-table-header-bg", topbarFallback),
 		tableHeaderText: resolveColor(
 			"--pondpilot-table-header-text",
 			themeColors.syntaxKeyword,
@@ -236,7 +230,9 @@ function registerSiteTheme(theme: PondPilotThemeConfig) {
 	});
 }
 
-async function createDuckDBInstance(dbFilePath?: string): Promise<DuckDBInstance> {
+async function createDuckDBInstance(
+	dbFilePath?: string,
+): Promise<DuckDBInstance> {
 	const duckdbModule = await loadDuckDBModule();
 	const bundles = duckdbModule.getJsDelivrBundles();
 
@@ -311,6 +307,85 @@ function ensureThemeObserver(): void {
 	});
 }
 
+function resetLazyInitialization(): void {
+	pendingLazyElements.clear();
+	if (lazyObserver) {
+		lazyObserver.disconnect();
+		lazyObserver = null;
+	}
+}
+
+function createWidgetFromElement(element: Element): void {
+	if (!(element instanceof HTMLElement)) {
+		return;
+	}
+	window.PondPilot.create?.(element);
+	syncWidgetsToTheme();
+}
+
+function ensureLazyObserver(): IntersectionObserver | null {
+	if (lazyObserver) {
+		return lazyObserver;
+	}
+	if (typeof window === "undefined" || typeof window.IntersectionObserver === "undefined") {
+		return null;
+	}
+	lazyObserver = new window.IntersectionObserver(
+		(entries) => {
+			entries.forEach((entry) => {
+				if (!entry.isIntersecting && entry.intersectionRatio <= 0) {
+					return;
+				}
+				const target = entry.target;
+				lazyObserver?.unobserve(target);
+				pendingLazyElements.delete(target);
+				createWidgetFromElement(target);
+			});
+		},
+		{ rootMargin: LAZY_ROOT_MARGIN },
+	);
+	return lazyObserver;
+}
+
+function lazilyInitializeWidgets(elements: HTMLElement[]): void {
+	const observer = ensureLazyObserver();
+	if (!observer) {
+		elements.forEach((element) => {
+			createWidgetFromElement(element);
+		});
+		return;
+	}
+	elements.forEach((element) => {
+		if (pendingLazyElements.has(element)) {
+			return;
+		}
+		pendingLazyElements.add(element);
+		observer.observe(element);
+	});
+}
+
+function initializeWidgets(elements: Element[]): void {
+	const targets = elements.filter((element): element is HTMLElement =>
+		element instanceof HTMLElement,
+	);
+	if (targets.length === 0) {
+		return;
+	}
+	if (targets.length <= LAZY_WIDGET_THRESHOLD) {
+		window.PondPilot.init?.();
+		syncWidgetsToTheme();
+		return;
+	}
+	const eager = targets.slice(0, EAGER_WIDGET_LIMIT);
+	eager.forEach((element) => {
+		createWidgetFromElement(element);
+	});
+	const remaining = targets.slice(EAGER_WIDGET_LIMIT);
+	if (remaining.length > 0) {
+		lazilyInitializeWidgets(remaining);
+	}
+}
+
 async function configurePondPilot(dbFilePath?: string): Promise<void> {
 	const pathChanged = dbFilePath !== lastConfiguredDbPath;
 	const duckdbPromise = getDuckDBInstance(dbFilePath);
@@ -350,16 +425,25 @@ async function initPondPilot(): Promise<void> {
 			return;
 		}
 
-		const dbFilePath = window.PONDPILOT_DB_FILE;
-		const needsConfigure =
-			!pondPilotConfigured || dbFilePath !== lastConfiguredDbPath;
-
-		if (needsConfigure) {
-			await configurePondPilot(dbFilePath);
+		const pendingWidgets = document.querySelectorAll(WIDGET_SELECTOR);
+		if (pendingWidgets.length === 0) {
+			window.PondPilot.destroy?.();
+			pondPilotConfigured = false;
+			lastConfiguredDbPath = undefined;
+			resetLazyInitialization();
+			return;
 		}
 
-		window.PondPilot.init();
-		syncWidgetsToTheme();
+		const dbFileValue = window.PONDPILOT_DB_FILE;
+		const dbFilePath =
+			typeof dbFileValue === "string" && dbFileValue.trim().length > 0
+				? dbFileValue
+				: undefined;
+
+		await configurePondPilot(dbFilePath);
+
+		resetLazyInitialization();
+		initializeWidgets(Array.from(pendingWidgets));
 		ensureThemeObserver();
 		console.log("[PondPilot] Widgets initialized");
 	} catch (error) {
