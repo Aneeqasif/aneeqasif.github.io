@@ -327,7 +327,10 @@ function ensureLazyObserver(): IntersectionObserver | null {
 	if (lazyObserver) {
 		return lazyObserver;
 	}
-	if (typeof window === "undefined" || typeof window.IntersectionObserver === "undefined") {
+	if (
+		typeof window === "undefined" ||
+		typeof window.IntersectionObserver === "undefined"
+	) {
 		return null;
 	}
 	lazyObserver = new window.IntersectionObserver(
@@ -365,8 +368,8 @@ function lazilyInitializeWidgets(elements: HTMLElement[]): void {
 }
 
 function initializeWidgets(elements: Element[]): void {
-	const targets = elements.filter((element): element is HTMLElement =>
-		element instanceof HTMLElement,
+	const targets = elements.filter(
+		(element): element is HTMLElement => element instanceof HTMLElement,
 	);
 	if (targets.length === 0) {
 		return;
