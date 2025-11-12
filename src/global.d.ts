@@ -11,7 +11,42 @@ declare global {
 				}>;
 			}>;
 		};
+		PondPilot: {
+			config: (options: Record<string, unknown>) => Record<string, unknown>;
+			init: (selector?: string | Element | Element[] | NodeList, overrides?: Record<string, unknown>) => void;
+			registerTheme?: (name: string, definition: { extends?: string; config: Record<string, unknown> }) => void;
+			getConfig?: () => Record<string, unknown>;
+		};
+		PONDPILOT_DB_FILE?: string;
 	}
+}
+
+declare module "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.31.1-dev1.0/+esm" {
+	export function getJsDelivrBundles(): unknown;
+	export function selectBundle(
+		bundles: unknown,
+	): Promise<{
+		mainWorker: string;
+		mainModule: string;
+		pthreadWorker: string;
+	}>;
+	export class ConsoleLogger {
+		constructor(level: number);
+	}
+	export const LogLevel: { WARNING: number };
+	export class AsyncDuckDB {
+		constructor(logger: unknown, worker: Worker);
+		instantiate(mainModule: string, pthreadWorker: string): Promise<void>;
+		registerFileURL(
+			name: string,
+			url: string,
+			protocol: number,
+			force: boolean,
+		): Promise<void>;
+		open(config: { path: string }): Promise<void>;
+		connect(): Promise<unknown>;
+	}
+	export const DuckDBDataProtocol: { HTTP: number };
 }
 
 interface SearchResult {

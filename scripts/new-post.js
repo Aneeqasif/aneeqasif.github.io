@@ -50,6 +50,7 @@ image: ''
 tags: []
 category: ''
 draft: false
+duckdb: ''
 lang: ''
 pinned: false
 ---

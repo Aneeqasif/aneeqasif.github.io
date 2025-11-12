@@ -1,5 +1,5 @@
 ---
-title: PondPilot with DuckDB File Demo
+title: PondPilot with DuckDB Local File Demo
 published: 2024-11-04
 description: 'Loading and querying a local .duckdb file with PondPilot widgets'
 tags: ['SQL', 'DuckDB', 'Database', 'Demo']
@@ -38,7 +38,7 @@ JOIN main.customers c USING(customer)
 ORDER BY o.order_id;
 ```
 
-## 4. Create New Table
+## 4. Create New Table will give ERROR
 
 Create a products table that we'll use for analysis:
 
@@ -55,7 +55,7 @@ SELECT * FROM (VALUES
 SELECT * FROM products;
 ```
 
-## 5. Join New Table with Existing Data
+# 5. Join New Table with Existing Data
 
 Join the newly created products table with orders (matching by amount to product price):
 

@@ -1,10 +1,12 @@
 ---
-title: PondPilot Interactive SQL Demo
+title: PondPilot standalone
 published: 2024-11-04
 description: 'Demonstrating interactive SQL queries with DuckDB in the browser using PondPilot widget'
 tags: ['SQL', 'DuckDB', 'Interactive', 'Demo']
 category: 'Demo'
 draft: false
+duckdb: ""
+pinned: true
 ---
 
 # PondPilot Interactive SQL Demo

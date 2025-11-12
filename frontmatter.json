@@ -65,6 +65,11 @@
           "title": "pinned",
           "name": "pinned",
           "type": "boolean"
+        },
+        {
+          "title": "duckdb",
+          "name": "duckdb",
+          "type": "string"
         }
       ]
     }
