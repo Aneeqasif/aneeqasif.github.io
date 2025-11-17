@@ -145,8 +145,6 @@ AFTER LOAD DO
 Like me, you may be tempted to load data into the public schema; it's not recommended though. Keep objects in a schema named for your database (for example `northwind`) and add that schema to the database's default search_path: `ALTER DATABASE dbname SET search_path TO northwind, public;` in PostgreSQL ([Advice by PgLoader's author](https://github.com/dimitri/pgloader/issues/645))
 :::
 
- (advice from the pgloader author). See the linked issue for details.
-
 
 I added a few optimization [options](https://pgloader.readthedocs.io/en/latest/command.html?highlight=batch%20rows#batch-behaviour-options) to show some features you can fine-tune if needed.
 
