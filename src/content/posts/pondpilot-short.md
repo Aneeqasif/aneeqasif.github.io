@@ -1,9 +1,9 @@
 ---
 title: PondPilot Short
 published: 2024-11-09
-description: 'Demonstrating interactive SQL queries with DuckDB in the browser using PondPilot widget'
-tags: ['SQL', 'DuckDB', 'Interactive', 'Demo']
-category: 'Demo'
+description: "Demonstrating interactive SQL queries with DuckDB in the browser using PondPilot widget"
+tags: ["SQL", "DuckDB", "Interactive", "Demo"]
+category: "Demo"
 draft: false
 duckdb: ""
 pinned: true
@@ -28,11 +28,12 @@ Run SQL queries directly in your browser using DuckDB WASM. All widgets share a 
 Click "Run" or press `Ctrl+Enter` (or `Cmd+Enter` on Mac):
 
 ```sql {pw}
-SELECT 
+SELECT
     'Hello, World!' as greeting,
     42 as answer,
     CURRENT_DATE as today;
 ```
+
 
 <!-- ## Shared Instance Test -->
 

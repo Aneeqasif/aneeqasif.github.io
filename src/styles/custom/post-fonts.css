@@ -8,12 +8,13 @@
 /* @import url("https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600&display=swap"); */
 /* @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&display=swap'); */
 @import url("https://fonts.googleapis.com/css2?family=Vollkorn:wght@400;600&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600&display=swap"); */
+/* @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Marmelad&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap'); */
 
 
 
 :root {
-    --ui-primary-font: "Vollkorn", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --ui-primary-font: "Vollkorn", "MiSans", "Vollkorn", "Inter", "Helvetica Neue", Arial, sans-serif;
     --ui-secondary-font: "MiSans", "Inter", "Helvetica Neue", Arial, sans-serif;
     --post-heading-font: var(--ui-primary-font);
     /* --post-heading-font: "Crimson Text", "Merriweather", "IM FELL DW Pica", "Roboto", "Inter", ui-serif, Georgia, serif; */

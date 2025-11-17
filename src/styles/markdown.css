@@ -70,7 +70,7 @@
         @apply bg-[var(--inline-code-bg)] text-[var(--inline-code-color)] px-1 py-0.5 rounded-md overflow-hidden;
 
         font-family: var(--post-mono-font, "Iosevka", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
-        font-size: 0.9em;
+        font-size: 0.95em;
         /* Adjust: 0.85em (smaller) to 1em (same as text) */
         font-weight: 400;
 
