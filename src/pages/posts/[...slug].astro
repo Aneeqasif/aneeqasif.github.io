@@ -2,6 +2,7 @@
 import path from "node:path";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
+import PondPilot from "@components/PondPilot.astro";
 import SeriesWidget from "@components/SeriesWidget.svelte";
 import WalineComments from "@components/WalineComments.svelte";
 import I18nKey from "@i18n/i18nKey";
@@ -36,7 +37,7 @@ if (entry.data.series) {
 	const seriesPosts = allPosts
 		.filter((post) => post.data.series?.name === entry.data.series.name)
 		.sort((a, b) => a.data.series!.part - b.data.series!.part);
-	
+
 	seriesData = {
 		currentPart: entry.data.series.part,
 		totalParts: seriesPosts.length,
@@ -144,6 +145,9 @@ const walineLang = entry.data.lang
             <Markdown class="mb-6 markdown-content onload-animation">
                 <Content />
             </Markdown>
+
+            <!-- PondPilot Component - loads only on pages with SQL widgets -->
+            <PondPilot duckdb={entry.data.duckdb} client:load />
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
 

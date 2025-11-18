@@ -52,7 +52,8 @@ After that process is very straightforward:
 3. **Pull MySQL Data To Local Catalog**
 
     ```sql "Northwind"
-    COPY FROM DATABASE mysqldb TO duckwind; -- or TO memory if not attached to a file.
+    COPY FROM DATABASE mysqldb TO duckwind;
+    -- or TO MEMORY if not attached to a file.
     SET search_path = 'Northwind,main';
     ```
     We should add the imported schema to search path for ease of use.
