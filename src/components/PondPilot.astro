@@ -484,18 +484,8 @@ const { duckdb } = Astro.props;
 		}
 	}
 
-	// Initialize immediately - auto-init is disabled
-	async function setupPondPilot() {
-		// Check if there are widgets first
-		const pendingWidgets = document.querySelectorAll(WIDGET_SELECTOR);
-		if (pendingWidgets.length === 0) {
-			return;
-		}
-
-		// Initialize
-		await initPondPilot();
-
-		// Re-initialize on Swup page transitions
+	// Set up Swup hooks (must happen even if current page has no widgets)
+	function setupSwupHooks() {
 		if (window.swup) {
 			window.swup.hooks.on("content:replace", () => {
 				window.PondPilot?.destroy?.();
@@ -516,6 +506,18 @@ const { duckdb } = Astro.props;
 					await initPondPilot();
 				});
 			});
+		}
+	}
+
+	// Initialize immediately - auto-init is disabled
+	async function setupPondPilot() {
+		// Always set up Swup hooks, regardless of widgets on current page
+		setupSwupHooks();
+
+		// Initialize if current page has widgets
+		const pendingWidgets = document.querySelectorAll(WIDGET_SELECTOR);
+		if (pendingWidgets.length > 0) {
+			await initPondPilot();
 		}
 	}
 
