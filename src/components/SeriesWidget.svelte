@@ -208,7 +208,7 @@ function resetModalMeasurements() {
 			<!-- Card 3 (Behind) -->
 			<div class="card back-card card-3"></div>
 		</button>
-		
+
 		<!-- Series label -->
 		<div class="series-label">
 			<button type="button" class="series-text link-lg" on:click={openModal}>Series</button>
@@ -320,7 +320,7 @@ function resetModalMeasurements() {
 	}
 
 	.fraction {
-		font-family: var(--series-widget-font, 'Iosevka', 'Iosevka Web', 'Courier New', monospace);
+		font-family: var(--series-widget-font, 'Iosevka', ui-monospace, 'Iosevka Web', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Lucida Console', 'Courier New', monospace);
 		font-size: 2.2rem; /* Smaller */
 		font-weight: bold;
 		color: #1a1a1a;
@@ -444,22 +444,22 @@ function resetModalMeasurements() {
 		/* Position fixed relative to viewport, not container */
 		position: fixed !important;
 		inset: 0 !important; /* top: 0; right: 0; bottom: 0; left: 0; */
-		
+
 		/* Ensure it's above everything including headers/navbars */
 		z-index: 99999 !important;
-		
+
 		/* Dark backdrop */
 		background: rgba(0, 0, 0, 0.5);
-		
+
 		/* Flex for centering modal content */
 		display: flex;
 		align-items: flex-start;
 		justify-content: center;
 		padding: var(--series-modal-padding-top, 1.5rem) 1rem var(--series-modal-padding-bottom, 1.5rem) 1rem;
-		
+
 		/* Allow scrolling if content is tall */
 		overflow-y: auto;
-		
+
     	backdrop-filter: blur(6px); /* Adjust blur intensity (e.g., 5px) as needed */
     	-webkit-backdrop-filter: blur(6px); /* Safari support */
 
@@ -527,7 +527,7 @@ function resetModalMeasurements() {
 		.modal-body {
 			padding: 2rem 1rem 1rem 1rem;
 		}
-		
+
 		.widget-wrapper {
 			flex-direction: column;
 			align-items: flex-start;

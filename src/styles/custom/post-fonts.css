@@ -18,8 +18,8 @@
   --post-heading-font: var(--ui-primary-font);
   /* --post-heading-font: "Crimson Text", "Merriweather", "IM FELL DW Pica", "Roboto", "Inter", ui-serif, Georgia, serif; */
   --post-body-font: "Roboto", "Inter", "Helvetica Neue", Arial, sans-serif;
-  --post-mono-font: "Iosevka", "JetBrains Mono", "SFMono-Regular", Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace;
+  --post-mono-font: "Iosevka", ui-monospace, "SFMono-Regular", Menlo, Monaco,
+    Consolas, "Lucida Console", "Liberation Mono", "Courier New", monospace;
 }
 
 /* choices :
