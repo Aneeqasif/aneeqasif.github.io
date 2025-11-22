@@ -2,7 +2,7 @@
 author: M. Aneeq Asif
 category: Demo
 description: How code blocks look in Markdown using Expressive Code.
-draft: true
+draft: false
 published: 2026-09-09
 tags:
 - demo
