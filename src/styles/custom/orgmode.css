@@ -29,11 +29,9 @@
 @supports (color: color-mix(in oklch, black 50%, white 50%)) {
   .tag {
     --org-tag-bg: color-mix(in oklch, var(--primary) 14%, var(--card-bg) 86%);
-    --org-tag-border: color-mix(
-      in oklch,
-      var(--primary) 56%,
-      var(--card-bg) 44%
-    );
+    --org-tag-border: color-mix(in oklch,
+        var(--primary) 56%,
+        var(--card-bg) 44%);
   }
 }
 
@@ -41,7 +39,13 @@
   display: none !important;
 }
 
-.tag:not([tag-name="ATTACH"]) + .tag:not([tag-name="ATTACH"]) {
+/* Hide Fold and folded tags as they are functional only */
+.tag[tag-name="Fold"],
+.tag[tag-name="folded"] {
+  display: none !important;
+}
+
+.tag:not([tag-name="ATTACH"]):not([tag-name="Fold"]):not([tag-name="folded"])+.tag:not([tag-name="ATTACH"]):not([tag-name="Fold"]):not([tag-name="folded"]) {
   margin-inline-start: 0.45rem;
 }
 
@@ -63,11 +67,89 @@
     .tag {
       color: color-mix(in oklch, var(--primary) 82%, white 18%);
       --org-tag-bg: color-mix(in oklch, var(--primary) 26%, var(--card-bg) 74%);
-      --org-tag-border: color-mix(
-        in oklch,
-        var(--primary) 62%,
-        var(--card-bg) 38%
-      );
+      --org-tag-border: color-mix(in oklch,
+          var(--primary) 62%,
+          var(--card-bg) 38%);
     }
   }
+}
+
+/* Foldable Sections Styling */
+details.foldable-section>summary {
+  cursor: pointer;
+  list-style: none;
+  /* Remove default marker */
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-inline-start: 0;
+  /* Fix Firefox left padding */
+  margin-left: -1.7em;
+  /* Pull back to align with regular headings */
+}
+
+details.foldable-section>summary::-webkit-details-marker {
+  display: none;
+  /* Remove default marker in WebKit */
+}
+
+/* Remove Firefox marker completely */
+details.foldable-section>summary::marker {
+  content: "";
+}
+
+/* Add custom marker */
+.foldable-icon {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.2rem;
+  transition: transform 0.2s ease;
+  background-color: var(--primary);
+  flex-shrink: 0;
+  /* Prevent marker from shrinking */
+
+  /* Iconify mask */
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12.6 12L8.7 8.1q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7z'/%3E%3C/svg%3E");
+  -webkit-mask-image: var(--svg);
+  mask-image: var(--svg);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+details.foldable-section[open]>summary .foldable-icon {
+  transform: rotate(90deg);
+}
+
+/* Spacing for collapsed sections - match regular section spacing */
+details.foldable-section:not([open]) {
+  margin-bottom: 1.5rem;
+  /* Match typical section/heading bottom margin */
+}
+
+/* Ensure the heading inside summary displays inline with the marker */
+details.foldable-section>summary>h1,
+details.foldable-section>summary>h2,
+details.foldable-section>summary>h3,
+details.foldable-section>summary>h4,
+details.foldable-section>summary>h5,
+details.foldable-section>summary>h6 {
+  display: inline;
+  /* Force inline to keep anchor on same line */
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Fix anchor positioning inside foldable summary */
+details.foldable-section>summary .anchor {
+  display: inline-block;
+  margin-left: 0.2ch;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+details.foldable-section>summary:hover .anchor {
+  opacity: 1;
 }

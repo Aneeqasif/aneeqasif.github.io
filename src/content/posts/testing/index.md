@@ -38,6 +38,17 @@ below.
 
 # A heading with tag that should be hidden <span class="tag" tag-name="ATTACH"><span class="smallcaps">ATTACH</span></span>
 
+# A foldable heading <span class="tag" tag-name="Fold"><span class="smallcaps">Fold</span></span>
+
+this heading is foldable and initialy expanded state
+
+# Another foldable heading type <span class="tag" tag-name="folded"><span class="smallcaps">folded</span></span>
+
+this is also foldable but initialy collapsed
+this is also foldable but initialy collapsed
+this is also foldable but initialy collapsed
+
+
 # Section Two
 
 Here is a link back to the first section:

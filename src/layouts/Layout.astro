@@ -436,6 +436,12 @@ function init() {
 	initCustomScrollbar();
 	initTocOverlay();
 	showBanner();
+	
+	// Mark animations as played after they've completed to prevent replay on DOM manipulation
+	// Delay accounts for longest animation (content + children animations ~600ms total)
+	setTimeout(() => {
+		document.documentElement.classList.add('animations-played');
+	}, 800);
 }
 
 /* Load settings when entering the site */

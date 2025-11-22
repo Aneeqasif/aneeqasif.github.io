@@ -1,7 +1,7 @@
 #+TITLE: how i blog in emacs
 #+published: 2026-09-09
 #+description: How code blocks look in Markdown using Expressive Code.
-#+draft: true
+#+draft: false
 #+tags: [demo, testing]
 #+category: Demo
 
@@ -29,7 +29,11 @@ See [[Section Two][go to section two]] and then return via the back links below.
 
 * A heading with tag that should be hidden :ATTACH:
 
+* A foldable heading :Fold:
+this heading is foldable and initialy expanded state
 
+* Another foldable heading type :folded:
+this is also foldable but initialy collapsed 
 
 * Section Two
 
