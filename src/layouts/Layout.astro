@@ -151,7 +151,41 @@ const bannerOffset =
 			offset = offset - offset % 4;
 			document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
 		</script>
+		<script is:inline>
+			if (typeof window !== 'undefined') {
+				const isExternalLink = (anchor) => {
+					const href = anchor.getAttribute('href');
+					if (!href) return false;
 
+					try {
+						const url = new URL(href, location.href);
+						if (!/^https?:$/i.test(url.protocol)) return false;
+						return url.origin !== location.origin;
+					} catch {
+						return false;
+					}
+				};
+
+				const retargetLinks = () => {
+					document.querySelectorAll('a[href]').forEach((link) => {
+						if (link.hasAttribute('target')) return;
+						if (!isExternalLink(link)) return;
+
+						link.setAttribute('target', '_blank');
+						const relTokens = new Set((link.getAttribute('rel') || '').split(/\s+/).filter(Boolean));
+						relTokens.add('noopener');
+						relTokens.add('noreferrer');
+						link.setAttribute('rel', Array.from(relTokens).join(' '));
+					});
+				};
+
+				if (document.readyState === 'complete' || document.readyState === 'interactive') {
+					retargetLinks();
+				} else {
+					window.addEventListener('DOMContentLoaded', retargetLinks, { once: true });
+				}
+			}
+		</script>
 		<style define:vars={{
 			configHue,
 			'page-width': `${PAGE_WIDTH}rem`,

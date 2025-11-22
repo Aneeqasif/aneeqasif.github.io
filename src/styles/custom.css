@@ -1,59 +1,59 @@
 /**
  * CUSTOM STYLES: Main import file
  * Safe for upstream merges - doesn't modify theme core
- * 
+ *
  * This file imports all custom styles from the custom/ directory.
  * Add new feature styles in separate files under custom/ and import them here.
- * 
+ *
  * Only this single file needs to be imported in Layout.astro (line 23)
  */
 
 /* Import custom feature styles */
-@import './custom/gallery.css';
-@import './custom/steps.css';
-@import './custom/pondpilot.css';
-@import './custom/waline.css';
-@import './custom/toc-overlay.css';
-@import './main.css';
-@import './custom/post-fonts.css';
-
+@import "./custom/gallery.css";
+@import "./custom/steps.css";
+@import "./custom/pondpilot.css";
+@import "./custom/waline.css";
+@import "./custom/toc-overlay.css";
+@import "./custom/orgmode.css";
+@import "./main.css";
+@import "./custom/post-fonts.css";
 
 /* Add more custom feature imports here:
  * @import './custom/your-feature.css';
  */
 
 @font-face {
-    font-family: "MiSans";
-    src: url("/fonts/misans/MiSansLatin-Regular.woff2") format("woff2"),
-        url("/fonts/misans/MiSansLatin-Regular.woff") format("woff");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+  font-family: "MiSans";
+  src: url("/fonts/misans/MiSansLatin-Regular.woff2") format("woff2"),
+    url("/fonts/misans/MiSansLatin-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: "MiSans";
-    src: url("/fonts/misans/MiSansLatin-Medium.woff2") format("woff2"),
-        url("/fonts/misans/MiSansLatin-Medium.woff") format("woff");
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
+  font-family: "MiSans";
+  src: url("/fonts/misans/MiSansLatin-Medium.woff2") format("woff2"),
+    url("/fonts/misans/MiSansLatin-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: "MiSans";
-    src: url("/fonts/misans/MiSansLatin-Semibold.woff2") format("woff2"),
-        url("/fonts/misans/MiSansLatin-Semibold.woff") format("woff");
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
+  font-family: "MiSans";
+  src: url("/fonts/misans/MiSansLatin-Semibold.woff2") format("woff2"),
+    url("/fonts/misans/MiSansLatin-Semibold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: "MiSans";
-    src: url("/fonts/misans/MiSansLatin-Bold.woff2") format("woff2"),
-        url("/fonts/misans/MiSansLatin-Bold.woff") format("woff");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+  font-family: "MiSans";
+  src: url("/fonts/misans/MiSansLatin-Bold.woff2") format("woff2"),
+    url("/fonts/misans/MiSansLatin-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
