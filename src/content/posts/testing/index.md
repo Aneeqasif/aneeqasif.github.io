@@ -45,11 +45,8 @@ this heading is foldable and initialy expanded state
 # Another foldable heading type <span class="tag" tag-name="folded"><span class="smallcaps">folded</span></span>
 
 this is also foldable but initialy collapsed
-this is also foldable but initialy collapsed
-this is also foldable but initialy collapsed
 
-
-# Section Two
+### Section Two <span class="tag" tag-name="folded"><span class="smallcaps">folded</span></span>
 
 Here is a link back to the first section:
 

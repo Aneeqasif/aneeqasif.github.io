@@ -35,7 +35,7 @@ this heading is foldable and initialy expanded state
 * Another foldable heading type :folded:
 this is also foldable but initialy collapsed 
 
-* Section Two
+*** Section Two :folded:
 
 Here is a link back to the first section:
 

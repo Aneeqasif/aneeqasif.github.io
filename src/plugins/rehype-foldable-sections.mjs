@@ -101,13 +101,31 @@ export function rehypeFoldableSections() {
 					children: [],
 				};
 
+				// Find the anchor element within the heading (if it exists)
+				let anchorIndex = -1;
+				if (firstChild.children) {
+					anchorIndex = firstChild.children.findIndex(
+						(child) =>
+							child.type === "element" &&
+							child.tagName === "a" &&
+							child.properties?.className?.includes("anchor"),
+					);
+				}
+
+				// Insert icon before the anchor (or at the end if no anchor)
+				if (anchorIndex !== -1) {
+					firstChild.children.splice(anchorIndex, 0, iconNode);
+				} else if (firstChild.children) {
+					firstChild.children.push(iconNode);
+				}
+
 				const summaryNode = {
 					type: "element",
 					tagName: "summary",
 					properties: {
 						className: ["foldable-summary"],
 					},
-					children: [iconNode, firstChild],
+					children: [firstChild],
 				};
 
 				node.children[headingIndex] = summaryNode;

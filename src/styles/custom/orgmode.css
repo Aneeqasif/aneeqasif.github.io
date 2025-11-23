@@ -84,8 +84,6 @@ details.foldable-section>summary {
   align-items: center;
   padding-inline-start: 0;
   /* Fix Firefox left padding */
-  margin-left: -1.7em;
-  /* Pull back to align with regular headings */
 }
 
 details.foldable-section>summary::-webkit-details-marker {
@@ -101,13 +99,16 @@ details.foldable-section>summary::marker {
 /* Add custom marker */
 .foldable-icon {
   display: inline-block;
-  width: 1.5em;
-  height: 1.5em;
-  margin-right: 0.2rem;
+  width: 1.3em;
+  height: 1.3em;
+  margin-left: -0.3rem;
+  margin-right: -0.1rem;
+  margin-bottom: 0.2rem;
   transition: transform 0.2s ease;
   background-color: var(--primary);
   flex-shrink: 0;
   /* Prevent marker from shrinking */
+  vertical-align: middle;
 
   /* Iconify mask */
   --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12.6 12L8.7 8.1q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7z'/%3E%3C/svg%3E");
