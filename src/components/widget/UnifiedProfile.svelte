@@ -198,7 +198,7 @@ $: if (activeTab === "profile" && profileHeight) {
         on:click={() => switchTab("profile")}
         aria-label="Profile"
     >
-        <Icon icon="material-symbols:person" class="text-xl" />
+        <Icon icon="gravity-ui:person" class="text-xl" />
     </button>
     <button
         class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
@@ -208,7 +208,7 @@ $: if (activeTab === "profile" && profileHeight) {
         on:click={() => switchTab("categories")}
         aria-label="Categories"
     >
-        <Icon icon="material-symbols:folder-outline-rounded" class="text-xl" />
+        <Icon icon="fa7-regular:folder" class="text-xl" />
     </button>
     <button
         class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
@@ -218,6 +218,6 @@ $: if (activeTab === "profile" && profileHeight) {
         on:click={() => switchTab("tags")}
         aria-label="Tags"
     >
-        <Icon icon="si:bookmark-duotone" class="text-xl" />
+        <Icon icon="fa7-regular:bookmark" class="text-xl" />
     </button>
 </div>
