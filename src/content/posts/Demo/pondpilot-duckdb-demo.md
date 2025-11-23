@@ -2,8 +2,8 @@
 title: PondPilot with DuckDB Local File Demo
 published: 2024-11-04
 description: 'Loading and querying a local .duckdb file with PondPilot widgets'
-tags: ['SQL', 'DuckDB', 'Database', 'Demo']
-category: 'Demo'
+tags: ['SQL', 'DuckDB', 'Database', 'Demo', 'dataeng', 'coding']
+category: 'Duckdb'
 draft: false
 duckdb: "/data/blog.duckdb"
 pinned: true

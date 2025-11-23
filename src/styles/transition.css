@@ -91,3 +91,8 @@ html.animations-played .onload-animation {
 #post-container :nth-child(6) {
     animation-delay: calc(var(--content-delay) + 325ms)
 }
+
+/* Disable sidebar interactions during page transitions to prevent hover effects */
+html.is-changing #sidebar {
+    pointer-events: none;
+}

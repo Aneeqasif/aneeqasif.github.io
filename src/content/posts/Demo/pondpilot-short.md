@@ -2,7 +2,7 @@
 title: PondPilot Short
 published: 2024-11-09
 description: "Demonstrating interactive SQL queries with DuckDB in the browser using PondPilot widget"
-tags: ["SQL", "DuckDB", "Interactive", "Demo"]
+tags: ["SQL", "DuckDB", "Interactive", "Demo" , "programming", "computers"]
 category: "Demo"
 draft: false
 duckdb: ""

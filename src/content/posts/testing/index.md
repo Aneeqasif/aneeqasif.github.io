@@ -1,6 +1,6 @@
 ---
 author: M. Aneeq Asif
-category: Demo
+category: Ui
 description: How code blocks look in Markdown using Expressive Code.
 draft: false
 published: 2026-09-09

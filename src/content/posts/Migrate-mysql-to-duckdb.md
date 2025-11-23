@@ -4,7 +4,7 @@ published: 2025-11-17
 description: ''
 image: ''
 tags: [DataMigration, SQL, Duckdb]
-category: 'Data Engineering'
+category: 'Data'
 draft: false
 duckdb: ''
 lang: ''

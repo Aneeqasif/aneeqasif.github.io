@@ -1,8 +1,11 @@
 ---
+import { getImage } from "astro:assets";
+import path from "node:path";
 import type { MarkdownHeading } from "astro";
-import Categories from "./Categories.astro";
-import Profile from "./Profile.astro";
-import Tag from "./Tags.astro";
+import { profileConfig } from "../../config";
+import { getCategoryList, getTagList } from "../../utils/content-utils";
+import { getTagUrl } from "../../utils/url-utils";
+import UnifiedProfile from "./UnifiedProfile.svelte";
 
 interface Props {
 	class?: string;
@@ -10,13 +13,52 @@ interface Props {
 }
 
 const className = Astro.props.class;
+const categories = await getCategoryList();
+const tags = (await getTagList()).map((tag) => ({
+	...tag,
+	url: getTagUrl(tag.name),
+}));
+
+// Image resolution logic (adapted from ImageWrapper.astro)
+const src = profileConfig.avatar || "";
+const isLocal = !(
+	src.startsWith("/") ||
+	src.startsWith("http") ||
+	src.startsWith("https") ||
+	src.startsWith("data:")
+);
+const isPublic = src.startsWith("/");
+
+let avatarSrc = src;
+if (isLocal) {
+	const files = import.meta.glob<ImageMetadata>("../../**", {
+		import: "default",
+	});
+	let normalizedPath = path
+		.normalize(path.join("../../", src))
+		.replace(/\\/g, "/");
+	const file = files[normalizedPath];
+	if (file) {
+		const img = await file();
+		const optimized = await getImage({ src: img });
+		avatarSrc = optimized.src;
+	} else {
+		console.error(`[ERROR] Image file not found: ${normalizedPath}`);
+	}
+} else if (isPublic) {
+	// If it's in public, we need to ensure the URL is correct relative to base
+	// But for now, let's assume it's a direct path or handled by the browser
+}
 ---
 <div id="sidebar" class:list={[className, "w-full"]}>
-    <div class="flex flex-col w-full gap-4 mb-4">
-        <Profile></Profile>
-    </div>
     <div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
-        <Categories class="onload-animation" style="animation-delay: 150ms"></Categories>
-        <Tag class="onload-animation" style="animation-delay: 200ms"></Tag>
+        <UnifiedProfile 
+            client:load 
+            profileConfig={profileConfig} 
+            categories={categories} 
+            tags={tags} 
+            avatarSrc={avatarSrc}
+            className="min-h-[420px]"
+        />
     </div>
 </div>
