@@ -129,19 +129,19 @@ $: if (activeTab === "profile" && profileHeight) {
                                         <Icon icon={item.icon} class="text-[1.5rem]" />
                                     </a>
                                 {/each}
-                            </div>
+                            </div>  
                         </div>
                     </div>
                 {:else if activeTab === "categories"}
                     <!-- Categories Content -->
-                    <div class="relative w-full" style="height: {fixedHeight}px">
-                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px]">Categories</div>
+                    <div class="relative w-full flex flex-col" style="height: {fixedHeight}px">
+                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px] shrink-0">Categories</div>
                         <div
-                            class="overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]"
-                            style="height: calc(100% - 3.5rem);"
+                            class="overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none] flex-1 min-h-0"
+                            style="mask-image: linear-gradient(to bottom, black calc(100% - 20px), transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 50px), transparent 100%);"
                             bind:this={categoriesContainer}
                         >
-                            <div class="flex flex-col gap-1 pb-4 px-4">
+                            <div class="flex flex-col gap-1 px-4 pb-8">
                                 {#each categories as c}
                                     <a
                                         href={c.url}
@@ -158,21 +158,17 @@ $: if (activeTab === "profile" && profileHeight) {
                                 {/each}
                             </div>
                         </div>
-                        <!-- Inner shadow hint -->
-                        <div
-                            class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[var(--card-bg)] to-transparent pointer-events-none"
-                        ></div>
                     </div>
                 {:else if activeTab === "tags"}
                     <!-- Tags Content -->
-                    <div class="relative w-full" style="height: {fixedHeight}px">
-                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px]">Tags</div>
+                    <div class="relative w-full flex flex-col" style="height: {fixedHeight}px">
+                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px] shrink-0">Tags</div>
                         <div
-                            class="overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]"
-                            style="height: calc(100% - 3.5rem);"
+                            class="overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none] flex-1 min-h-0"
+                            style="mask-image: linear-gradient(to bottom, black calc(100% - 20px), transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 30px), transparent 100%);"
                             bind:this={tagsContainer}
                         >
-                            <div class="flex flex-wrap gap-2 pb-4 px-4">
+                            <div class="flex flex-wrap gap-2 px-4 pb-8">
                                 {#each tags as t}
                                     <a
                                         href={t.url}
@@ -185,10 +181,6 @@ $: if (activeTab === "profile" && profileHeight) {
                                 {/each}
                             </div>
                         </div>
-                        <!-- Inner shadow hint -->
-                        <div
-                            class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[var(--card-bg)] to-transparent pointer-events-none"
-                        ></div>
                     </div>
                 {/if}
             </div>
@@ -197,35 +189,35 @@ $: if (activeTab === "profile" && profileHeight) {
 </div>
 
 <!-- Bottom Navigation -->
-<div class={"card-base p-2 mt-2 flex gap-2"} {style}>
+<div class={"card-base p-2 mt-1 flex gap-2"} {style}>
     <button
-        class={"flex-1 flex items-center justify-center py-2 rounded-lg transition-all duration-300 " +
+        class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
             (activeTab === "profile"
-                ? "bg-black/5 dark:bg-white/10 shadow-md text-black dark:text-white"
-                : "text-neutral-400 hover:text-[var(--primary)] dark:text-neutral-500 dark:hover:text-[var(--primary)]")}
+                ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]  "
+                : "text-black dark:text-white opacity-60 hover:opacity-100")}
         on:click={() => switchTab("profile")}
         aria-label="Profile"
     >
         <Icon icon="material-symbols:person" class="text-xl" />
     </button>
     <button
-        class={"flex-1 flex items-center justify-center py-2 rounded-lg transition-all duration-300 " +
+        class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
             (activeTab === "categories"
-                ? "bg-black/5 dark:bg-white/10 shadow-md text-black dark:text-white"
-                : "text-neutral-400 hover:text-[var(--primary)] dark:text-neutral-500 dark:hover:text-[var(--primary)]")}
+                ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]"
+                : "text-black dark:text-white opacity-60 hover:opacity-100")}
         on:click={() => switchTab("categories")}
         aria-label="Categories"
     >
-        <Icon icon="material-symbols:folder" class="text-xl" />
+        <Icon icon="material-symbols:folder-outline-rounded" class="text-xl" />
     </button>
     <button
-        class={"flex-1 flex items-center justify-center py-2 rounded-lg transition-all duration-300 " +
+        class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
             (activeTab === "tags"
-                ? "bg-black/5 dark:bg-white/10 shadow-md text-black dark:text-white"
-                : "text-neutral-400 hover:text-[var(--primary)] dark:text-neutral-500 dark:hover:text-[var(--primary)]")}
+                ? "bg-[var(--btn-regular-bg)] text-[var(--primary)] "
+                : "text-black dark:text-white opacity-60 hover:opacity-100")}
         on:click={() => switchTab("tags")}
         aria-label="Tags"
     >
-        <Icon icon="material-symbols:tag" class="text-xl" />
+        <Icon icon="si:bookmark-duotone" class="text-xl" />
     </button>
 </div>
