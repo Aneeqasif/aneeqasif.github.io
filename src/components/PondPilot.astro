@@ -517,7 +517,12 @@ const { duckdb } = Astro.props;
 		// Initialize if current page has widgets
 		const pendingWidgets = document.querySelectorAll(WIDGET_SELECTOR);
 		if (pendingWidgets.length > 0) {
-			await initPondPilot();
+			// Defer initialization to avoid blocking main thread during page transition/load
+			if ('requestIdleCallback' in window) {
+				window.requestIdleCallback(() => initPondPilot());
+			} else {
+				setTimeout(() => initPondPilot(), 500);
+			}
 		}
 	}
 

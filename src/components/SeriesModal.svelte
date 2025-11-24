@@ -1,35 +1,34 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import SeriesPanel from "./SeriesPanel.svelte";
+import { onMount } from "svelte";
+import SeriesPanel from "./SeriesPanel.svelte";
 
-	export let show = false;
-	export let seriesName: string;
-	export let allSeriesPosts: any[];
-	export let currentPart: number;
-	export let currentSlug: string;
-	export let onClose: () => void;
-	export let onPostClick: (event: MouseEvent, slug: string) => void;
+export let show = false;
+export let seriesName: string;
+export let allSeriesPosts: any[];
+export let currentPart: number;
+export let currentSlug: string;
+export let onClose: () => void;
+export let onPostClick: (event: MouseEvent, slug: string) => void;
 
-	let portalTarget: HTMLElement | null = null;
+let portalTarget: HTMLElement | null = null;
 
-	onMount(() => {
-		// Create portal target at body level
-		portalTarget = document.createElement('div');
-		portalTarget.id = 'series-modal-portal';
-		portalTarget.setAttribute('data-no-swup', '');
-		document.body.appendChild(portalTarget);
+onMount(() => {
+	// Create portal target at body level
+	portalTarget = document.createElement("div");
+	portalTarget.id = "series-modal-portal";
+	document.body.appendChild(portalTarget);
 
-		return () => {
-			// Cleanup on unmount
-			if (portalTarget && portalTarget.parentNode) {
-				portalTarget.parentNode.removeChild(portalTarget);
-			}
-		};
-	});
+	return () => {
+		// Cleanup on unmount
+		if (portalTarget && portalTarget.parentNode) {
+			portalTarget.parentNode.removeChild(portalTarget);
+		}
+	};
+});
 </script>
 
 {#if show && portalTarget}
-	<div class="modal-overlay" data-no-swup on:click={onClose}>
+	<div class="modal-overlay" on:click={onClose}>
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="modal-content" on:click|stopPropagation>

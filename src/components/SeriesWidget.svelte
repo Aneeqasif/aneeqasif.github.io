@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from "svelte";
+import { fade, scale } from "svelte/transition";
 import SeriesPanel from "./SeriesPanel.svelte";
 
 export let currentPart: number;
@@ -47,6 +48,9 @@ onMount(() => {
 
 onDestroy(() => {
 	resetModalMeasurements();
+	if (typeof document !== "undefined") {
+		document.body.style.overflow = "";
+	}
 });
 
 function openModal(event: MouseEvent) {
@@ -65,10 +69,20 @@ function openModal(event: MouseEvent) {
 
 function closeModal() {
 	showModal = false;
-	document.body.style.overflow = "";
-	resetModalMeasurements();
+	// Don't reset measurements or overflow here - wait for outro
+	detachModalListeners();
+	if (measurementRaf) {
+		cancelAnimationFrame(measurementRaf);
+		measurementRaf = null;
+	}
+}
 
-	// Reset click state so cards slide out again immediately
+function onModalOutroEnd() {
+	resetModalMeasurements();
+	if (typeof document !== "undefined") {
+		document.body.style.overflow = "";
+	}
+	// Reset click state so cards slide out again AFTER modal is gone
 	isClicked = false;
 }
 
@@ -79,10 +93,12 @@ function handleKeydown(e: KeyboardEvent) {
 }
 
 function handlePostClick(event: MouseEvent, postSlug: string) {
-	// If clicking on current post, just close the modal
+	// Always close modal immediately for better UX
+	closeModal();
+
+	// If clicking on current post, prevent default navigation (since we are already here)
 	if (postSlug === currentSlug) {
 		event.preventDefault();
-		closeModal();
 	}
 	// Otherwise, let the link navigate normally
 }
@@ -132,40 +148,95 @@ async function updateModalMeasurements() {
 		queueModalMeasurements();
 		return;
 	}
-	const scrollContainer = getScrollableAncestor(widgetContainerElement);
-	const viewportHeight = window.innerHeight;
-	const rect =
-		scrollContainer === document.documentElement
-			? { top: 0, bottom: viewportHeight }
-			: scrollContainer.getBoundingClientRect();
-	const containerTop = rect.top;
-	const containerBottom = rect.bottom;
-	const topPadding =
-		containerTop < MODAL_PADDING ? MODAL_PADDING - containerTop : MODAL_PADDING;
-	const bottomPadding =
-		containerBottom > viewportHeight - MODAL_PADDING
-			? Math.max(
-					MODAL_PADDING,
-					containerBottom - (viewportHeight - MODAL_PADDING),
-				)
-			: MODAL_PADDING;
-	const appliedTop = Math.max(topPadding, MODAL_PADDING);
-	const appliedBottom = Math.max(bottomPadding, MODAL_PADDING);
-	modalOverlayElement.style.setProperty(
-		"--series-modal-padding-top",
-		`${appliedTop + 105}px`,
-	);
-	modalOverlayElement.style.setProperty(
-		"--series-modal-padding-bottom",
-		`${appliedBottom}px`,
-	);
-	const containerHeight = containerBottom - containerTop;
-	const visibleHeight = Math.min(
-		viewportHeight - MODAL_PADDING * 2,
-		containerHeight - appliedTop - appliedBottom,
-	);
-	const maxHeight = Math.max(280, visibleHeight);
-	modalContentElement.style.maxHeight = `${Math.floor(maxHeight)}px`;
+	const postContainer =
+		document.getElementById("post-container") ||
+		widgetContainerElement?.closest(".card-base");
+
+	if (postContainer) {
+		const rect = postContainer.getBoundingClientRect();
+		const viewportHeight = window.innerHeight;
+
+		// Calculate visible intersection
+		const visibleTop = Math.max(rect.top, 0);
+		const visibleBottom = Math.min(rect.bottom, viewportHeight);
+		const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+		// Use fixed positioning relative to viewport
+		modalOverlayElement.style.position = "fixed";
+		modalOverlayElement.style.top = `${visibleTop}px`;
+		modalOverlayElement.style.left = `${rect.left}px`;
+		modalOverlayElement.style.width = `${rect.width}px`;
+		modalOverlayElement.style.height = `${visibleHeight}px`;
+
+		// Match border radius if possible, or use a default
+		const style = window.getComputedStyle(postContainer);
+		modalOverlayElement.style.borderRadius = style.borderRadius;
+
+		// Adjust border radius if clipped
+		if (rect.top < 0) {
+			modalOverlayElement.style.borderTopLeftRadius = "0";
+			modalOverlayElement.style.borderTopRightRadius = "0";
+		}
+		if (rect.bottom > viewportHeight) {
+			modalOverlayElement.style.borderBottomLeftRadius = "0";
+			modalOverlayElement.style.borderBottomRightRadius = "0";
+		}
+
+		// Reset padding vars as we are now constraining the container itself
+		modalOverlayElement.style.removeProperty("--series-modal-padding-top");
+		modalOverlayElement.style.removeProperty("--series-modal-padding-bottom");
+
+		// Apply vertical offset to shift content up slightly
+		const VERTICAL_OFFSET = 120;
+		modalOverlayElement.style.paddingBottom = `${MODAL_PADDING + VERTICAL_OFFSET}px`;
+		modalOverlayElement.style.paddingTop = `${MODAL_PADDING}px`;
+
+		// Center content within the constrained overlay
+		modalOverlayElement.style.alignItems = "center";
+		modalOverlayElement.style.justifyContent = "center";
+
+		// Max height for content should fit within the visible area, accounting for offset
+		const maxHeight = visibleHeight - MODAL_PADDING * 2 - VERTICAL_OFFSET;
+		modalContentElement.style.maxHeight = `${Math.max(200, maxHeight)}px`;
+	} else {
+		// Fallback to viewport positioning if no container found
+		const scrollContainer = getScrollableAncestor(widgetContainerElement);
+		const viewportHeight = window.innerHeight;
+		const rect =
+			scrollContainer === document.documentElement
+				? { top: 0, bottom: viewportHeight }
+				: scrollContainer.getBoundingClientRect();
+		const containerTop = rect.top;
+		const containerBottom = rect.bottom;
+		const topPadding =
+			containerTop < MODAL_PADDING
+				? MODAL_PADDING - containerTop
+				: MODAL_PADDING;
+		const bottomPadding =
+			containerBottom > viewportHeight - MODAL_PADDING
+				? Math.max(
+						MODAL_PADDING,
+						containerBottom - (viewportHeight - MODAL_PADDING),
+					)
+				: MODAL_PADDING;
+		const appliedTop = Math.max(topPadding, MODAL_PADDING);
+		const appliedBottom = Math.max(bottomPadding, MODAL_PADDING);
+		modalOverlayElement.style.setProperty(
+			"--series-modal-padding-top",
+			`${appliedTop + 105}px`,
+		);
+		modalOverlayElement.style.setProperty(
+			"--series-modal-padding-bottom",
+			`${appliedBottom}px`,
+		);
+		const containerHeight = containerBottom - containerTop;
+		const visibleHeight = Math.min(
+			viewportHeight - MODAL_PADDING * 2,
+			containerHeight - appliedTop - appliedBottom,
+		);
+		const maxHeight = Math.max(280, visibleHeight);
+		modalContentElement.style.maxHeight = `${Math.floor(maxHeight)}px`;
+	}
 	attachModalListeners();
 }
 
@@ -177,7 +248,26 @@ function resetModalMeasurements() {
 	}
 	modalOverlayElement?.style.removeProperty("--series-modal-padding-top");
 	modalOverlayElement?.style.removeProperty("--series-modal-padding-bottom");
+	modalOverlayElement?.style.removeProperty("padding-top");
+	modalOverlayElement?.style.removeProperty("padding-bottom");
+	modalOverlayElement?.style.removeProperty("top");
+	modalOverlayElement?.style.removeProperty("left");
+	modalOverlayElement?.style.removeProperty("width");
+	modalOverlayElement?.style.removeProperty("height");
+	modalOverlayElement?.style.removeProperty("position");
+	modalOverlayElement?.style.removeProperty("border-radius");
 	modalContentElement?.style.removeProperty("maxHeight");
+}
+function portal(node: HTMLElement) {
+	let target = document.body;
+	target.appendChild(node);
+	return {
+		destroy() {
+			if (node.parentNode) {
+				node.parentNode.removeChild(node);
+			}
+		},
+	};
 }
 </script>
 
@@ -222,10 +312,10 @@ function resetModalMeasurements() {
 {#if showModal}
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div class="series-modal-overlay" data-no-swup bind:this={modalOverlayElement}>
+	<div class="series-modal-overlay" use:portal bind:this={modalOverlayElement} transition:fade={{ duration: 100 }} on:outroend={onModalOutroEnd}>
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div class="modal-content" bind:this={modalContentElement}>
+		<div class="modal-content" bind:this={modalContentElement} transition:scale={{ duration: 100, start: 0.70 }}>
 			<button class="close-btn btn-plain" on:click={closeModal} aria-label="Close modal">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -442,11 +532,11 @@ function resetModalMeasurements() {
 	/* Use :global to ensure modal escapes component scope and any parent constraints */
 	:global(.series-modal-overlay) {
 		/* Position fixed relative to viewport, not container */
-		position: fixed !important;
-		inset: 0 !important; /* top: 0; right: 0; bottom: 0; left: 0; */
+		position: fixed;
+		inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; */
 
 		/* Ensure it's above everything including headers/navbars */
-		z-index: 99999 !important;
+		z-index: 99999;
 
 		/* Dark backdrop */
 		background: rgba(0, 0, 0, 0.5);
