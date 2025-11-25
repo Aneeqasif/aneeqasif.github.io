@@ -64,9 +64,9 @@ $: if (activeTab === "profile" && profileHeight) {
 }
 </script>
 
-<div class={"card-base p-3 " + className} {style}>
+<div class={"card-base p-3 mb-0 " + className} {style}>
     <!-- Content Area -->
-    <div class="overflow-hidden relative transition-all duration-300 min-h-[420px]" style="height: {fixedHeight ? fixedHeight + 'px' : 'auto'}">
+    <div class=" overflow-hidden relative transition-all duration-300 min-h-[400px]" style="height: {fixedHeight ? fixedHeight + 'px' : 'auto'}">
         {#key activeTab}
             <div
                 class="absolute top-0 left-0 w-full"
@@ -135,7 +135,7 @@ $: if (activeTab === "profile" && profileHeight) {
                 {:else if activeTab === "categories"}
                     <!-- Categories Content -->
                     <div class="relative w-full flex flex-col" style="height: {fixedHeight}px">
-                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px] shrink-0">Categories</div>
+                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-6 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px] shrink-0">Categories</div>
                         <div
                             class="overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none] flex-1 min-h-0"
                             style="mask-image: linear-gradient(to bottom, black calc(100% - 20px), transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 50px), transparent 100%);"
@@ -162,7 +162,7 @@ $: if (activeTab === "profile" && profileHeight) {
                 {:else if activeTab === "tags"}
                     <!-- Tags Content -->
                     <div class="relative w-full flex flex-col" style="height: {fixedHeight}px">
-                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px] shrink-0">Tags</div>
+                        <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-6 mt-1 mb-2 ui-primary-font before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px] shrink-0">Tags</div>
                         <div
                             class="overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none] flex-1 min-h-0"
                             style="mask-image: linear-gradient(to bottom, black calc(100% - 20px), transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 30px), transparent 100%);"
@@ -188,33 +188,41 @@ $: if (activeTab === "profile" && profileHeight) {
     </div>
 </div>
 
+
+<style>
+  .card-buttons {
+    
+    @apply rounded-xl overflow-hidden bg-[var(--card-bg)] transition;
+  }
+</style>
+
 <!-- Bottom Navigation -->
-<div class={"card-base p-2 mt-1 flex gap-2"} {style}>
+<div class={"card-buttons p-1.5 mt-0 flex gap-1.5"} {style}>
     <button
-        class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
+        class={"flex-1 flex items-center justify-center py-1.5 rounded-lg transition-all duration-300 " +
             (activeTab === "profile"
-                ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]  "
-                : "text-black dark:text-white opacity-60 hover:opacity-100")}
+                ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]"
+                : "text-black dark:text-white opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5")}
         on:click={() => switchTab("profile")}
         aria-label="Profile"
     >
         <Icon icon="gravity-ui:person" class="text-xl" />
     </button>
     <button
-        class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
+        class={"flex-1 flex items-center justify-center py-1.5 rounded-lg transition-all duration-300 " +
             (activeTab === "categories"
                 ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]"
-                : "text-black dark:text-white opacity-60 hover:opacity-100")}
+                : "text-black dark:text-white opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5")}
         on:click={() => switchTab("categories")}
         aria-label="Categories"
     >
         <Icon icon="fa7-regular:folder" class="text-xl" />
     </button>
     <button
-        class={"flex-1 flex items-center justify-center py-2 rounded-xl transition-all duration-300 " +
+        class={"flex-1 flex items-center justify-center py-1.5  rounded-lg transition-all duration-300 " +
             (activeTab === "tags"
-                ? "bg-[var(--btn-regular-bg)] text-[var(--primary)] "
-                : "text-black dark:text-white opacity-60 hover:opacity-100")}
+                ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]"
+                : "text-black dark:text-white opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5")}
         on:click={() => switchTab("tags")}
         aria-label="Tags"
     >
