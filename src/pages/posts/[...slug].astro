@@ -42,13 +42,13 @@ if (entry.data.series) {
 		currentPart: entry.data.series.part,
 		totalParts: seriesPosts.length,
 		seriesName: entry.data.series.name,
-		allSeriesPosts: seriesPosts.map(post => ({
+		allSeriesPosts: seriesPosts.map((post) => ({
 			slug: post.slug,
 			data: {
 				title: post.data.title,
-				series: post.data.series
-			}
-		}))
+				series: post.data.series,
+			},
+		})),
 	};
 }
 
@@ -71,8 +71,8 @@ const jsonLd = {
 };
 
 const walineLang = entry.data.lang
-    ? entry.data.lang.replace("_", "-")
-    : siteConfig.lang.replace("_", "-");
+	? entry.data.lang.replace("_", "-")
+	: siteConfig.lang.replace("_", "-");
 ---
 <MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings} duckdb={entry.data.duckdb}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
@@ -185,3 +185,82 @@ const walineLang = entry.data.lang
     </div>
 
 </MainGridLayout>
+
+<script>
+// Detect overflow on example blocks and add appropriate classes for gradient visibility
+function updateExampleBlockGradients() {
+    const wrappers = document.querySelectorAll('.example-block__wrapper');
+    wrappers.forEach((wrapper) => {
+        // Check if the element has scrollable overflow separately for vertical and horizontal
+        const hasVerticalOverflow = wrapper.scrollHeight > wrapper.clientHeight;
+        const hasHorizontalOverflow = wrapper.scrollWidth > wrapper.clientWidth;
+        
+        // Toggle vertical overflow class
+        if (hasVerticalOverflow) {
+            wrapper.classList.add('has-vertical-overflow');
+        } else {
+            wrapper.classList.remove('has-vertical-overflow');
+        }
+        
+        // Handle horizontal overflow
+        if (hasHorizontalOverflow) {
+            wrapper.classList.add('has-horizontal-overflow');
+            
+            // Inject right gradient element if it doesn't exist
+            let rightGradient = wrapper.querySelector('.example-block__gradient-right');
+            if (!rightGradient) {
+                rightGradient = document.createElement('div');
+                rightGradient.className = 'example-block__gradient-right';
+                wrapper.append(rightGradient);
+            }
+            
+            // Function to update gradient position and size
+            const updatePosition = () => {
+                if (rightGradient) {
+                    const scrollLeft = wrapper.scrollLeft;
+                    const viewportWidth = wrapper.clientWidth;
+                    const gradientWidth = 48; // 3rem
+                    const leftPos = scrollLeft + viewportWidth - gradientWidth;
+                    
+                    const scrollbarHeight = wrapper.offsetHeight - wrapper.clientHeight;
+                    const gradientHeight = wrapper.scrollHeight - scrollbarHeight;
+                    
+                    (rightGradient as HTMLElement).style.left = `${leftPos}px`;
+                    (rightGradient as HTMLElement).style.height = `${gradientHeight}px`;
+                }
+            };
+            
+            // Set initial position
+            updatePosition();
+            
+            // Store listener reference and remove any existing listener before adding
+            if (!(wrapper as any)._gradientScrollListener) {
+                (wrapper as any)._gradientScrollListener = updatePosition;
+                wrapper.addEventListener('scroll', updatePosition, { passive: true });
+            }
+        } else {
+            wrapper.classList.remove('has-horizontal-overflow');
+            // Remove gradient element if it exists
+            const rightGradient = wrapper.querySelector('.example-block__gradient-right');
+            if (rightGradient) {
+                rightGradient.remove();
+            }
+            // Remove event listener
+            if ((wrapper as any)._gradientScrollListener) {
+                wrapper.removeEventListener('scroll', (wrapper as any)._gradientScrollListener);
+                delete (wrapper as any)._gradientScrollListener;
+            }
+        }
+    });
+}
+
+// Run on page load
+updateExampleBlockGradients();
+
+// Re-run on window resize (responsive behavior)
+window.addEventListener('resize', updateExampleBlockGradients);
+
+// Re-run after view transitions (for Astro View Transitions API or Swup)
+document.addEventListener('astro:page-load', updateExampleBlockGradients);
+document.addEventListener('swup:content-replaced', updateExampleBlockGradients);
+</script>

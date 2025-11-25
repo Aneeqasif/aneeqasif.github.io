@@ -6,6 +6,25 @@
 #+category: Demo
 
 This is a sentence with a footnote[fn:1].
+
+
+* Empty Examples
+
+#+begin_example
+
+
+#+end_example
+
+
+#+begin_example
+i
+#+end_example
+
+#+begin_example
+#+end_example
+
+
+
 * Overview
 
 This file is a *comprehensive* testbed for the custom Org → GFM Lua filter.  

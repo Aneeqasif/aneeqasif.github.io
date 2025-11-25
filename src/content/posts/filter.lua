@@ -4,12 +4,12 @@
 --   "div"  -> render as a <div class="font-mono" ...> with preformatted text
 local EXAMPLE_MODE = "div" -- "off" | "ansi" | "div"
 
--- Controls the inline style used when EXAMPLE_MODE == "div"
-local EXAMPLE_DIV_STYLE = "white-space: pre;padding-left: 1.2rem; line-height:1.4;"
+-- Controls the CSS classes used when EXAMPLE_MODE == "div"
+local EXAMPLE_DIV_CLASSES = "font-mono example-block__content"
 
 -- HTML prefix inserted before *every* example block in both "ansi" and "div" modes
 local EX_PREFIX = [[
-<div class="font-mono" style="font-weight: bold; margin: 0; padding-left: 1.2rem; padding-bottom: 1rem;">Output:</div>
+<div class="font-mono example-block__label">Output:</div>
 ]]
 
 ----------------------------------------------------------------------
@@ -104,11 +104,16 @@ local function render_example_ansi(cb)
 end
 
 local function render_example_div(cb)
-    -- Use configurable EXAMPLE_DIV_STYLE
+    -- Use configurable EXAMPLE_DIV_CLASSES
+    -- Wrap in a container to handle scrollbars and gradients properly
+    local open_wrapper = '<div class="example-block__wrapper">\n'
+    local close_wrapper = '</div>'
+    
     local open_div =
-        '<div class="font-mono" style="' .. EXAMPLE_DIV_STYLE .. '">\n'
+        '<div class="' .. EXAMPLE_DIV_CLASSES .. '">'
     local close_div = "</div>"
-    local html = EX_PREFIX .. "" .. open_div .. cb.text .. close_div
+    
+    local html = EX_PREFIX .. "" .. open_wrapper .. open_div .. cb.text .. close_div .. close_wrapper
     return pandoc.RawBlock("html", html)
 end
 
@@ -139,6 +144,14 @@ function CodeBlock(cb)
     --------------------------------------------------------------------
     for _, cls in ipairs(classes) do
         if cls == "example" then
+            if cb.text:match("^%s*$") then
+                if anchor_span then
+                    return { anchor_span }
+                else
+                    return {}
+                end
+            end
+
             local rendered
             if EXAMPLE_MODE == "ansi" then
                 rendered = render_example_ansi(cb)

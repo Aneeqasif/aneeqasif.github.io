@@ -1,6 +1,6 @@
 ---
 author: M. Aneeq Asif
-category: Ui
+category: Demo
 description: How code blocks look in Markdown using Expressive Code.
 draft: false
 published: 2026-09-09
@@ -11,6 +11,13 @@ title: how i blog in emacs
 ---
 
 This is a sentence with a footnote[^1].
+
+# Empty Examples
+
+<div class="font-mono example-block__label">Output:</div>
+<div class="example-block__wrapper">
+<div class="font-mono example-block__content">i
+</div></div>
 
 # Overview
 
@@ -118,10 +125,10 @@ A reference link that should point to the table anchor above:
 
 [This takes me to code block](#name--of-my-code-v2)
 
-<div class="font-mono" style="font-weight: bold; margin: 0; padding-left: 1.2rem; padding-bottom: 1rem;">Output:</div>
-<div class="font-mono" style="white-space: pre;padding-left: 1.2rem; line-height:1.4;">
-None
-</div>
+<div class="font-mono example-block__label">Output:</div>
+<div class="example-block__wrapper">
+<div class="font-mono example-block__content">None
+</div></div>
 
 # Cross-Section Links and Attachments
 
@@ -146,9 +153,9 @@ pass through untouched and be rendered as-is in Markdown output.
 
 An example block showing a text table from a tool
 
-<div class="font-mono" style="font-weight: bold; margin: 0; padding-left: 1.2rem; padding-bottom: 1rem;">Output:</div>
-<div class="font-mono" style="white-space: pre;padding-left: 1.2rem; line-height:1.4;">
-+-------------+---------------------------+
+<div class="font-mono example-block__label">Output:</div>
+<div class="example-block__wrapper">
+<div class="font-mono example-block__content">+-------------+---------------------------+
 | schema_name |       function_name       |
 +-------------+---------------------------+
 |  pg_catalog |     shobj_description     |
@@ -157,7 +164,7 @@ An example block showing a text table from a tool
 |  pg_catalog | pg_ts_template_is_visible |
 |  pg_catalog |  pg_ts_parser_is_visible  |
 +-------------+---------------------------+
-</div>
+</div></div>
 
 Raw HTML export (should be passed through untouched):
 
@@ -244,10 +251,10 @@ print("hi there")
 
 ```
 
-<div class="font-mono" style="font-weight: bold; margin: 0; padding-left: 1.2rem; padding-bottom: 1rem;">Output:</div>
-<div class="font-mono" style="white-space: pre;padding-left: 1.2rem; line-height:1.4;">
-hi there
-</div>
+<div class="font-mono example-block__label">Output:</div>
+<div class="example-block__wrapper">
+<div class="font-mono example-block__content">hi there
+</div></div>
 
 More complex Jupyter block that produces a table-like textual result and
 an image:
@@ -270,9 +277,9 @@ print(df)
 
 ```
 
-<div class="font-mono" style="font-weight: bold; margin: 0; padding-left: 1.2rem; padding-bottom: 1rem;">Output:</div>
-<div class="font-mono" style="white-space: pre;padding-left: 1.2rem; line-height:1.4;">
-shape: (3, 7)
+<div class="font-mono example-block__label">Output:</div>
+<div class="example-block__wrapper">
+<div class="font-mono example-block__content">shape: (3, 7)
 ┌──────┬──────┬──────┬───────┬──────┬──────┬──────┐
 │ col1 ┆ col2 ┆ col3 ┆ col4  ┆ col5 ┆ col6 ┆ col7 │
 │ ---  ┆ ---  ┆ ---  ┆ ---   ┆ ---  ┆ ---  ┆ ---  │
@@ -282,7 +289,7 @@ shape: (3, 7)
 │ 2    ┆ b    ┆ 20.1 ┆ false ┆ 200  ┆ y    ┆ 0.2  │
 │ 3    ┆ c    ┆ 30.2 ┆ true  ┆ 300  ┆ z    ┆ 0.3  │
 └──────┴──────┴──────┴───────┴──────┴──────┴──────┘
-</div>
+</div></div>
 
 See [go to section two](#section-two)
 
@@ -311,9 +318,9 @@ plt.savefig('output.svg')
 
 ![](.ob-jupyter/d1194631226c0b51c10bf2748939fde83e6bd9e3.png)
 
-<div class="font-mono" style="font-weight: bold; margin: 0; padding-left: 1.2rem; padding-bottom: 1rem;">Output:</div>
-<div class="font-mono" style="white-space: pre;padding-left: 1.2rem; line-height:1.4;">
-shape: (3, 7)
+<div class="font-mono example-block__label">Output:</div>
+<div class="example-block__wrapper">
+<div class="font-mono example-block__content">shape: (3, 7)
 ┌──────┬──────┬──────┬───────┬──────┬──────┬──────┐
 │ col1 ┆ col2 ┆ col3 ┆ col4  ┆ col5 ┆ col6 ┆ col7 │
 │ ---  ┆ ---  ┆ ---  ┆ ---   ┆ ---  ┆ ---  ┆ ---  │
@@ -323,7 +330,7 @@ shape: (3, 7)
 │ 2    ┆ b    ┆ 20.1 ┆ false ┆ 200  ┆ y    ┆ 0.2  │
 │ 3    ┆ c    ┆ 30.2 ┆ true  ┆ 300  ┆ z    ┆ 0.3  │
 └──────┴──────┴──────┴───────┴──────┴──────┴──────┘
-</div>
+</div></div>
 
 ```python results=output noweb=yes noweb-prefix=no exports=both
 
@@ -335,9 +342,9 @@ WHERE n % 99999 = 0 LIMIT 4;""").show()
 
 ```
 
-<div class="font-mono" style="font-weight: bold; margin: 0; padding-left: 1.2rem; padding-bottom: 1rem;">Output:</div>
-<div class="font-mono" style="white-space: pre;padding-left: 1.2rem; line-height:1.4;">
-┌────────┬─────────┐
+<div class="font-mono example-block__label">Output:</div>
+<div class="example-block__wrapper">
+<div class="font-mono example-block__content">┌────────┬─────────┐
 │   n    │ parity  │
 │ int64  │ varchar │
 ├────────┼─────────┤
@@ -346,6 +353,6 @@ WHERE n % 99999 = 0 LIMIT 4;""").show()
 │ 299997 │ Odd     │
 │ 399996 │ Even    │
 └────────┴─────────┘
-</div>
+</div></div>
 
 [^1]: This is the footnote content.

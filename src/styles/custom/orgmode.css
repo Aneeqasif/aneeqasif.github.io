@@ -3,6 +3,112 @@
  * - Hides attachment-only tags
  * - Renders other tags as pill badges
  */
+.example-block__label {
+  font-weight: bold;
+  margin: 0;
+  padding-left: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.example-block__wrapper {
+  position: relative;
+  margin-bottom: 2rem;
+  display: block;
+  background-color: var(--card-bg);
+  overflow: auto;
+  max-height: calc(1.4em * 20);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+.example-block__content {
+  white-space: pre;
+  padding-left: 1rem;
+  line-height: 1.4;
+  margin: 0;
+  padding-bottom: 1.2rem;
+  padding-right: 2rem;
+}
+
+/* Webkit Scrollbar Styling */
+.example-block__wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.example-block__wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.example-block__wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.example-block__wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 155, 155, 0.8);
+}
+
+.example-block__wrapper::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.example-block__wrapper::-webkit-scrollbar-button {
+  display: none;
+}
+
+
+/* Bottom Gradient - Only visible when content overflows vertically */
+.example-block__wrapper::after {
+  content: "";
+  display: block;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4rem;
+  margin-top: -4rem;
+  pointer-events: none;
+  z-index: 15;
+
+  /* Gradient to card background color */
+  background: linear-gradient(to bottom, transparent, var(--card-bg));
+
+  /* Hidden by default - shown only when wrapper has vertical overflow */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Right-side Gradient - Managed by JavaScript */
+.example-block__gradient-right {
+  position: absolute;
+  top: 0;
+  /* Height will be set by JavaScript to match content height */
+  width: 3rem;
+  pointer-events: none;
+  z-index: 15;
+
+  /* Gradient to card background color */
+  background: linear-gradient(to left, var(--card-bg), transparent);
+
+  /* Hidden by default */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Show right gradient when wrapper has horizontal overflow */
+.example-block__wrapper.has-horizontal-overflow .example-block__gradient-right {
+  opacity: 1;
+}
+
+/* Show bottom gradient when wrapper has vertical overflow */
+.example-block__wrapper.has-vertical-overflow::after {
+  opacity: 1;
+}
+
+
 .tag {
   --org-tag-border: var(--primary);
   --org-tag-bg: color-mix(in srgb, var(--primary) 14%, transparent);
