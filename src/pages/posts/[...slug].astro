@@ -194,18 +194,18 @@ function updateExampleBlockGradients() {
         // Check if the element has scrollable overflow separately for vertical and horizontal
         const hasVerticalOverflow = wrapper.scrollHeight > wrapper.clientHeight;
         const hasHorizontalOverflow = wrapper.scrollWidth > wrapper.clientWidth;
-        
+
         // Toggle vertical overflow class
         if (hasVerticalOverflow) {
             wrapper.classList.add('has-vertical-overflow');
         } else {
             wrapper.classList.remove('has-vertical-overflow');
         }
-        
+
         // Handle horizontal overflow
         if (hasHorizontalOverflow) {
             wrapper.classList.add('has-horizontal-overflow');
-            
+
             // Inject right gradient element if it doesn't exist
             let rightGradient = wrapper.querySelector('.example-block__gradient-right');
             if (!rightGradient) {
@@ -213,7 +213,7 @@ function updateExampleBlockGradients() {
                 rightGradient.className = 'example-block__gradient-right';
                 wrapper.append(rightGradient);
             }
-            
+
             // Function to update gradient position and size
             const updatePosition = () => {
                 if (rightGradient) {
@@ -221,18 +221,18 @@ function updateExampleBlockGradients() {
                     const viewportWidth = wrapper.clientWidth;
                     const gradientWidth = 48; // 3rem
                     const leftPos = scrollLeft + viewportWidth - gradientWidth;
-                    
+
                     const scrollbarHeight = wrapper.offsetHeight - wrapper.clientHeight;
                     const gradientHeight = wrapper.scrollHeight - scrollbarHeight;
-                    
+
                     (rightGradient as HTMLElement).style.left = `${leftPos}px`;
                     (rightGradient as HTMLElement).style.height = `${gradientHeight}px`;
                 }
             };
-            
+
             // Set initial position
             updatePosition();
-            
+
             // Store listener reference and remove any existing listener before adding
             if (!(wrapper as any)._gradientScrollListener) {
                 (wrapper as any)._gradientScrollListener = updatePosition;
@@ -263,4 +263,64 @@ window.addEventListener('resize', updateExampleBlockGradients);
 // Re-run after view transitions (for Astro View Transitions API or Swup)
 document.addEventListener('astro:page-load', updateExampleBlockGradients);
 document.addEventListener('swup:content-replaced', updateExampleBlockGradients);
+
+// Foldable section collapse button functionality
+function setupFoldableCollapseButtons() {
+    document.querySelectorAll('.foldable-collapse-btn').forEach((btn) => {
+        // Remove existing listeners to prevent duplicates
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode?.replaceChild(newBtn, btn);
+
+        newBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const button = newBtn as HTMLElement;
+            const details = button.closest('details.foldable-section') as HTMLDetailsElement;
+            if (!details) return;
+
+            const summary = details.querySelector('summary');
+            if (!summary) return;
+
+            // Adjustable offset - tweak this value to fix any small drift
+            const SCROLL_OFFSET = 0.5; // positive = scroll more down, negative = scroll less
+            const HIGHLIGHT_DURATION = 1000; // ms - how long heading stays highlighted
+            const SCROLL_TO_HEADING = true; // true = scroll heading to viewport, false = no scroll
+            const SCROLL_DELAY = 270; // ms - wait time before scrolling heading to viewport top
+            const SCROLL_POSITION_PERCENT = 3; // 0 = top, 50 = middle, 100 = bottom of viewport
+
+            // Measure content height before collapse
+            const contentHeight = details.scrollHeight - summary.offsetHeight;
+
+            // Native collapse (instant)
+            details.removeAttribute('open');
+
+            // Scroll compensation - shift viewport down so content below stays static
+            window.scrollBy(0, -(contentHeight + SCROLL_OFFSET));
+
+            // Both happen in parallel:
+            // 1. Highlight heading text in primary color (fade in, stay, fade out)
+            summary.classList.add('collapse-highlight');
+            setTimeout(() => {
+                summary.classList.remove('collapse-highlight');
+            }, HIGHLIGHT_DURATION);
+
+            // 2. Scroll heading to position in viewport (after delay) - if enabled
+            if (SCROLL_TO_HEADING) {
+                setTimeout(() => {
+                    const viewportHeight = window.innerHeight;
+                    const targetOffset = (SCROLL_POSITION_PERCENT / 100) * viewportHeight;
+                    const summaryRect = summary.getBoundingClientRect();
+                    const scrollTarget = window.scrollY + summaryRect.top - targetOffset;
+                    window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+                }, SCROLL_DELAY);
+            }
+        });
+    });
+}
+
+// Run on page load
+setupFoldableCollapseButtons();
+
+// Re-run after view transitions
+document.addEventListener('astro:page-load', setupFoldableCollapseButtons);
+document.addEventListener('swup:content-replaced', setupFoldableCollapseButtons);
 </script>

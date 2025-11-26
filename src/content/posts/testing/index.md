@@ -48,14 +48,67 @@ below.
 # A foldable heading <span class="tag" tag-name="Fold"><span class="smallcaps">Fold</span></span>
 
 this heading is foldable and initialy expanded state
+Anthropic's latest model doesn't just win on paper—it demonstrates qualitative advantages that early testers consistently report. According to feedback from Anthropic employees who tested the model before release:
+
+-   **Handles ambiguity intelligently**: Opus 4.5 reasons about tradeoffs without requiring hand-holding
+-   **Solves complex, multi-system bugs**: When pointed at sprawling codebases with intricate issues, it figures out the fix
+-   **Unlocks previously impossible tasks**: Challenges that stumped Sonnet 4.5 just weeks ago are now within reach
+-   **“Just gets it”**: The model demonstrates judgment and intuition that goes beyond mechanical code generation
+
+Perhaps most remarkably, Anthropic tested Opus 4.5 on the same challenging take-home exam given to prospective performance engineering candidates. Using parallel test-time compute, the model scored higher than any human candidate has ever achieved on this two-hour technical assessment.
+
+
 
 # Another foldable heading type <span class="tag" tag-name="folded"><span class="smallcaps">folded</span></span>
 
 this is also foldable but initialy collapsed
+Here is a link back to the first section:
+
+Anthropic's latest model doesn't just win on paper—it demonstrates qualitative advantages that early testers consistently report. According to feedback from Anthropic employees who tested the model before release:
+
+-   **Handles ambiguity intelligently**: Opus 4.5 reasons about tradeoffs without requiring hand-holding
+-   **Solves complex, multi-system bugs**: When pointed at sprawling codebases with intricate issues, it figures out the fix
+-   **Unlocks previously impossible tasks**: Challenges that stumped Sonnet 4.5 just weeks ago are now within reach
+-   **“Just gets it”**: The model demonstrates judgment and intuition that goes beyond mechanical code generation
+
+Perhaps most remarkably, Anthropic tested Opus 4.5 on the same challenging take-home exam given to prospective performance engineering candidates. Using parallel test-time compute, the model scored higher than any human candidate has ever achieved on this two-hour technical assessment.
+Here is a link back to the first section:
+
+Anthropic's latest model doesn't just win on paper—it demonstrates qualitative advantages that early testers consistently report. According to feedback from Anthropic employees who tested the model before release:
+
+-   **Handles ambiguity intelligently**: Opus 4.5 reasons about tradeoffs without requiring hand-holding
+-   **Solves complex, multi-system bugs**: When pointed at sprawling codebases with intricate issues, it figures out the fix
+-   **Unlocks previously impossible tasks**: Challenges that stumped Sonnet 4.5 just weeks ago are now within reach
+-   **“Just gets it”**: The model demonstrates judgment and intuition that goes beyond mechanical code generation
+
+Perhaps most remarkably, Anthropic tested Opus 4.5 on the same challenging take-home exam given to prospective performance engineering candidates. Using parallel test-time compute, the model scored higher than any human candidate has ever achieved on this two-hour technical assessment.
+Here is a link back to the first section:
+
+Anthropic's latest model doesn't just win on paper—it demonstrates qualitative advantages that early testers consistently report. According to feedback from Anthropic employees who tested the model before release:
+
+-   **Handles ambiguity intelligently**: Opus 4.5 reasons about tradeoffs without requiring hand-holding
+-   **Solves complex, multi-system bugs**: When pointed at sprawling codebases with intricate issues, it figures out the fix
+-   **Unlocks previously impossible tasks**: Challenges that stumped Sonnet 4.5 just weeks ago are now within reach
+-   **“Just gets it”**: The model demonstrates judgment and intuition that goes beyond mechanical code generation
+
+Perhaps most remarkably, Anthropic tested Opus 4.5 on the same challenging take-home exam given to prospective performance engineering candidates. Using parallel test-time compute, the model scored higher than any human candidate has ever achieved on this two-hour technical assessment.
 
 ### Section Two <span class="tag" tag-name="folded"><span class="smallcaps">folded</span></span>
 
 Here is a link back to the first section:
+
+Anthropic's latest model doesn't just win on paper—it demonstrates qualitative advantages that early testers consistently report. According to feedback from Anthropic employees who tested the model before release:
+
+-   **Handles ambiguity intelligently**: Opus 4.5 reasons about tradeoffs without requiring hand-holding
+-   **Solves complex, multi-system bugs**: When pointed at sprawling codebases with intricate issues, it figures out the fix
+-   **Unlocks previously impossible tasks**: Challenges that stumped Sonnet 4.5 just weeks ago are now within reach
+-   **“Just gets it”**: The model demonstrates judgment and intuition that goes beyond mechanical code generation
+
+Perhaps most remarkably, Anthropic tested Opus 4.5 on the same challenging take-home exam given to prospective performance engineering candidates. Using parallel test-time compute, the model scored higher than any human candidate has ever achieved on this two-hour technical assessment.
+
+
+
+
 
 [Back to Section One](#section-one)
 
