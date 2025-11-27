@@ -19,6 +19,12 @@ import { expressiveCodeConfig } from "./src/config.ts";
 // CUSTOM: Image gallery plugin
 import { ImageGalleryComponent } from "./src/plugins/custom/rehype-component-gallery.mjs";
 import { remarkGallery } from "./src/plugins/custom/remark-gallery.ts";
+// CUSTOM: Image carousel plugin
+import { CarouselComponent } from "./src/plugins/custom/rehype-component-carousel.mjs";
+import { remarkCarousel } from "./src/plugins/custom/remark-carousel.ts";
+// CUSTOM: Marquee/badge strip plugin
+import { MarqueeComponent } from "./src/plugins/custom/rehype-component-marquee.mjs";
+import { remarkMarquee } from "./src/plugins/custom/remark-marquee.ts";
 import { remarkPondPilot } from "./src/plugins/custom/remark-pondpilot.ts";
 import { remarkSteps } from "./src/plugins/custom/remark-steps.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
@@ -33,157 +39,161 @@ import { themeColorsPlugin } from "./src/plugins/vite-plugin-theme-colors.ts";
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://aneeqasif.github.io/",
-	base: "/",
-	trailingSlash: "always",
-	integrations: [
-		tailwind({
-			nesting: true,
-		}),
-		swup({
-			theme: false,
-			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
-			// the default value `transition-` cause transition delay
-			// when the Tailwind class `transition-all` is used
-			containers: ["main", "#toc"],
-			smoothScrolling: true,
-			cache: true,
-			preload: true,
-			accessibility: true,
-			updateHead: true,
-			updateBodyClass: false,
-			globalInstance: true,
-		}),
-		icon({
-			include: {
-				"preprocess: vitePreprocess(),": ["*"],
-				"fa6-brands": ["*"],
-				"fa6-regular": ["*"],
-				"fa6-solid": ["*"],
-			},
-		}),
-		expressiveCode({
-			themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
-			plugins: [
-				pluginCollapsibleSections(),
-				pluginLineNumbers(),
-				pluginLanguageBadge(),
-				pluginCustomCopyButton(),
-			],
-			defaultProps: {
-				wrap: true,
-				overridesByLang: {
-					shellsession: {
-						showLineNumbers: false,
-					},
-				},
-			},
-			styleOverrides: {
-				codeBackground: "var(--codeblock-bg)",
-				borderRadius: "0.75rem",
-				borderColor: "none",
-				codeFontSize: "1.0rem",
-				codeFontWeight: "400",
-				codeFontFamily:
-					"'Iosevka', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-				codeLineHeight: "1.7rem",
-				frames: {
-					editorBackground: "var(--codeblock-bg)",
-					terminalBackground: "var(--codeblock-bg)",
-					terminalTitlebarBackground: "var(--codeblock-topbar-bg)",
-					editorTabBarBackground: "var(--codeblock-topbar-bg)",
-					editorActiveTabBackground: "none",
-					editorActiveTabIndicatorBottomColor: "var(--primary)",
-					editorActiveTabIndicatorTopColor: "none",
-					editorTabBarBorderBottomColor: "var(--codeblock-topbar-bg)",
-					terminalTitlebarBorderBottomColor: "none",
-				},
-				textMarkers: {
-					delHue: 0,
-					insHue: 180,
-					markHue: 250,
-				},
-			},
-			frames: {
-				showCopyToClipboardButton: false,
-			},
-		}),
-		svelte(),
-		sitemap(),
-	],
-	markdown: {
-		remarkPlugins: [
-			remarkMath,
-			remarkReadingTime,
-			remarkExcerpt,
-			remarkGithubAdmonitionsToDirectives,
-			remarkDirective,
-			remarkSectionize,
-			parseDirectiveNode,
-			remarkGallery, // CUSTOM: Image gallery support
-			remarkSteps, // CUSTOM: Steps component support
-			remarkPondPilot, // CUSTOM: PondPilot interactive SQL widgets
-		],
-		rehypePlugins: [
-			rehypeKatex,
-			rehypeSlug,
-			[
-				rehypeComponents,
-				{
-					components: {
-						github: GithubCardComponent,
-						note: (x, y) => AdmonitionComponent(x, y, "note"),
-						tip: (x, y) => AdmonitionComponent(x, y, "tip"),
-						important: (x, y) => AdmonitionComponent(x, y, "important"),
-						caution: (x, y) => AdmonitionComponent(x, y, "caution"),
-						warning: (x, y) => AdmonitionComponent(x, y, "warning"),
-						ImageGallery: ImageGalleryComponent, // CUSTOM: Gallery component
-					},
-				},
-			],
-			[
-				rehypeAutolinkHeadings,
-				{
-					behavior: "append",
-					properties: {
-						className: ["anchor"],
-					},
-					content: {
-						type: "element",
-						tagName: "span",
-						properties: {
-							className: ["anchor-icon"],
-							"data-pagefind-ignore": true,
-						},
-						children: [
-							{
-								type: "text",
-								value: "#",
-							},
-						],
-					},
-				},
-			],
-			rehypeFoldableSections,
-		],
-	},
-	vite: {
-		plugins: [themeColorsPlugin()],
-		assetsInclude: ["**/*.lua", "**/*.org"],
+  site: "https://aneeqasif.github.io/",
+  base: "/",
+  trailingSlash: "always",
+  integrations: [
+    tailwind({
+      nesting: true,
+    }),
+    swup({
+      theme: false,
+      animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
+      // the default value `transition-` cause transition delay
+      // when the Tailwind class `transition-all` is used
+      containers: ["main", "#toc"],
+      smoothScrolling: true,
+      cache: true,
+      preload: true,
+      accessibility: true,
+      updateHead: true,
+      updateBodyClass: false,
+      globalInstance: true,
+    }),
+    icon({
+      include: {
+        "preprocess: vitePreprocess(),": ["*"],
+        "fa6-brands": ["*"],
+        "fa6-regular": ["*"],
+        "fa6-solid": ["*"],
+      },
+    }),
+    expressiveCode({
+      themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
+      plugins: [
+        pluginCollapsibleSections(),
+        pluginLineNumbers(),
+        pluginLanguageBadge(),
+        pluginCustomCopyButton(),
+      ],
+      defaultProps: {
+        wrap: true,
+        overridesByLang: {
+          shellsession: {
+            showLineNumbers: false,
+          },
+        },
+      },
+      styleOverrides: {
+        codeBackground: "var(--codeblock-bg)",
+        borderRadius: "0.75rem",
+        borderColor: "none",
+        codeFontSize: "1.0rem",
+        codeFontWeight: "400",
+        codeFontFamily:
+          "'Iosevka', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+        codeLineHeight: "1.7rem",
+        frames: {
+          editorBackground: "var(--codeblock-bg)",
+          terminalBackground: "var(--codeblock-bg)",
+          terminalTitlebarBackground: "var(--codeblock-topbar-bg)",
+          editorTabBarBackground: "var(--codeblock-topbar-bg)",
+          editorActiveTabBackground: "none",
+          editorActiveTabIndicatorBottomColor: "var(--primary)",
+          editorActiveTabIndicatorTopColor: "none",
+          editorTabBarBorderBottomColor: "var(--codeblock-topbar-bg)",
+          terminalTitlebarBorderBottomColor: "none",
+        },
+        textMarkers: {
+          delHue: 0,
+          insHue: 180,
+          markHue: 250,
+        },
+      },
+      frames: {
+        showCopyToClipboardButton: false,
+      },
+    }),
+    svelte(),
+    sitemap(),
+  ],
+  markdown: {
+    remarkPlugins: [
+      remarkMath,
+      remarkReadingTime,
+      remarkExcerpt,
+      remarkGithubAdmonitionsToDirectives,
+      remarkDirective,
+      remarkSectionize,
+      parseDirectiveNode,
+      remarkGallery, // CUSTOM: Image gallery support
+      remarkSteps, // CUSTOM: Steps component support
+      remarkPondPilot, // CUSTOM: PondPilot interactive SQL widgets
+      remarkCarousel, // CUSTOM: Image carousel support
+      remarkMarquee, // CUSTOM: Marquee/badge strip support
+    ],
+    rehypePlugins: [
+      rehypeKatex,
+      rehypeSlug,
+      [
+        rehypeComponents,
+        {
+          components: {
+            github: GithubCardComponent,
+            note: (x, y) => AdmonitionComponent(x, y, "note"),
+            tip: (x, y) => AdmonitionComponent(x, y, "tip"),
+            important: (x, y) => AdmonitionComponent(x, y, "important"),
+            caution: (x, y) => AdmonitionComponent(x, y, "caution"),
+            warning: (x, y) => AdmonitionComponent(x, y, "warning"),
+            ImageGallery: ImageGalleryComponent, // CUSTOM: Gallery component
+            Carousel: CarouselComponent, // CUSTOM: Carousel component
+            Marquee: MarqueeComponent, // CUSTOM: Marquee component
+          },
+        },
+      ],
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: "append",
+          properties: {
+            className: ["anchor"],
+          },
+          content: {
+            type: "element",
+            tagName: "span",
+            properties: {
+              className: ["anchor-icon"],
+              "data-pagefind-ignore": true,
+            },
+            children: [
+              {
+                type: "text",
+                value: "#",
+              },
+            ],
+          },
+        },
+      ],
+      rehypeFoldableSections,
+    ],
+  },
+  vite: {
+    plugins: [themeColorsPlugin()],
+    assetsInclude: ["**/*.lua", "**/*.org"],
 
-		build: {
-			rollupOptions: {
-				onwarn(warning, warn) {
-					// temporarily suppress this warning
-					if (
-						warning.message.includes("is dynamically imported by") &&
-						warning.message.includes("but also statically imported by")
-					) {
-						return;
-					}
-					warn(warning);
-				},
-			},
-		},
-	},
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          // temporarily suppress this warning
+          if (
+            warning.message.includes("is dynamically imported by") &&
+            warning.message.includes("but also statically imported by")
+          ) {
+            return;
+          }
+          warn(warning);
+        },
+      },
+    },
+  },
 });

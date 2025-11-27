@@ -1,0 +1,185 @@
+/**
+ * CUSTOM STYLES: Marquee/Badge Strip
+ * Safe for upstream merges - doesn't modify theme core
+ */
+
+/* Main marquee container */
+.marquee {
+  position: relative;
+  width: 100%;
+  height: var(--marquee-height, 60px);
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+
+/* Gradient fade on edges */
+.marquee::before,
+.marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.marquee::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--card-bg, #ffffff) 0%,
+    transparent 100%
+  );
+}
+
+.marquee::after {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--card-bg, #ffffff) 0%,
+    transparent 100%
+  );
+}
+
+/* Dark mode gradient */
+[data-theme="dark"] .marquee::before {
+  background: linear-gradient(
+    to right,
+    var(--card-bg, #1a1a2e) 0%,
+    transparent 100%
+  );
+}
+
+[data-theme="dark"] .marquee::after {
+  background: linear-gradient(
+    to left,
+    var(--card-bg, #1a1a2e) 0%,
+    transparent 100%
+  );
+}
+
+/* Track that contains and moves the items */
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: var(--marquee-gap, 2rem);
+  height: 100%;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 20s) linear infinite;
+  /* Ensure track is above the gradient overlays if they overlap */
+  position: relative;
+  z-index: 5;
+}
+
+/* Pause on hover */
+.marquee[data-pause-on-hover="true"]:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Reverse direction */
+.marquee[data-direction="right"] .marquee-track {
+  animation-name: marquee-scroll-reverse;
+}
+
+/* Individual marquee item */
+.marquee-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--marquee-height, 60px) - 16px);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  padding: 8px 0;
+  /* Reset potentially inherited styles */
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  /* Ensure items are interactive */
+  position: relative;
+  z-index: 6;
+}
+
+.marquee-item img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  /* Override global markdown image styles */
+  cursor: default !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 7px !important;
+  /* Prevent dragging which can interfere with clicks */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Hover effect on items - scale the image, not the container */
+.marquee-item:hover img {
+  transform: scale(1.15);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Link items cursor */
+a.marquee-item {
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+
+a.marquee-item img {
+  cursor: pointer !important;
+  pointer-events: none;
+  /* Let the click pass through to the anchor */
+}
+
+/* Only show focus outline for keyboard navigation, not mouse clicks */
+a.marquee-item:focus {
+  outline: none;
+}
+
+a.marquee-item:focus-visible {
+  outline: 2px solid var(--primary, #3b82f6);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Keyframes for scrolling */
+/* Keyframes for scrolling */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(var(--marquee-scroll-end, -100%));
+  }
+}
+
+@keyframes marquee-scroll-reverse {
+  0% {
+    transform: translateX(var(--marquee-scroll-end, -100%));
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .marquee {
+    margin: 1rem 0;
+  }
+
+  .marquee::before,
+  .marquee::after {
+    width: 40px;
+  }
+
+  .marquee-item:hover img {
+    transform: scale(1.1);
+  }
+}

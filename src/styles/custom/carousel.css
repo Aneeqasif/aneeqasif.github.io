@@ -1,0 +1,242 @@
+/**
+ * CUSTOM STYLES: Image Carousel
+ * Safe for upstream merges - doesn't modify theme core
+ */
+
+/* Main carousel container */
+.carousel {
+  --carousel-scale: 1;
+  position: relative;
+  margin: 2rem auto;
+  max-width: 100%;
+  width: fit-content;
+}
+
+/* Viewport containing slides and controls */
+.carousel-viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: transparent;
+  /* Scale is applied via JS to width/height calculations */
+}
+
+/* Slides container */
+.carousel-slides {
+  position: relative;
+  display: flex;
+  width: 100%;
+  gap: 2rem;
+  /* Space visible during slide transition */
+}
+
+/* Individual slide */
+.carousel-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-slide img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Navigation buttons - vertical hover regions */
+.carousel-nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 15%;
+  min-width: 60px;
+  max-width: 120px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  opacity: 1;
+  color: white;
+  padding: 0;
+  transition: none;
+}
+
+/* Wrapper for arrow icon with circle background */
+.carousel-nav span.arrow-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15em;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.25);
+  transition: background 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hide circle background on hover */
+.carousel-nav:hover span.arrow-wrapper {
+  background: transparent;
+}
+
+/* Shadow/gradient overlay - only on hover */
+.carousel-nav::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.carousel-prev::before {
+  background: linear-gradient(to right,
+      rgba(0, 0, 0, 0.5) 0%,
+      transparent 100%);
+}
+
+.carousel-next::before {
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
+}
+
+/* Only show shadow on hover - not on focus/active */
+.carousel-nav:hover::before {
+  opacity: 1;
+}
+
+/* Remove focus/active styles that cause persistence */
+.carousel-nav:focus,
+.carousel-nav:active,
+.carousel-nav:focus-visible {
+  outline: none;
+}
+
+.carousel-nav:focus::before,
+.carousel-nav:active::before,
+.carousel-nav:focus-visible::before {
+  opacity: 0;
+}
+
+/* Re-enable on hover even when focused */
+.carousel-nav:hover::before {
+  opacity: 1;
+}
+
+.carousel-prev {
+  left: 0;
+  justify-content: flex-start;
+  padding-left: 0.5rem;
+}
+
+.carousel-next {
+  right: 0;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+}
+
+/* Arrow icons - always visible */
+.carousel-nav svg {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+  transition: transform 0.2s ease;
+  display: block;
+  opacity: 0.9;
+}
+
+.carousel-nav:hover svg {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+/* Counter - bottom center */
+.carousel-counter {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(4px);
+  z-index: 5;
+  user-select: none;
+}
+
+.carousel-separator {
+  opacity: 0.7;
+}
+
+/* Caption - below carousel */
+.carousel-caption {
+  text-align: center;
+  padding: 0.75rem 1rem;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.9rem;
+  font-style: italic;
+  min-height: 1.5em;
+}
+
+.carousel-caption:empty {
+  display: none;
+}
+
+/* Touch device adjustments */
+@media (hover: none) {
+  .carousel-nav {
+    width: 20%;
+  }
+
+  .carousel-nav svg {
+    width: 28px;
+    height: 28px;
+    opacity: 0.9;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .carousel {
+    margin: 1.5rem auto;
+  }
+
+  .carousel-viewport {
+    border-radius: 0.5rem;
+  }
+
+  .carousel-nav {
+    width: 20%;
+    min-width: 44px;
+  }
+
+  .carousel-nav svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .carousel-counter {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .carousel-caption {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .carousel-caption {
+  color: var(--text-secondary, #8b949e);
+}

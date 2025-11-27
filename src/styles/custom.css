@@ -10,6 +10,8 @@
 
 /* Import custom feature styles */
 @import "./custom/gallery.css";
+@import "./custom/carousel.css";
+@import "./custom/marquee.css";
 @import "./custom/steps.css";
 @import "./custom/pondpilot.css";
 @import "./custom/waline.css";
