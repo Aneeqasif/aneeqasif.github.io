@@ -108,11 +108,11 @@ local function render_example_div(cb)
     -- Wrap in a container to handle scrollbars and gradients properly
     local open_wrapper = '<div class="example-block__wrapper">\n'
     local close_wrapper = '</div>'
-    
+
     local open_div =
         '<div class="' .. EXAMPLE_DIV_CLASSES .. '">'
     local close_div = "</div>"
-    
+
     local html = EX_PREFIX .. "" .. open_wrapper .. open_div .. cb.text .. close_div .. close_wrapper
     return pandoc.RawBlock("html", html)
 end
@@ -137,6 +137,59 @@ function CodeBlock(cb)
     local anchor_span = nil
     if cb.identifier and cb.identifier ~= "" then
         anchor_span = make_anchor_span(cb.identifier)
+    end
+
+    --------------------------------------------------------------------
+    -- 0.5. Handle :esql attribute - swap language to sql and comment out %% lines
+    --------------------------------------------------------------------
+    local has_esql_attr = attrs["esql"] ~= nil
+    if has_esql_attr then
+        -- Remove the esql attribute so it doesn't appear in output
+        attrs["esql"] = nil
+
+        -- Process the code text: comment out lines starting with %%
+        -- Split by newlines manually to avoid pattern issues with %
+        local lines = {}
+        local text = cb.text
+        local start_pos = 1
+        while true do
+            local newline_pos = text:find("\n", start_pos, true) -- plain search, no patterns
+            local line
+            if newline_pos then
+                line = text:sub(start_pos, newline_pos - 1)
+                start_pos = newline_pos + 1
+            else
+                line = text:sub(start_pos)
+                if line ~= "" then
+                    table.insert(lines, line)
+                end
+                break
+            end
+            -- Check if line starts with optional whitespace followed by %%
+            -- We need to check for two literal % characters
+            local trimmed = line:gsub("^%s*", "") -- remove leading whitespace
+            if trimmed:sub(1, 2) == "%%" then
+                -- Prepend -- to comment out the cell magic line
+                table.insert(lines, "-- " .. line)
+            else
+                -- Leave single % lines and other lines as-is
+                table.insert(lines, line)
+            end
+        end
+
+        -- Join lines back together
+        local new_text = table.concat(lines, "\n")
+
+        -- Build fenced code block with sql language using RawBlock
+        -- No % escaping needed - Pandoc doesn't interpret % in RawBlock
+        local code = "```sql\n" .. new_text .. "\n```"
+        local block = pandoc.RawBlock("markdown", code)
+
+        if anchor_span then
+            return { anchor_span, block }
+        else
+            return block
+        end
     end
 
     --------------------------------------------------------------------
