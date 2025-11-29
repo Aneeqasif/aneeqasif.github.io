@@ -284,8 +284,3 @@ duckdb.sql("""<<duckdb-sql-query>>""").show()
 └────────┴─────────┘
 
 #+end_example
-
-
-
-
-

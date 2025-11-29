@@ -189,80 +189,73 @@ const walineLang = entry.data.lang
 <script>
 // Detect overflow on example blocks and add appropriate classes for gradient visibility
 function updateExampleBlockGradients() {
-    const wrappers = document.querySelectorAll('.example-block__wrapper');
-    wrappers.forEach((wrapper) => {
-        // Check if the element has scrollable overflow separately for vertical and horizontal
-        const hasVerticalOverflow = wrapper.scrollHeight > wrapper.clientHeight;
-        const hasHorizontalOverflow = wrapper.scrollWidth > wrapper.clientWidth;
+    // Use requestAnimationFrame to ensure layout is computed before checking overflow
+    requestAnimationFrame(() => {
+        const wrappers = document.querySelectorAll('.example-block__wrapper');
+        wrappers.forEach((wrapper) => {
+            // Check if the element has scrollable overflow separately for vertical and horizontal
+            const hasVerticalOverflow = wrapper.scrollHeight > wrapper.clientHeight;
+            const hasHorizontalOverflow = wrapper.scrollWidth > wrapper.clientWidth;
 
-        // Toggle vertical overflow class
-        if (hasVerticalOverflow) {
-            wrapper.classList.add('has-vertical-overflow');
-        } else {
-            wrapper.classList.remove('has-vertical-overflow');
-        }
-
-        // Handle horizontal overflow
-        if (hasHorizontalOverflow) {
-            wrapper.classList.add('has-horizontal-overflow');
-
-            // Inject right gradient element if it doesn't exist
-            let rightGradient = wrapper.querySelector('.example-block__gradient-right');
-            if (!rightGradient) {
-                rightGradient = document.createElement('div');
-                rightGradient.className = 'example-block__gradient-right';
-                wrapper.append(rightGradient);
+            // Toggle vertical overflow class
+            if (hasVerticalOverflow) {
+                wrapper.classList.add('has-vertical-overflow');
+            } else {
+                wrapper.classList.remove('has-vertical-overflow');
             }
 
-            // Function to update gradient position and size
-            const updatePosition = () => {
-                if (rightGradient) {
-                    const scrollLeft = wrapper.scrollLeft;
-                    const viewportWidth = wrapper.clientWidth;
-                    const gradientWidth = 48; // 3rem
-                    const leftPos = scrollLeft + viewportWidth - gradientWidth;
+            // Handle horizontal overflow
+            if (hasHorizontalOverflow) {
+                wrapper.classList.add('has-horizontal-overflow');
 
-                    const scrollbarHeight = wrapper.offsetHeight - wrapper.clientHeight;
-                    const gradientHeight = wrapper.scrollHeight - scrollbarHeight;
-
-                    (rightGradient as HTMLElement).style.left = `${leftPos}px`;
-                    (rightGradient as HTMLElement).style.height = `${gradientHeight}px`;
+                // Inject right gradient element if it doesn't exist
+                let rightGradient = wrapper.querySelector('.example-block__gradient-right');
+                if (!rightGradient) {
+                    rightGradient = document.createElement('div');
+                    rightGradient.className = 'example-block__gradient-right';
+                    wrapper.append(rightGradient);
                 }
-            };
 
-            // Set initial position
-            updatePosition();
+                // Function to update gradient position and size
+                const updatePosition = () => {
+                    if (rightGradient) {
+                        const scrollLeft = wrapper.scrollLeft;
+                        const viewportWidth = wrapper.clientWidth;
+                        const gradientWidth = 48; // 3rem
+                        const leftPos = scrollLeft + viewportWidth - gradientWidth;
 
-            // Store listener reference and remove any existing listener before adding
-            if (!(wrapper as any)._gradientScrollListener) {
-                (wrapper as any)._gradientScrollListener = updatePosition;
-                wrapper.addEventListener('scroll', updatePosition, { passive: true });
+                        const scrollbarHeight = wrapper.offsetHeight - wrapper.clientHeight;
+                        const gradientHeight = wrapper.scrollHeight - scrollbarHeight;
+
+                        (rightGradient as HTMLElement).style.left = `${leftPos}px`;
+                        (rightGradient as HTMLElement).style.height = `${gradientHeight}px`;
+                    }
+                };
+
+                // Set initial position
+                updatePosition();
+
+                // Store listener reference and remove any existing listener before adding
+                if (!(wrapper as any)._gradientScrollListener) {
+                    (wrapper as any)._gradientScrollListener = updatePosition;
+                    wrapper.addEventListener('scroll', updatePosition, { passive: true });
+                }
+            } else {
+                wrapper.classList.remove('has-horizontal-overflow');
+                // Remove gradient element if it exists
+                const rightGradient = wrapper.querySelector('.example-block__gradient-right');
+                if (rightGradient) {
+                    rightGradient.remove();
+                }
+                // Remove event listener
+                if ((wrapper as any)._gradientScrollListener) {
+                    wrapper.removeEventListener('scroll', (wrapper as any)._gradientScrollListener);
+                    delete (wrapper as any)._gradientScrollListener;
+                }
             }
-        } else {
-            wrapper.classList.remove('has-horizontal-overflow');
-            // Remove gradient element if it exists
-            const rightGradient = wrapper.querySelector('.example-block__gradient-right');
-            if (rightGradient) {
-                rightGradient.remove();
-            }
-            // Remove event listener
-            if ((wrapper as any)._gradientScrollListener) {
-                wrapper.removeEventListener('scroll', (wrapper as any)._gradientScrollListener);
-                delete (wrapper as any)._gradientScrollListener;
-            }
-        }
+        });
     });
 }
-
-// Run on page load
-updateExampleBlockGradients();
-
-// Re-run on window resize (responsive behavior)
-window.addEventListener('resize', updateExampleBlockGradients);
-
-// Re-run after view transitions (for Astro View Transitions API or Swup)
-document.addEventListener('astro:page-load', updateExampleBlockGradients);
-document.addEventListener('swup:content-replaced', updateExampleBlockGradients);
 
 // Foldable section collapse button functionality
 function setupFoldableCollapseButtons() {
@@ -317,10 +310,26 @@ function setupFoldableCollapseButtons() {
     });
 }
 
-// Run on page load
-setupFoldableCollapseButtons();
+// Main initialization function
+function initPostFeatures() {
+    updateExampleBlockGradients();
+    setupFoldableCollapseButtons();
+}
 
-// Re-run after view transitions
-document.addEventListener('astro:page-load', setupFoldableCollapseButtons);
-document.addEventListener('swup:content-replaced', setupFoldableCollapseButtons);
+// Run on initial page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPostFeatures);
+} else {
+    initPostFeatures();
+}
+
+// Re-run on window resize (responsive behavior)
+window.addEventListener('resize', () => {
+    // Debounce or just run directly - rAF in updateExampleBlockGradients handles the heavy lifting
+    updateExampleBlockGradients();
+});
+
+// Re-run after view transitions (for Astro View Transitions API or Swup)
+document.addEventListener('astro:page-load', initPostFeatures);
+document.addEventListener('swup:content-replaced', initPostFeatures);
 </script>
