@@ -223,3 +223,24 @@
 .sql-hl-comment {
   font-style: normal !important;
 }
+
+/* ============================================================================
+ * SECTION 9: SCROLLBAR STYLING
+ * Custom scrollbar for PondPilot results
+ * ============================================================================ */
+
+.pondpilot-widget * {
+  scrollbar-color: var(--pondpilot-muted-text) transparent;
+  scrollbar-width: thin;
+
+}
+
+
+
+.pondpilot-widget *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pondpilot-widget *::-webkit-scrollbar-thumb {
+  background-color: var(--pondpilot-border-color);
+}

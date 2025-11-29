@@ -60,3 +60,7 @@
   font-style: normal;
   font-display: swap;
 }
+
+:root.dark {
+  --muted-color: oklch(0.60 0.03 var(--hue)) !important;
+}

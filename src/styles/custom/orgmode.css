@@ -298,6 +298,8 @@ details.foldable-section > summary.collapse-highlight h6 {
   border: none;
   background: none;
   color: var(--hue);
+  color: var(--muted-color);
+
   opacity: 0.4;
   cursor: pointer;
   transition: color 0.2s ease, opacity 0.2s ease;
@@ -383,4 +385,9 @@ details.foldable-section:not([open]) .foldable-collapse-btn {
 /* Summary needs relative positioning for highlight element */
 details.foldable-section > summary {
   position: relative;
+}
+
+/* Ensure consistent spacing above foldable sections */
+details.foldable-section {
+  margin-top: 1.5rem;
 }

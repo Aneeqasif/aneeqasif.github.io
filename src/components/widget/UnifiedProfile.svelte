@@ -129,7 +129,7 @@ $: if (activeTab === "profile" && profileHeight) {
                                         <Icon icon={item.icon} class="text-[1.5rem]" />
                                     </a>
                                 {/each}
-                            </div>  
+                            </div>
                         </div>
                     </div>
                 {:else if activeTab === "categories"}
@@ -191,9 +191,8 @@ $: if (activeTab === "profile" && profileHeight) {
 
 <style>
   .card-buttons {
-    
     @apply rounded-xl overflow-hidden bg-[var(--card-bg)] transition;
-  }
+  };
 </style>
 
 <!-- Bottom Navigation -->
@@ -202,7 +201,7 @@ $: if (activeTab === "profile" && profileHeight) {
         class={"flex-1 flex items-center justify-center py-1.5 rounded-lg transition-all duration-300 " +
             (activeTab === "profile"
                 ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]"
-                : "text-black dark:text-white opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5")}
+                : "text-black dark:text-[var(--muted-color)] opacity-60 hover:opacity-100  hover:bg-black/5 dark:hover:bg-white/5")}
         on:click={() => switchTab("profile")}
         aria-label="Profile"
     >
@@ -212,7 +211,7 @@ $: if (activeTab === "profile" && profileHeight) {
         class={"flex-1 flex items-center justify-center py-1.5 rounded-lg transition-all duration-300 " +
             (activeTab === "categories"
                 ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]"
-                : "text-black dark:text-white opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5")}
+                : "text-black dark:text-[var(--muted-color)] opacity-60 hover:opacity-100  hover:bg-black/5 dark:hover:bg-white/5")}
         on:click={() => switchTab("categories")}
         aria-label="Categories"
     >
@@ -222,7 +221,7 @@ $: if (activeTab === "profile" && profileHeight) {
         class={"flex-1 flex items-center justify-center py-1.5  rounded-lg transition-all duration-300 " +
             (activeTab === "tags"
                 ? "bg-[var(--btn-regular-bg)] text-[var(--primary)]"
-                : "text-black dark:text-white opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5")}
+                : "text-black dark:text-[var(--muted-color)] opacity-60 hover:opacity-100  hover:bg-black/5 dark:hover:bg-white/5")}
         on:click={() => switchTab("tags")}
         aria-label="Tags"
     >
