@@ -2,7 +2,7 @@
 author: M. Aneeq Asif
 category: Demo
 description: Testing sql widgets
-draft: true
+draft: false
 published: 2026-09-09
 series:
   name: testing blog

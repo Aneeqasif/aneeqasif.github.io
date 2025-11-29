@@ -1,7 +1,7 @@
 #+TITLE: PondPilot
 #+published: 2026-09-09
 #+description: Testing sql widgets
-#+draft: true
+#+draft: false
 #+tags: [demo, testing]
 #+category: Demo
 #+series: { name: "testing blog", part: 4 }
