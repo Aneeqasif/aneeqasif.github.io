@@ -181,12 +181,6 @@
      Prevents images from overwhelming viewport
      ======================================== */
 
-  img {
-    @apply max-w-full h-auto rounded-lg;
-    /* Prevent super tall images from taking over */
-    max-height: 80vh;
-  }
-
   /* Marquee images handled by marquee.css - don't override */
   .marquee-item img {
     height: 100%;
@@ -205,18 +199,5 @@
   p > img:not(:only-child) {
     @apply inline-block align-middle my-1 rounded;
     max-height: 60vh;
-  }
-
-  /* Figure element styling (for future directive support) */
-  figure {
-    @apply my-6 mx-0;
-
-    img {
-      @apply rounded-lg mx-auto block;
-    }
-
-    figcaption {
-      @apply text-center text-sm text-black/50 dark:text-white/50 mt-2 italic;
-    }
   }
 }
