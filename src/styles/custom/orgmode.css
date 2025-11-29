@@ -141,19 +141,21 @@
   }
 }
 
-.tag[tag-name="ATTACH"] {
+.tag[tag-name="ATTACH" i] {
   display: none !important;
 }
 
 /* Hide Fold and folded tags as they are functional only */
-.tag[tag-name="Fold"],
-.tag[tag-name="folded"] {
+.tag[tag-name="Fold" i],
+.tag[tag-name="folded" i] {
   display: none !important;
 }
 
-.tag:not([tag-name="ATTACH"]):not([tag-name="Fold"]):not([tag-name="folded"])
-  + .tag:not([tag-name="ATTACH"]):not([tag-name="Fold"]):not(
-    [tag-name="folded"]
+.tag:not([tag-name="ATTACH" i]):not([tag-name="Fold" i]):not(
+    [tag-name="folded" i]
+  )
+  + .tag:not([tag-name="ATTACH" i]):not([tag-name="Fold" i]):not(
+    [tag-name="folded" i]
   ) {
   margin-inline-start: 0.45rem;
 }

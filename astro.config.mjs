@@ -25,6 +25,9 @@ import { remarkCarousel } from "./src/plugins/custom/remark-carousel.ts";
 // CUSTOM: Marquee/badge strip plugin
 import { MarqueeComponent } from "./src/plugins/custom/rehype-component-marquee.mjs";
 import { remarkMarquee } from "./src/plugins/custom/remark-marquee.ts";
+// CUSTOM: Enhanced figure/image plugin
+import { FigureComponent } from "./src/plugins/custom/rehype-component-figure.mjs";
+import { remarkFigure } from "./src/plugins/custom/remark-figure.ts";
 import { remarkPondPilot } from "./src/plugins/custom/remark-pondpilot.ts";
 import { remarkSteps } from "./src/plugins/custom/remark-steps.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
@@ -131,6 +134,7 @@ export default defineConfig({
       remarkPondPilot, // CUSTOM: PondPilot interactive SQL widgets
       remarkCarousel, // CUSTOM: Image carousel support
       remarkMarquee, // CUSTOM: Marquee/badge strip support
+      remarkFigure, // CUSTOM: Enhanced figure/image support
     ],
     rehypePlugins: [
       rehypeKatex,
@@ -148,6 +152,7 @@ export default defineConfig({
             ImageGallery: ImageGalleryComponent, // CUSTOM: Gallery component
             Carousel: CarouselComponent, // CUSTOM: Carousel component
             Marquee: MarqueeComponent, // CUSTOM: Marquee component
+            Figure: FigureComponent, // CUSTOM: Enhanced figure component
           },
         },
       ],

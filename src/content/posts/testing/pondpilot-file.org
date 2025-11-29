@@ -1,0 +1,63 @@
+#+TITLE: PondPilot with Files
+#+published: 2026-09-09
+#+description: Testing sql widgets
+#+draft: true
+#+tags: [demo, testing]
+#+category: Demo
+#+series: { name: "testing blog", part: 5 }
+#+duckdb: /data/blog.duckdb
+
+* Testing sql widget with local file
+
+#+begin_src sql :mdparams {pw}
+SELECT COUNT(*) AS rows_in_orders FROM main.orders;
+#+end_src
+
+** Sql basic operations
+
+#+begin_src sql :mdparams {pw}
+SELECT * FROM main.orders ORDER BY order_id LIMIT 5;
+#+end_src
+
+
+#+begin_src sql :mdparams {pw}
+SELECT 
+    o.order_id, 
+    o.customer, 
+    c.tier, 
+    o.amount
+FROM main.orders o
+JOIN main.customers c USING(customer)
+ORDER BY o.order_id;
+#+end_src
+
+
+** Create New Table (will give ERROR)
+
+#+begin_src sql :mdparams {pw}
+CREATE OR REPLACE TABLE products AS
+SELECT * FROM (VALUES
+    (1, 'Widget', 29.99),
+    (2, 'Gadget', 49.50),
+    (3, 'Doohickey', 15.00),
+    (4, 'Thingamajig', 99.95),
+    (5, 'Whatsit', 10.00)
+) AS t(product_id, product_name, price);
+
+SELECT * FROM products;
+#+end_src
+
+*** Join New Table with Existing Data
+
+#+begin_src sql :mdparams {pw}
+SELECT 
+    o.order_id,
+    o.customer,
+    c.tier,
+    p.product_name,
+    o.amount as price
+FROM main.orders o
+JOIN main.customers c USING(customer)
+JOIN products p ON o.amount = p.price
+ORDER BY o.order_id;
+#+end_src

@@ -83,6 +83,18 @@ function Meta(meta)
             meta[name] = pandoc.MetaList(list)
         elseif lower_name == "title" or lower_name == "description" then
             meta[name] = pandoc.MetaString(value)
+        elseif lower_name == "series" then
+            -- Parse { name: "...", part: N } into MetaMap
+            local series_name = value:match('name:%s*"([^"]*)"')
+            local series_part = value:match('part:%s*(%d+)')
+            if series_name and series_part then
+                meta[name] = pandoc.MetaMap({
+                    name = pandoc.MetaString(series_name),
+                    part = pandoc.MetaString(series_part)
+                })
+            else
+                meta[name] = pandoc.MetaString(value)
+            end
         else
             meta[name] = pandoc.MetaString(value)
         end
