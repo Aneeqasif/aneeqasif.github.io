@@ -192,10 +192,16 @@ set width to 80%
 ![Workstation with shadow effect](/posts/workstation-grey.jpg)
 :::
 
-image with full width
+### image with full width
 
-:::figure{width="100%"}
 ![Out for a ride](/posts/bike.jpg)
+
+### Normal image
+![Out for a ride](/posts/bike.jpg)
+
+### Soft edges
+:::figure{width="30%" .soft-edges}
+![Morning coffee](/posts/bike.jpg)
 :::
 
 ### Float Right

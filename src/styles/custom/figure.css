@@ -203,6 +203,31 @@
     gap: 0.75rem;
   }
 
+  .enhanced-figure.soft-edges .enhanced-figure__img-wrapper {
+    mask-image: linear-gradient(
+        to bottom,
+        transparent,
+        black 10%,
+        black 90%,
+        transparent
+      ),
+      linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+
+    /* Standard property */
+    mask-composite: intersect;
+
+    /* WebKit prefix */
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent,
+        black 10%,
+        black 90%,
+        transparent
+      ),
+      linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-composite: source-in;
+  }
+
   /* Add padding when grid has shadow to prevent clipping */
   .enhanced-figure.shadow-effect .enhanced-figure__grid {
     padding: 0.5rem;

@@ -193,11 +193,15 @@
   /* Block images (image as only child of paragraph) - center them */
   p > img:only-child {
     @apply block mx-auto my-6;
+    max-width: 100%;
+    max-height: 80vh;
+    height: auto;
   }
 
   /* Images with siblings in paragraph - inline behavior */
   p > img:not(:only-child) {
     @apply inline-block align-middle my-1 rounded;
     max-height: 60vh;
+    max-width: 100%;
   }
 }

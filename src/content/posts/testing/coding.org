@@ -77,7 +77,6 @@ Empty blocks are not going to be exported
 * Sql Blocks
 
 #+begin_src jupyter-python :eval never :esql
-print("hello world")
 %%sql --save not_nulls --no-execute
 %%sql --save not_nulls --no-execute
 
@@ -87,7 +86,6 @@ WHERE bill_length_mm IS NOT NULL
 AND bill_depth_mm IS NOT NULL
 
 %sqlplot boxplot --column bill_length_mm bill_depth_mm --table not_nulls
-
 #+end_src
 
 

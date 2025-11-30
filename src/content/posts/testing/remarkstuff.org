@@ -190,6 +190,8 @@ This is a note with a custom title.
 
 ** Spicy Figures
 
+
+
 #+begin_export markdown
 set width to 80%
 
@@ -207,6 +209,12 @@ image with full width
 :::figure{width="100%"}
 ![Out for a ride](/posts/bike.jpg)
 :::
+
+### Soft edges
+:::figure{width="20%" .soft-edges}
+![Morning coffee](/posts/coffee-cup.png)
+:::
+
 #+end_export
 
 #+begin_export markdown
